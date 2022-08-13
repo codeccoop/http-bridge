@@ -42,8 +42,9 @@ add_action( 'admin_init', 'wpct_odoo_connect_settings_init' );
 function wpct_odoo_connect_textField_apiKey_render(  ) {
 
     $options = get_option( 'wpct_odoo_connect_settings' );
+    $current_api_key = $options['wpct_odoo_connect_textField_apiKey'] ? $options['wpct_odoo_connect_textField_apiKey'] : '';
     ?>
-    <input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_textField_apiKey]' value="<?php echo $options['wpct_odoo_connect_textField_apiKey']; ?>">
+    <input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_textField_apiKey]' value="<?php echo $current_api_key; ?>">
     <?php
 
 }
