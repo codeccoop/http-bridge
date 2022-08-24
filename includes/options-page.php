@@ -102,9 +102,8 @@ function iterate_forms($option_name)
     $result = GFAPI::get_forms();
     echo "<select name='odoo_forms_settings[" . $option_name . "]'>";
     echo '<option value="null" ' . $selected . '>Select a form</option>';
-
     foreach ($result as $key => $form) {
-        echo '<option value="' . $key . '" ' . (($options[$option_name] ? $options[$option_name] : 'null') == $key ? 'selected' : '') . '>' . $form['title'] . '</option>';
+        echo '<option value="' . $result[$key]['id'] . '" ' . (($options[$option_name] ? $options[$option_name] : 'null') == $result[$key]['id']  ? 'selected' : '') . '>' . $form['title'] . '</option>';
     }
     echo "</select>";
 }
