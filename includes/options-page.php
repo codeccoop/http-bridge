@@ -83,6 +83,81 @@ function wpct_odoo_connect_settings_init()
         'odooConnectSettingsPage',
         'Dropdown_odooConnectSettingsPage_section'
     );
+
+    register_setting('odooConnectSettingsPage', 'accions_energetiques_mapping_settings');
+    add_settings_section('accionsEnergetiquesMapping_section',
+    'Accións Energétiques mapping',
+    'accionsEnergetiquesMapping_callback', 
+    'odooConnectSettingsPage' );
+
+    add_settings_field(
+        'generacio',
+        __('Generació renovable comunitaria id', 'text'),
+        'generacioRenovableComunitariaMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+
+    add_settings_field(
+        'eficiencia',
+        __('Eficiencia energètica id', 'text'),
+        'eficienciaEnergeticaMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+
+    add_settings_field(
+        'mobilitat',
+        __('Mobilitat sostenible id', 'text'),
+        'mobilitatSostenibleMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+    
+    ## Add setting field for Formació ciutadana    
+    add_settings_field(
+        'formacio',
+        __('Formació ciutadana id', 'text'),
+        'formacioCiutadanaMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+
+    ## Add seting field for Energia tèrmica i climatització
+    add_settings_field(
+        'termica',
+        __('Energia tèrmica i climatització id', 'text'),
+        'energiaTermicaIClimatitzacioMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+
+    ## Add setting fields for Compres col·lectives, Subministrament d'energia 100% renovable and Agregació i flexibilitat de la demanda
+
+    add_settings_field(
+        'compres',
+        __('Compres col·lectives id', 'text'),
+        'compresCollectivesMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+
+    add_settings_field(
+        'subministrament',
+        __('Subministrament d\'energia 100% renovable id', 'text'),
+        'subministramentEnergiaRenovableMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+
+    add_settings_field(
+        'agregacio',
+        __('Agregació i flexibilitat de la demanda id', 'text'),
+        'agregacioIFlexibilitatDemandMapping_render',
+        'odooConnectSettingsPage',
+        'accionsEnergetiquesMapping_section'
+    );
+    
 }
 
 add_action('admin_init', 'wpct_odoo_connect_settings_init');
@@ -146,6 +221,70 @@ function wpct_odoo_connect_coord_id_render()
     echo "<input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_coord_id]' value='" . $coord_id . "'>";
 }
 
+function generacioRenovableComunitariaMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('generacioRenovableComunitariaMapping', $options) ? $generacioRenovableComunitariaMapping = $options['generacioRenovableComunitariaMapping'] : $generacioRenovableComunitariaMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[generacio]' value='" . $generacioRenovableComunitariaMapping . "'>";
+}
+
+function eficienciaEnergeticaMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('eficienciaEnergeticaMapping', $options) ? $eficienciaEnergeticaMapping = $options['eficienciaEnergeticaMapping'] : $eficienciaEnergeticaMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[eficiencia]' value='" . $eficienciaEnergeticaMapping . "'>";
+}
+
+function mobilitatSostenibleMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('mobilitatSostenibleMapping', $options) ? $mobilitatSostenibleMapping = $options['mobilitatSostenibleMapping'] : $mobilitatSostenibleMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[mobilitat]' value='" . $mobilitatSostenibleMapping . "'>";
+}
+
+function formacioCiutadanaMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('formacioCiutadanaMapping', $options) ? $formacioCiutadanaMapping = $options['formacioCiutadanaMapping'] : $formacioCiutadanaMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[formacio]' value='" . $formacioCiutadanaMapping . "'>";
+}
+
+function energiaTermicaIClimatitzacioMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('energiaTermicaIClimatitzacioMapping', $options) ? $energiaTermicaIClimatitzacioMapping = $options['energiaTermicaIClimatitzacioMapping'] : $energiaTermicaIClimatitzacioMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[termica]' value='" . $energiaTermicaIClimatitzacioMapping . "'>";
+}
+
+function compresCollectivesMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('compresCollectivesMapping', $options) ? $compresCollectivesMapping = $options['compresCollectivesMapping'] : $compresCollectivesMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[compres]' value='" . $compresCollectivesMapping . "'>";
+}
+
+function subministramentEnergiaRenovableMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('subministramentEnergiaRenovableMapping', $options) ? $subministramentEnergiaRenovableMapping = $options['subministramentEnergiaRenovableMapping'] : $subministramentEnergiaRenovableMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[subministrament]' value='" . $subministramentEnergiaRenovableMapping . "'>";
+}
+
+function agregacioIFlexibilitatDemandMapping_render()
+{
+
+    $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
+    key_exists('agregacioIFlexibilitatDemandMapping', $options) ? $agregacioIFlexibilitatDemandMapping = $options['agregacioIFlexibilitatDemandMapping'] : $agregacioIFlexibilitatDemandMapping = '';
+    echo "<input type='text' name='accions_energetiques_mapping_settings[agregacio]' value='" . $agregacioIFlexibilitatDemandMapping . "'>";
+}
+
 
 /**
  * Callbacks for the settings sections
@@ -163,6 +302,11 @@ function wpct_odoo_cood_id_section_callback()
 function Odoo_forms_settings_section_callback()
 {
     echo __('Asign the utm.source field to each form', 'dropdown');
+}
+
+function accionsEnergetiquesMapping_callback()
+{
+    echo __('Map values from Accions Energétiques select to backend settings', 'accionsEnergetiquesMapping');
 }
 
 /**
