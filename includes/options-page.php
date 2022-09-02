@@ -225,7 +225,7 @@ function generacioRenovableComunitariaMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('generacioRenovableComunitariaMapping', $options) ? $generacioRenovableComunitariaMapping = $options['generacioRenovableComunitariaMapping'] : $generacioRenovableComunitariaMapping = '';
+    key_exists('generacio', $options) ? $generacioRenovableComunitariaMapping = $options['generacio'] : $generacioRenovableComunitariaMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[generacio]' value='" . $generacioRenovableComunitariaMapping . "'>";
 }
 
@@ -233,7 +233,7 @@ function eficienciaEnergeticaMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('eficienciaEnergeticaMapping', $options) ? $eficienciaEnergeticaMapping = $options['eficienciaEnergeticaMapping'] : $eficienciaEnergeticaMapping = '';
+    key_exists('eficiencia', $options) ? $eficienciaEnergeticaMapping = $options['eficiencia'] : $eficienciaEnergeticaMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[eficiencia]' value='" . $eficienciaEnergeticaMapping . "'>";
 }
 
@@ -241,7 +241,7 @@ function mobilitatSostenibleMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('mobilitatSostenibleMapping', $options) ? $mobilitatSostenibleMapping = $options['mobilitatSostenibleMapping'] : $mobilitatSostenibleMapping = '';
+    key_exists('mobilitat', $options) ? $mobilitatSostenibleMapping = $options['mobilitat'] : $mobilitatSostenibleMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[mobilitat]' value='" . $mobilitatSostenibleMapping . "'>";
 }
 
@@ -249,7 +249,7 @@ function formacioCiutadanaMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('formacioCiutadanaMapping', $options) ? $formacioCiutadanaMapping = $options['formacioCiutadanaMapping'] : $formacioCiutadanaMapping = '';
+    key_exists('formacio', $options) ? $formacioCiutadanaMapping = $options['formacio'] : $formacioCiutadanaMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[formacio]' value='" . $formacioCiutadanaMapping . "'>";
 }
 
@@ -257,7 +257,7 @@ function energiaTermicaIClimatitzacioMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('energiaTermicaIClimatitzacioMapping', $options) ? $energiaTermicaIClimatitzacioMapping = $options['energiaTermicaIClimatitzacioMapping'] : $energiaTermicaIClimatitzacioMapping = '';
+    key_exists('termica', $options) ? $energiaTermicaIClimatitzacioMapping = $options['termica'] : $energiaTermicaIClimatitzacioMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[termica]' value='" . $energiaTermicaIClimatitzacioMapping . "'>";
 }
 
@@ -265,7 +265,7 @@ function compresCollectivesMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('compresCollectivesMapping', $options) ? $compresCollectivesMapping = $options['compresCollectivesMapping'] : $compresCollectivesMapping = '';
+    key_exists('compres', $options) ? $compresCollectivesMapping = $options['compres'] : $compresCollectivesMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[compres]' value='" . $compresCollectivesMapping . "'>";
 }
 
@@ -273,7 +273,7 @@ function subministramentEnergiaRenovableMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('subministramentEnergiaRenovableMapping', $options) ? $subministramentEnergiaRenovableMapping = $options['subministramentEnergiaRenovableMapping'] : $subministramentEnergiaRenovableMapping = '';
+    key_exists('subministrament', $options) ? $subministramentEnergiaRenovableMapping = $options['subministrament'] : $subministramentEnergiaRenovableMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[subministrament]' value='" . $subministramentEnergiaRenovableMapping . "'>";
 }
 
@@ -281,7 +281,7 @@ function agregacioIFlexibilitatDemandMapping_render()
 {
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
-    key_exists('agregacioIFlexibilitatDemandMapping', $options) ? $agregacioIFlexibilitatDemandMapping = $options['agregacioIFlexibilitatDemandMapping'] : $agregacioIFlexibilitatDemandMapping = '';
+    key_exists('agregacio', $options) ? $agregacioIFlexibilitatDemandMapping = $options['agregacio'] : $agregacioIFlexibilitatDemandMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[agregacio]' value='" . $agregacioIFlexibilitatDemandMapping . "'>";
 }
 
