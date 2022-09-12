@@ -168,7 +168,7 @@ add_action('admin_init', 'wpct_odoo_connect_settings_init');
  */
 function iterate_forms($option_name)
 {
-    $options = get_option('odoo_forms_settings');
+    $options = get_option('odoo_forms_settings') ? get_option('odoo_forms_settings') : [];
     $selected = 'disabled ';
     if (!key_exists($option_name, $options) || !$options) {
         $selected .= 'selected';
@@ -208,15 +208,16 @@ function General_newsletter_select_field_render()
 function wpct_odoo_connect_textField_apiKey_render()
 {
 
-    $options = get_option('wpct_odoo_connect_settings');
+    $options = get_option('wpct_odoo_connect_settings') ? get_option('wpct_odoo_connect_settings') : [];
     $current_api_key = $options['wpct_odoo_connect_textField_apiKey'] ? $options['wpct_odoo_connect_textField_apiKey'] : '';
-    echo "<input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_textField_apiKey]' value='" . $current_api_key . "'>'";
+    echo "<input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_textField_apiKey]' value='" . $current_api_key . "'> ";
 }
+
 
 function wpct_odoo_connect_coord_id_render()
 {
 
-    $options = get_option('wpct_odoo_connect_settings');
+    $options = get_option('wpct_odoo_connect_settings') ? get_option('wpct_odoo_connect_settings') : [];
     key_exists('wpct_odoo_connect_coord_id', $options) ? $coord_id = $options['wpct_odoo_connect_coord_id'] : $coord_id = '-1';
     echo "<input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_coord_id]' value='" . $coord_id . "'>";
 }
