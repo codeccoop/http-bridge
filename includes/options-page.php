@@ -77,8 +77,8 @@ function wpct_odoo_connect_settings_init()
         'Dropdown_odooConnectSettingsPage_section'
     );
     add_settings_field(
-        'general_newsletter_form',
-        __('Form - General Newsletter', 'dropdown'),
+        'ce_source_general_info',
+        __('Form - General Newsletter (ce_source_general_info)', 'dropdown'),
         'General_newsletter_select_field_render',
         'odooConnectSettingsPage',
         'Dropdown_odooConnectSettingsPage_section'
@@ -201,7 +201,7 @@ function Zone_interest_select_field_render()
 
 function General_newsletter_select_field_render()
 {
-    $option_name = 'general_newsletter_form';
+    $option_name = 'ce_source_general_info';
     iterate_forms($option_name);
 }
 
