@@ -12,15 +12,18 @@
  * @package         Wpct_Odoo_Connect
  */
 
- // Check plugin dependencies.
-if (!class_exists('GFAPI')) {
-    add_action('admin_notices', 'wpct_odoo_connect_admin_notices');
-    return;
-}
+// Plugin dependencies.
+// if (!class_exists('GFFormsModel') || !class_exists('GF_Webhooks')) {
+//     add_action('admin_notices', 'wpct_forms_admin_notices');
+//     return;
+// }
 
-function wpct_odoo_connect_admin_notices()
-{
-    echo '<div class="error"><p>' . __('WPCT Forms Maps Leads requires Gravity Forms and Gravity Forms Webhook', 'wpct-forms-map-lead') . '</p></div>';
-}
-
+// Options PAGE
 require_once "includes/options-page.php";
+
+// set API KEY on Odoo requests
+function wpct_forms_set_headers($request_headers, $feed, $entry, $form){
+    $ocSettings = get_option("wpct_odoo_connect_settings");
+    $request_headers['API-KEY'] = $ocSettings['wpct_odoo_connect_textField_apiKey'];
+    return $request_headers;
+}

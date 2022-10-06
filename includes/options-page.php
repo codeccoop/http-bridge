@@ -4,8 +4,7 @@
  * Define menu page.
  */
  
-function wpct_odoo_connect_add_admin_menu()
-{
+function wpct_odoo_connect_add_admin_menu(){
 
     add_options_page(
         'wpct_odoo_connect',
@@ -20,8 +19,7 @@ add_action('admin_menu', 'wpct_odoo_connect_add_admin_menu');
 /**
  * Define settings.
  */
-function wpct_odoo_connect_settings_init()
-{
+function wpct_odoo_connect_settings_init(){
 
     register_setting('odooConnectSettingsPage', 'wpct_odoo_connect_settings');
 
@@ -80,6 +78,20 @@ function wpct_odoo_connect_settings_init()
         'ce_source_general_info',
         __('Form - General Newsletter (ce_source_general_info)', 'dropdown'),
         'General_newsletter_select_field_render',
+        'odooConnectSettingsPage',
+        'Dropdown_odooConnectSettingsPage_section'
+    );
+    add_settings_field(
+        'ce_source_existing_ce_info',
+        __('Form - Single CE Newsletter (ce_source_existing_ce_info)', 'dropdown'),
+        'Single_newsletter_select_field_render',
+        'odooConnectSettingsPage',
+        'Dropdown_odooConnectSettingsPage_section'
+    );
+    add_settings_field(
+        'ce_source_existing_ce_contact',
+        __('Form - Single CE Contact (ce_source_existing_ce_contact)', 'dropdown'),
+        'Single_contact_select_field_render',
         'odooConnectSettingsPage',
         'Dropdown_odooConnectSettingsPage_section'
     );
@@ -166,8 +178,7 @@ add_action('admin_init', 'wpct_odoo_connect_settings_init');
 /**
  * Iterate Gravity Forms and extract the form IDs and names
  */
-function iterate_forms($option_name)
-{
+function iterate_forms($option_name){
     $options = get_option('odoo_forms_settings') ? get_option('odoo_forms_settings') : [];
     $selected = 'disabled ';
     if (!key_exists($option_name, $options) || !$options) {
@@ -187,26 +198,32 @@ function iterate_forms($option_name)
  * Render the forms
  */
 
-function New_community_select_field_render()
-{
+function New_community_select_field_render(){
     $option_name = 'ce_source_creation_ce_proposal';
     iterate_forms($option_name);
 }
 
-function Zone_interest_select_field_render()
-{
+function Zone_interest_select_field_render(){
     $option_name = 'ce_source_future_location_ce_info';
     iterate_forms($option_name);
 }
 
-function General_newsletter_select_field_render()
-{
+function General_newsletter_select_field_render(){
     $option_name = 'ce_source_general_info';
     iterate_forms($option_name);
 }
 
-function wpct_odoo_connect_textField_apiKey_render()
-{
+function Single_newsletter_select_field_render(){
+    $option_name = 'ce_source_existing_ce_info';
+    iterate_forms($option_name);
+}
+
+function Single_contact_select_field_render(){
+    $option_name = 'ce_source_existing_ce_contact';
+    iterate_forms($option_name);
+}
+
+function wpct_odoo_connect_textField_apiKey_render(){
 
     $options = get_option('wpct_odoo_connect_settings') ? get_option('wpct_odoo_connect_settings') : [];
     $current_api_key = $options['wpct_odoo_connect_textField_apiKey'] ? $options['wpct_odoo_connect_textField_apiKey'] : '';
@@ -214,72 +231,63 @@ function wpct_odoo_connect_textField_apiKey_render()
 }
 
 
-function wpct_odoo_connect_coord_id_render()
-{
+function wpct_odoo_connect_coord_id_render(){
 
     $options = get_option('wpct_odoo_connect_settings') ? get_option('wpct_odoo_connect_settings') : [];
     key_exists('wpct_odoo_connect_coord_id', $options) ? $coord_id = $options['wpct_odoo_connect_coord_id'] : $coord_id = '-1';
     echo "<input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_coord_id]' value='" . $coord_id . "'>";
 }
 
-function generacioRenovableComunitariaMapping_render()
-{
+function generacioRenovableComunitariaMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('generacio', $options) ? $generacioRenovableComunitariaMapping = $options['generacio'] : $generacioRenovableComunitariaMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[generacio]' value='" . $generacioRenovableComunitariaMapping . "'>";
 }
 
-function eficienciaEnergeticaMapping_render()
-{
+function eficienciaEnergeticaMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('eficiencia', $options) ? $eficienciaEnergeticaMapping = $options['eficiencia'] : $eficienciaEnergeticaMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[eficiencia]' value='" . $eficienciaEnergeticaMapping . "'>";
 }
 
-function mobilitatSostenibleMapping_render()
-{
+function mobilitatSostenibleMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('mobilitat', $options) ? $mobilitatSostenibleMapping = $options['mobilitat'] : $mobilitatSostenibleMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[mobilitat]' value='" . $mobilitatSostenibleMapping . "'>";
 }
 
-function formacioCiutadanaMapping_render()
-{
+function formacioCiutadanaMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('formacio', $options) ? $formacioCiutadanaMapping = $options['formacio'] : $formacioCiutadanaMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[formacio]' value='" . $formacioCiutadanaMapping . "'>";
 }
 
-function energiaTermicaIClimatitzacioMapping_render()
-{
+function energiaTermicaIClimatitzacioMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('termica', $options) ? $energiaTermicaIClimatitzacioMapping = $options['termica'] : $energiaTermicaIClimatitzacioMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[termica]' value='" . $energiaTermicaIClimatitzacioMapping . "'>";
 }
 
-function compresCollectivesMapping_render()
-{
+function compresCollectivesMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('compres', $options) ? $compresCollectivesMapping = $options['compres'] : $compresCollectivesMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[compres]' value='" . $compresCollectivesMapping . "'>";
 }
 
-function subministramentEnergiaRenovableMapping_render()
-{
+function subministramentEnergiaRenovableMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('subministrament', $options) ? $subministramentEnergiaRenovableMapping = $options['subministrament'] : $subministramentEnergiaRenovableMapping = '';
     echo "<input type='text' name='accions_energetiques_mapping_settings[subministrament]' value='" . $subministramentEnergiaRenovableMapping . "'>";
 }
 
-function agregacioIFlexibilitatDemandMapping_render()
-{
+function agregacioIFlexibilitatDemandMapping_render(){
 
     $options = get_option('accions_energetiques_mapping_settings') ? get_option('accions_energetiques_mapping_settings') : [];
     key_exists('agregacio', $options) ? $agregacioIFlexibilitatDemandMapping = $options['agregacio'] : $agregacioIFlexibilitatDemandMapping = '';
@@ -290,31 +298,26 @@ function agregacioIFlexibilitatDemandMapping_render()
 /**
  * Callbacks for the settings sections
  */
-function wpct_odoo_connect_settings_section_callback()
-{
+function wpct_odoo_connect_settings_section_callback(){
     echo __('Copy here your Odoo API key', 'wpct_odoo_connect');
 }
 
-function wpct_odoo_cood_id_section_callback()
-{
+function wpct_odoo_cood_id_section_callback(){
     echo __('Map values from WP to backend settings', 'wpct_odoo_cood_id');
 }
 
-function Odoo_forms_settings_section_callback()
-{
+function Odoo_forms_settings_section_callback(){
     echo __('Asign the utm.source field to each form', 'dropdown');
 }
 
-function accionsEnergetiquesMapping_callback()
-{
+function accionsEnergetiquesMapping_callback(){
     echo __('Map values from Accions Energétiques select to backend settings', 'accionsEnergetiquesMapping');
 }
 
 /**
  * Paint the settings page
  */
-function wpct_odoo_connect_options_page()
-{
+function wpct_odoo_connect_options_page(){
     echo "<form action='options.php' method='post'>";
     echo "<h2>WPCT Odoo Connect</h2>";
     settings_fields('odooConnectSettingsPage');
