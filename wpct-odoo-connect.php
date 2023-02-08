@@ -20,7 +20,6 @@
 
 // Options PAGE
 require_once "includes/options-page.php";
-
 // set API KEY on Odoo requests
 function wpct_forms_set_headers($request_headers, $feed, $entry, $form){
     $ocSettings = get_option("wpct_odoo_connect_settings");
