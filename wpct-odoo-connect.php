@@ -20,8 +20,17 @@
 
 // Options PAGE
 require_once "includes/options-page.php";
+
+// Define plugin dependencies
+$WPCT_OC_DEPENDENCIES = array(
+    'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
+);
+
+// Bind dependency warnings
+add_action('get_header', 'wpct_oc_notify_missing_dependencies', 90);
+
 // set API KEY on Odoo requests
-function wpct_forms_set_headers($request_headers, $feed, $entry, $form){
+function wpct_oc_set_headers($request_headers, $feed, $entry, $form){
     $ocSettings = get_option("wpct_odoo_connect_settings");
     $request_headers['API-KEY'] = $ocSettings['wpct_odoo_connect_textField_apiKey'];
     return $request_headers;
