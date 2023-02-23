@@ -30,7 +30,7 @@ $WPCT_OC_DEPENDENCIES = array(
 add_action('get_header', 'wpct_oc_notify_missing_dependencies', 90);
 
 // set API KEY on Odoo requests
-function wpct_oc_set_headers($request_headers, $feed, $entry, $form){
+function wpct_forms_set_headers($request_headers, $feed, $entry, $form){
     $ocSettings = get_option("wpct_odoo_connect_settings");
     $request_headers['API-KEY'] = $ocSettings['wpct_odoo_connect_textField_apiKey'];
     return $request_headers;
