@@ -35,5 +35,6 @@ wpct_oc_check_dependencies();
 function wpct_oc_set_headers($request_headers, $feed, $entry, $form)
 {
     $request_headers['API-KEY'] = wpct_oc_get_api_key();
+    $request_headers['Accept-Language'] = wpct_oc_accept_language_header();
     return $request_headers;
 }
