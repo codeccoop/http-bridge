@@ -17,6 +17,8 @@
 define('JWT_AUTH_SECRET_KEY', getenv('WPCT_OC_AUTH_SECRET') ? getenv('WPCT_OC_AUTH_SECRET') : '123456789');
 define('JWT_AUTH_CORS_ENABLE', true);
 
+define('WPCT_OC_DEFAULT_LOCALE', 'ca');
+
 // Options PAGE
 require_once "includes/options-page.php";
 
