@@ -12,5 +12,5 @@ function wpct_oc_user_locale()
 function wpct_oc_accept_language_header()
 {
     $locale = wpct_oc_user_locale();
-    return $locale;
+    return $locale . ', es;q=0.5';
 }
