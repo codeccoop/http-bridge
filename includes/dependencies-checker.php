@@ -28,12 +28,12 @@ function wpct_oc_admin_notices()
     $missings = wpct_oc_missing_dependencies();
     $list_items = array();
     foreach ($missings as $missing) {
-        $list_items[] = '<b>' . $missing . '</b>';
+        $list_items[] = '<li><b>' . $missing . '</b></li>';
     }
 
     $notice = '<div class="notice notice-warning" id="wpct-oc-warning">
        <p><b>WARNING:</b> WPCT Odoo Connect missing dependencies:</p>
-       <ul style="list-style-type: disct; padding-left: 1em;">' . implode(',', $list_items) . '</ul>
+       <ul style="list-style-type: decimal; padding-left: 1em;">' . implode(',', $list_items) . '</ul>
     </div>';
 
     echo $notice;

@@ -21,7 +21,7 @@ define('JWT_AUTH_CORS_ENABLE', true);
 require_once "includes/options-page.php";
 
 // Dependency checker
-require_once "includes/check-dependencies.php";
+require_once "includes/dependencies-checker.php";
 
 // Define plugin dependencies
 $WPCT_OC_DEPENDENCIES = array(
