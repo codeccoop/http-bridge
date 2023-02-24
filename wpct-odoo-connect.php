@@ -21,6 +21,7 @@ define('WPCT_OC_DEFAULT_LOCALE', 'ca');
 
 // Options PAGE
 require_once "includes/options-page.php";
+require_once 'includes/user-language.php';
 
 // Dependency checker
 require_once "includes/dependencies-checker.php";
