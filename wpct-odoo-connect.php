@@ -14,7 +14,7 @@
  */
 
 // JWT Authentication config
-define('JWT_AUTH_SECRET_KEY', getenv('WPCT_OC_AUTH_SECRET', '123456789'));
+define('JWT_AUTH_SECRET_KEY', getenv('WPCT_OC_AUTH_SECRET') ? getenv('WPCT_OC_AUTH_SECRET') : '123456789');
 define('JWT_AUTH_CORS_ENABLE', true);
 
 // Options PAGE
