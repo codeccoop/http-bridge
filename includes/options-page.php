@@ -65,7 +65,6 @@ function wpct_oc_settings_init()
  */
 function wpct_oc_api_key_render()
 {
-
     echo "<input type='text' name='wpct_oc_api_key' value='" . wpct_oc_get_api_key() . "'> ";
 }
 
@@ -83,5 +82,5 @@ function wpct_oc_settings_section_callback()
  */
 function wpct_oc_get_api_key()
 {
-    return get_option('wpct_oc_api_key') ? get_option('wpct_oc_api_key') : '';
+    return isset(get_option('wpct_oc_api_key')) ? get_option('wpct_oc_api_key') : '';
 }
