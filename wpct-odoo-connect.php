@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name:     Wpct Odoo Connect
  * Plugin URI:      https://git.coopdevs.org/coopdevs/website/wp/wp-plugins
@@ -12,16 +13,27 @@
  * @package         Wpct_Odoo_Connect
  */
 
-// Plugin dependencies.
-// if (!class_exists('GFFormsModel') || !class_exists('GF_Webhooks')) {
-//     add_action('admin_notices', 'wpct_forms_admin_notices');
-//     return;
-// }
+// JWT Authentication config
+define('JWT_AUTH_SECRET_KEY', getenv('WPCT_OC_AUTH_SECRET') ? getenv('WPCT_OC_AUTH_SECRET') : '123456789');
+define('JWT_AUTH_CORS_ENABLE', true);
 
 // Options PAGE
 require_once "includes/options-page.php";
+
+// Dependency checker
+require_once "includes/dependencies-checker.php";
+
+// Define plugin dependencies
+$WPCT_OC_DEPENDENCIES = array(
+    'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
+);
+
+// Plugin dependencies validation
+wpct_oc_check_dependencies();
+
 // set API KEY on Odoo requests
-function wpct_forms_set_headers($request_headers, $feed, $entry, $form){
+function wpct_forms_set_headers($request_headers, $feed, $entry, $form)
+{
     $ocSettings = get_option("wpct_odoo_connect_settings");
     $request_headers['API-KEY'] = $ocSettings['wpct_odoo_connect_textField_apiKey'];
     return $request_headers;
