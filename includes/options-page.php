@@ -82,5 +82,5 @@ function wpct_oc_settings_section_callback()
  */
 function wpct_oc_get_api_key()
 {
-    return isset(get_option('wpct_oc_api_key')) ? get_option('wpct_oc_api_key') : '';
+    return get_option('wpct_oc_api_key') ? get_option('wpct_oc_api_key') : '';
 }
