@@ -3,70 +3,85 @@
 /**
  * Define menu page.
  */
- 
-function wpct_odoo_connect_add_admin_menu(){
-
+add_action('admin_menu', 'wpct_oc_add_admin_menu');
+function wpct_oc_add_admin_menu()
+{
     add_options_page(
-        'wpct_odoo_connect',
+        'WPCT Odoo Connect',
         'WPCT Odoo Connect',
         'manage_options',
-        'wpct_odoo_connect',
-        'wpct_odoo_connect_options_page'
+        'wpct_oc_menu',
+        'wpct_oc_options_page'
     );
 }
-add_action('admin_menu', 'wpct_odoo_connect_add_admin_menu');
+
+/**
+ * Paint the settings page
+ */
+function wpct_oc_options_page()
+{
+    echo '<div class="wrap">';
+    echo '<h1>WPCT Odoo Connect</h1>';
+    echo '<form action="options.php" method="post">';
+    settings_fields('wpct_oc_options');
+    do_settings_sections('wpct_oc_options');
+    submit_button();
+    echo '</form>';
+    echo '</div>';
+}
 
 /**
  * Define settings.
  */
-function wpct_odoo_connect_settings_init(){
-
-    register_setting('odooConnectSettingsPage', 'wpct_odoo_connect_settings');
-
-    add_settings_section(
-        'wpct_odoo_connect_odooConnectSettingsPage_section',
-        __('API Key', 'wpct_odoo_connect'),
-        'wpct_odoo_connect_settings_section_callback',
-        'odooConnectSettingsPage'
+add_action('admin_init', 'wpct_oc_settings_init');
+function wpct_oc_settings_init()
+{
+    register_setting(
+        'wpct_oc_options',
+        'wpct_oc_api_key',
+        array(
+            'type' => 'string',
+            'description' => 'Odoo API key',
+            'show_in_rest' => false,
+        )
     );
-
+    add_settings_section(
+        'wpct_oc_api_settings',
+        __('Odoo API Settings', 'wpct_odoo_connect'),
+        'wpct_oc_settings_section_callback',
+        'wpct_oc_options'
+    );
     add_settings_field(
-        'wpct_odoo_connect_textField_apiKey',
+        'wpct_oc_api_key',
         __('API Key', 'wpct_odoo_connect'),
-        'wpct_odoo_connect_textField_apiKey_render',
-        'odooConnectSettingsPage',
-        'wpct_odoo_connect_odooConnectSettingsPage_section'
+        'wpct_oc_api_key_render',
+        'wpct_oc_options',
+        'wpct_oc_api_settings'
     );
 }
-
-add_action('admin_init', 'wpct_odoo_connect_settings_init');
 
 /**
  * Render the forms
  */
-function wpct_odoo_connect_textField_apiKey_render(){
+function wpct_oc_api_key_render()
+{
 
-    $options = get_option('wpct_odoo_connect_settings') ? get_option('wpct_odoo_connect_settings') : [];
-    $current_api_key = $options['wpct_odoo_connect_textField_apiKey'] ? $options['wpct_odoo_connect_textField_apiKey'] : '';
-    echo "<input type='text' name='wpct_odoo_connect_settings[wpct_odoo_connect_textField_apiKey]' value='" . $current_api_key . "'> ";
+    echo "<input type='text' name='wpct_oc_api_key' value='" . wpct_oc_get_api_key() . "'> ";
 }
 
 
 /**
  * Callbacks for the settings sections
  */
-function wpct_odoo_connect_settings_section_callback(){
+function wpct_oc_settings_section_callback()
+{
     echo __('Copy here your Odoo API key', 'wpct_odoo_connect');
 }
 
 /**
- * Paint the settings page
+ * API Key getter
  */
-function wpct_odoo_connect_options_page(){
-    echo "<form action='options.php' method='post'>";
-    echo "<h2>WPCT Odoo Connect</h2>";
-    settings_fields('odooConnectSettingsPage');
-    do_settings_sections('odooConnectSettingsPage');
-    submit_button();
-    echo "</form>";
+function wpct_oc_get_api_key()
+{
+    return get_option('wpct_oc_api_key') ? get_option('wpct_oc_api_key') : '';
 }
