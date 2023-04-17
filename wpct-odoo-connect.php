@@ -8,7 +8,7 @@
  * Author URI:      https://coopdevs.org
  * Text Domain:     wpct_odoo_connect
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         0.1.7
  *
  * @package         Wpct_Odoo_Connect
  */
