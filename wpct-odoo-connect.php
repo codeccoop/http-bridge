@@ -27,7 +27,7 @@ require_once 'includes/user-language.php';
 require_once "includes/dependencies-checker.php";
 
 // Define plugin dependencies
-$WPCT_OC_DEPENDENCIES = array(
+$GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
     'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
 );
 
