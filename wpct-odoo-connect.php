@@ -8,7 +8,7 @@
  * Author URI:      https://coopdevs.org
  * Text Domain:     wpct_odoo_connect
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         0.1.7
  *
  * @package         Wpct_Odoo_Connect
  */
@@ -27,7 +27,7 @@ require_once 'includes/user-language.php';
 require_once "includes/dependencies-checker.php";
 
 // Define plugin dependencies
-$WPCT_OC_DEPENDENCIES = array(
+$GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
     'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
 );
 

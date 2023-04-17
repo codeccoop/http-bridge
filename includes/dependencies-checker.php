@@ -2,7 +2,7 @@
 
 function wpct_oc_missing_dependencies()
 {
-    global $WPCT_OC_DEPENDENCIES;
+    $WPCT_OC_DEPENDENCIES = $GLOBALS['WPCT_OC_DEPENDENCIES'];
     $missings = array();
     foreach ($WPCT_OC_DEPENDENCIES as $name => $file) {
         if (!wpct_oc_is_plugin_active($file)) {
@@ -46,4 +46,3 @@ function wpct_oc_check_dependencies()
         add_action('admin_notices', 'wpct_oc_admin_notices');
     }
 }
-
