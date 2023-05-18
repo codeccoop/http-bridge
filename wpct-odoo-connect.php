@@ -26,6 +26,9 @@ require_once 'includes/user-language.php';
 // Dependency checker
 require_once "includes/dependencies-checker.php";
 
+// API utils
+require_once "includes/api-utils.php";
+
 // Define plugin dependencies
 $GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
     'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
@@ -34,7 +37,7 @@ $GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
 // Plugin dependencies validation
 wpct_oc_check_dependencies();
 
-// Middleware headers setter 
+// Middleware headers setter
 function wpct_oc_set_headers($request_headers, $feed, $entry, $form)
 {
     $request_headers['API-KEY'] = wpct_oc_get_api_key();
