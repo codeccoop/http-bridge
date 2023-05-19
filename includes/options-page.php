@@ -73,6 +73,23 @@ function wpct_oc_settings_init(){
         'wpct_oc_options',
         'wpct_oc_api_settings'
     );
+	// Admin notification receiver
+	register_setting(
+        'wpct_oc_options',
+        'wpct_oc_admin_notification_receiver',
+        array(
+            'type' => 'string',
+            'description' => 'Admin notification receiver',
+            'show_in_rest' => false,
+        )
+    );
+    add_settings_field(
+        'wpct_oc_admin_notification_receiver',
+        __('Admin notification receiver', 'wpct_odoo_connect'),
+        'wpct_oc_admin_notification_receiver_render',
+        'wpct_oc_options',
+        'wpct_oc_api_settings'
+    );
 }
 
 /**
@@ -85,6 +102,10 @@ function wpct_oc_odoo_base_url_render(){
 // API Key
 function wpct_oc_api_key_render(){
     echo "<input type='text' name='wpct_oc_api_key' value='" . wpct_oc_get_api_key() . "'> ";
+}
+// Admin notification receiver
+function wpct_oc_admin_notification_receiver_render(){
+    echo "<input type='text' name='wpct_oc_admin_notification_receiver' value='" . wpct_oc_get_admin_notification_receiver() . "'> ";
 }
 
 
@@ -105,4 +126,8 @@ function wpct_oc_get_odoo_base_url(){
 // API Key
 function wpct_oc_get_api_key(){
     return get_option('wpct_oc_api_key') ? get_option('wpct_oc_api_key') : '';
+}
+// Admin notification receiver
+function wpct_oc_get_admin_notification_receiver(){
+    return get_option('wpct_oc_admin_notification_receiver') ? get_option('wpct_oc_admin_notification_receiver') : '';
 }
