@@ -6,7 +6,7 @@ function wpct_oc_post_odoo($data, $endpoint)
 	if (isset($url['scheme'])) {
 		$post_url = $endpoint;
 	} else {
-		$post_url = wpct_oc_get_odoo_base_url() . $endpoint;
+		$post_url = preg_replace('/\/$/', '', wpct_oc_get_odoo_base_url()) . '/' . preg_replace('/^\//', '', $endpoint);
 	}
 
 	$post_data = json_encode($data);
