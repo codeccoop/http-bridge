@@ -36,3 +36,35 @@ $GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
 
 // Plugin dependencies validation
 wpct_oc_check_dependencies();
+
+
+// Rest API User
+add_action('admin_init', 'wpct_oc_init', 10);
+function wpct_oc_init()
+{
+    add_filter('wpct_dependencies_check', function ($dependencies) {
+        $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
+        return $dependencies;
+    });
+}
+
+register_activation_hook(
+    __FILE__,
+    'wpct_oc_activate'
+);
+function wpct_oc_activate()
+{
+    $user_id = wp_create_user('wpct_oc_user', 'wpct_oc_user', 'wpct_oc_user@' . $_SERVER['SERVER_NAME']);
+    if (is_wp_error($user_id)) {
+        throw new Exception($user_id->get_error_message());
+    }
+}
+
+register_deactivation_hook(__FILE__, 'wpct_oc_deactivate');
+function wpct_oc_deactivate()
+{
+    $user = get_user_by('login', 'wpct_oc_user');
+    if ($user) {
+        wp_delete_user($user->ID);
+    }
+}
