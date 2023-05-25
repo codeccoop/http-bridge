@@ -54,7 +54,13 @@ register_activation_hook(
 );
 function wpct_oc_activate()
 {
-    $user_id = wp_create_user('wpct_oc_user', 'wpct_oc_user', 'wpct_oc_user@' . $_SERVER['SERVER_NAME']);
+    $user_id = wp_insert_user(array(
+        'user_nicename' => 'WPCT OC User',
+        'user_login' => 'wpct_oc_user',
+        'user_pass' => 'wpct_oc_pass',
+        'user_email' => 'wpct_oc_user@' . $_SERVER['SERVER_NAME'],
+        'role' => 'editor',
+    ));
     if (is_wp_error($user_id)) {
         throw new Exception($user_id->get_error_message());
     }
