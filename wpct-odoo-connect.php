@@ -41,3 +41,12 @@ function wpct_oc_set_headers($request_headers, $feed, $entry, $form)
     $request_headers['Accept-Language'] = wpct_oc_accept_language_header();
     return $request_headers;
 }
+
+add_action('admin_init', 'wpct_oc_init', 10);
+function wpct_oc_init()
+{
+    add_filter('wpct_dependencies_check', function ($dependencies) {
+        $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
+        return $dependencies;
+    });
+}
