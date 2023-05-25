@@ -23,17 +23,6 @@ define('WPCT_OC_DEFAULT_LOCALE', getenv('WPCT_OC_DEFAULT_LOCALE') ? getenv('WPCT
 require_once "includes/options-page.php";
 require_once 'includes/user-language.php';
 
-// Dependency checker
-require_once "includes/dependencies-checker.php";
-
-// Define plugin dependencies
-$GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
-    'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
-);
-
-// Plugin dependencies validation
-wpct_oc_check_dependencies();
-
 // Middleware headers setter 
 function wpct_oc_set_headers($request_headers, $feed, $entry, $form)
 {
