@@ -25,7 +25,7 @@ require_once 'includes/user-language.php';
 
 // Plugin dependencies
 add_action('admin_init', 'wpct_oc_init', 10);
-function wpct_oc_init()
+function wpct_oc_init(){
     add_filter('wpct_dependencies_check', function ($dependencies) {
         $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
         return $dependencies;
@@ -61,13 +61,4 @@ function wpct_oc_deactivate()
     if ($user) {
         wp_delete_user($user->ID);
     }
-}
-
-add_action('admin_init', 'wpct_oc_init', 10);
-function wpct_oc_init()
-{
-    add_filter('wpct_dependencies_check', function ($dependencies) {
-        $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
-        return $dependencies;
-    });
 }
