@@ -23,31 +23,19 @@ define('WPCT_OC_DEFAULT_LOCALE', getenv('WPCT_OC_DEFAULT_LOCALE') ? getenv('WPCT
 require_once "includes/options-page.php";
 require_once 'includes/user-language.php';
 
-// Dependency checker
-require_once "includes/dependencies-checker.php";
-
-// API utils
-require_once "includes/api-utils.php";
-
-// Define plugin dependencies
-$GLOBALS['WPCT_OC_DEPENDENCIES'] = array(
-    'JWT Authentication' => 'jwt-authentication-for-wp-rest-api/jwt-auth.php'
-);
-
-// Plugin dependencies validation
-wpct_oc_check_dependencies();
-
-
-// Rest API User
+// Plugin dependencies
 add_action('admin_init', 'wpct_oc_init', 10);
 function wpct_oc_init()
-{
     add_filter('wpct_dependencies_check', function ($dependencies) {
         $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
         return $dependencies;
     });
 }
 
+// API utils
+require_once "includes/api-utils.php";
+
+// Rest API User
 register_activation_hook(
     __FILE__,
     'wpct_oc_activate'
@@ -73,4 +61,13 @@ function wpct_oc_deactivate()
     if ($user) {
         wp_delete_user($user->ID);
     }
+}
+
+add_action('admin_init', 'wpct_oc_init', 10);
+function wpct_oc_init()
+{
+    add_filter('wpct_dependencies_check', function ($dependencies) {
+        $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
+        return $dependencies;
+    });
 }
