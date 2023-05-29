@@ -23,19 +23,42 @@ define('WPCT_OC_DEFAULT_LOCALE', getenv('WPCT_OC_DEFAULT_LOCALE') ? getenv('WPCT
 require_once "includes/options-page.php";
 require_once 'includes/user-language.php';
 
-// Middleware headers setter 
-function wpct_oc_set_headers($request_headers, $feed, $entry, $form)
-{
-    $request_headers['API-KEY'] = wpct_oc_get_api_key();
-    $request_headers['Accept-Language'] = wpct_oc_accept_language_header();
-    return $request_headers;
-}
-
+// Plugin dependencies
 add_action('admin_init', 'wpct_oc_init', 10);
-function wpct_oc_init()
-{
+function wpct_oc_init(){
     add_filter('wpct_dependencies_check', function ($dependencies) {
         $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
         return $dependencies;
     });
+}
+
+// API utils
+require_once "includes/api-utils.php";
+
+// Rest API User
+register_activation_hook(
+    __FILE__,
+    'wpct_oc_activate'
+);
+function wpct_oc_activate()
+{
+    $user_id = wp_insert_user(array(
+        'user_nicename' => 'WPCT OC User',
+        'user_login' => 'wpct_oc_user',
+        'user_pass' => 'wpct_oc_pass',
+        'user_email' => 'wpct_oc_user@' . $_SERVER['SERVER_NAME'],
+        'role' => 'editor',
+    ));
+    if (is_wp_error($user_id)) {
+        throw new Exception($user_id->get_error_message());
+    }
+}
+
+register_deactivation_hook(__FILE__, 'wpct_oc_deactivate');
+function wpct_oc_deactivate()
+{
+    $user = get_user_by('login', 'wpct_oc_user');
+    if ($user) {
+        wp_delete_user($user->ID);
+    }
 }
