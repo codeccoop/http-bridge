@@ -25,7 +25,8 @@ require_once 'includes/user-language.php';
 
 // Plugin dependencies
 add_action('admin_init', 'wpct_oc_init', 10);
-function wpct_oc_init(){
+function wpct_oc_init()
+{
     add_filter('wpct_dependencies_check', function ($dependencies) {
         $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
         return $dependencies;
@@ -42,6 +43,8 @@ register_activation_hook(
 );
 function wpct_oc_activate()
 {
+    $user = get_user_by('login', 'wpct_oc_user');
+    if ($user) return;
     $user_id = wp_insert_user(array(
         'user_nicename' => 'WPCT OC User',
         'user_login' => 'wpct_oc_user',
