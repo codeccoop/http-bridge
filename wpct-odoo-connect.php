@@ -46,7 +46,7 @@ function wpct_oc_activate()
         'user_nicename' => 'WPCT OC User',
         'user_login' => 'wpct_oc_user',
         'user_pass' => 'wpct_oc_pass',
-        'user_email' => 'wpct_oc_user@' . $_SERVER['SERVER_NAME'],
+        'user_email' => 'wpct_oc_user@wpctoc.com',
         'role' => 'editor',
     ));
     if (is_wp_error($user_id)) {
