@@ -66,7 +66,7 @@ function wpct_oc_req_endpoint($endpoint)
 	if (isset($url['scheme'])) {
 		return $endpoint;
 	} else {
-		return preg_replace('/\/$/', '', wpct_oc_get_odoo_base_url()) . '/' . preg_replace('/^\//', '', $endpoint);
+		return preg_replace('/\/$/', '', wpct_oc_option_getter('wpct_oc_base_url')) . '/' . preg_replace('/^\//', '', $endpoint);
 	}
 }
 
@@ -75,7 +75,7 @@ function wpct_oc_req_headers($request_headers = array())
 {
 	$request_headers['Connection'] = 'keep-alive';
 	$request_headers['Accept'] = 'application/json';
-	$request_headers['API-KEY'] = wpct_oc_get_api_key();
+	$request_headers['API-KEY'] = wpct_oc_option_getter('wpct_oc_api_key');
 	$request_headers['Accept-Language'] = wpct_oc_accept_language_header();
 	return $request_headers;
 }
