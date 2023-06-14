@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:     Wpct Odoo Connect
- * Plugin URI:      https://git.coopdevs.org/coopdevs/website/wp/wp-plugins
+ * Plugin URI:      https://git.coopdevs.org/coopdevs/website/wp/wp-plugins/wpct-odoo-connect
  * Description:     Configure and connect to Odoo API
  * Author:          Coopdevs Treball SCCL
  * Author URI:      https://coopdevs.org
@@ -22,16 +22,6 @@ define('WPCT_OC_DEFAULT_LOCALE', getenv('WPCT_OC_DEFAULT_LOCALE') ? getenv('WPCT
 // Options PAGE
 require_once "includes/options-page.php";
 require_once 'includes/user-language.php';
-
-// Plugin dependencies
-add_action('admin_init', 'wpct_oc_init', 10);
-function wpct_oc_init()
-{
-    add_filter('wpct_dependencies_check', function ($dependencies) {
-        $dependencies['jwt-authentication-for-wp-rest-api/jwt-auth.php'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication</a>';
-        return $dependencies;
-    });
-}
 
 // API utils
 require_once "includes/api-utils.php";
@@ -65,3 +55,9 @@ function wpct_oc_deactivate()
         wp_delete_user($user->ID);
     }
 }
+
+// Plugin dependencies
+add_filter('wpct_dependencies_check', function ($dependencies) {
+    $dependencies['JWT Authentication for WP-API'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>';
+    return $dependencies;
+});
