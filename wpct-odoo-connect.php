@@ -17,8 +17,6 @@
 define('JWT_AUTH_SECRET_KEY', getenv('WPCT_OC_AUTH_SECRET') ? getenv('WPCT_OC_AUTH_SECRET') : '123456789');
 define('JWT_AUTH_CORS_ENABLE', true);
 
-define('WPCT_OC_DEFAULT_LOCALE', getenv('WPCT_OC_DEFAULT_LOCALE') ? getenv('WPCT_OC_DEFAULT_LOCALE') : 'ca');
-
 // Options PAGE
 require_once "includes/options-page.php";
 require_once 'includes/user-language.php';
@@ -31,12 +29,14 @@ register_activation_hook(
     __FILE__,
     'wpct_oc_activate'
 );
+
 function wpct_oc_activate()
 {
     $user = get_user_by('login', 'wpct_oc_user');
     if ($user) return;
+
     $user_id = wp_insert_user(array(
-        'user_nicename' => 'WPCT OC User',
+        'user_nicename' => 'Wpct OC User',
         'user_login' => 'wpct_oc_user',
         'user_pass' => 'wpct_oc_pass',
         'user_email' => 'wpct_oc_user@wpctoc.com',
@@ -59,5 +59,6 @@ function wpct_oc_deactivate()
 // Plugin dependencies
 add_filter('wpct_dependencies_check', function ($dependencies) {
     $dependencies['JWT Authentication for WP-API'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>';
+    $dependencies['Wpct String Translation'] = '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/">Wpct String Translation</a>';
     return $dependencies;
 });

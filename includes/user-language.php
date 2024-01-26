@@ -2,14 +2,12 @@
 
 function wpct_oc_user_locale()
 {
-    $language = apply_filters('wpml_post_language_details', null);
+    $language = apply_filters('wpct_st_current_language', null);
     if ($language) {
-        $locale = $language['locale'];
+        return $language['locale'];
     } else {
-        $locale = WPCT_OC_DEFAULT_LOCALE;
+        return get_locale();
     }
-
-    return $locale;
 }
 
 function wpct_oc_accept_language_header()
