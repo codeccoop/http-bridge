@@ -2,7 +2,7 @@
 
 function wpct_oc_user_locale()
 {
-    $locale = apply_filters('wpct_st_current_language', 'locale');
+    $locale = apply_filters('wpct_st_current_language', null, 'locale');
     if ($locale) return $locale;
 
     return get_locale();
