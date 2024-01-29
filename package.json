@@ -1,13 +1,12 @@
-
 {
-  "name": "wpct-odoo-connect",
+  "name": "wpct-http-backend",
   "version": "0.1.0",
   "main": "Gruntfile.js",
-  "author": "YOUR NAME HERE",
-  "scripts" : {
-    "start" : "grunt default" ,
-    "readme" : "grunt readme",
-    "i18n" : "grunt i18n"
+  "author": "Còdec Cooperativa",
+  "scripts": {
+    "start": "grunt default",
+    "readme": "grunt readme",
+    "i18n": "grunt i18n"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

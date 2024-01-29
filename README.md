@@ -2,22 +2,26 @@
 
 ## What's this pluggin for?
 
-This plugin connects WordPress with Odoo in a bidirectional way. The idea behind
+This plugin connects WordPress with backends in a bidirectional way. The idea behind
 the plugin is to allow CRUD (create, read, update, and delete) operations between
 the two realms.
 
 ## How does it work?
 
 The plugin implements GET, POST, PUT & DELETE http methods on php to perform
-requests from WP to Odoo. The connection headers are populated with two fields:
+requests from WP to any backend. The connection headers are populated with two fields:
 
-1. API-TOKEN: `<odoo-instance-token>`
-2. Accept-Language: `<wpml-current-languaga>`
+1. API-TOKEN: `<backend-instance-token>`
+2. Accept-Language: `<wp-current-locale>`
 
-With this two headers, WP can consume the Odoo API with localization.
-The `<odoo-instance-token>` is defined on the `settings/wpct-odoo-connect`
-as an input field. The `<wpml-current-language>` value is recovered from
-the [WPML](https://wpml.org/) plugin.
+With this two headers, WP can consume the backend's APIs with localization.
+The `<backend-instance-token>` is defined on the `settings/wpct-http-backend`
+as an input field. The `<wp-current-locale>` value is recovered from
+the [Wpct String Translation](https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/)
+plugin.
+
+The plugin expose the hook `'wpct_hb_headers'` as a filter to modify the headers
+array before send the request.
 
 On the other hand, the plugins has [JWT Authentication for WP REST API plugin](https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/)
 as a depedency. On top of this plugin, implements JWT authentication over
@@ -50,7 +54,5 @@ authentication method.
 The plugin supports enviroment variable usage as configuration. There are two env
 variables:
 
--   `WPCT_OC_AUTH_SECRET`: A character string to sign the jwt tokens. Default value
+-   `WPCT_HB_AUTH_SECRET`: A character string to sign the jwt tokens. Default value
     is '123456789'.
--   `WPCT_OC_DEFAULT_LOCALE`: An [ISO 639-1](https://ca.wikipedia.org/wiki/ISO_639-1)
-    locale code. Default value is 'ca'.
