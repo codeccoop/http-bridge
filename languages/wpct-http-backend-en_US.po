@@ -1,0 +1,49 @@
+# Copyright (C) 2024 Codec Cooperativa
+# This file is distributed under the same license as the Wpct Http Backend plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Wpct Http Backend 0.1.7\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpct-http-backend\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-01-29T19:35:27+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.9.0\n"
+"X-Domain: wpct-http-backend\n"
+
+#. Plugin Name of the plugin
+msgid "Wpct Http Backend"
+msgstr "Wpct Http Backend"
+
+#. Plugin URI of the plugin
+msgid "https://git.coopdevs.org/coopdevs/website/wp/wp-plugins/wpct-odoo-connect"
+msgstr "https://git.coopdevs.org/coopdevs/website/wp/wp-plugins/wpct-odoo-connect"
+
+#. Description of the plugin
+msgid "Configure and connect WP with Bakcend over HTTP requests"
+msgstr "Configure and connect WP with Bakcend over HTTP requests"
+
+#. Author of the plugin
+msgid "Codec Cooperativa"
+msgstr "Codec Cooperativa"
+
+#. Author URI of the plugin
+msgid "https://www.codeccoop.org"
+msgstr "https://www.codeccoop.org"
+
+# Options menu
+msgid "wpct-http-backend_general--title"
+msgstr "Wpct Http Backend"
+
+msgid "wpct-http-backend_general--description"
+msgstr "Configuration of the backend connection"
+
+msgid "wpct-http-backend_general__base_url--label"
+msgstr "Backend base URL"
+
+msgid "wpct-http-backend_general__api_key--label"
+msgstr "Backend API key"
+
