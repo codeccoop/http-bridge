@@ -2,8 +2,6 @@
 
 namespace WPCT_HB;
 
-use Exception;
-
 class Http_Client
 {
     public static function get($url, $headers = [])
