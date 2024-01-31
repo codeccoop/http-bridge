@@ -4,7 +4,7 @@ namespace WPCT_HB;
 
 /**
  * Plugin Name:     Wpct Http Backend
- * Plugin URI:      https://git.coopdevs.org/coopdevs/website/wp/wp-plugins/wpct-odoo-connect
+ * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/wpct-http-backend
  * Description:     Configure and connect WP with Bakcend over HTTP requests
  * Author:          Codec Cooperativa
  * Author URI:      https://www.codeccoop.org
@@ -23,13 +23,20 @@ if (!defined('ABSPATH')) {
 define('JWT_AUTH_SECRET_KEY', getenv('WPCT_HB_AUTH_SECRET') ? getenv('WPCT_HB_AUTH_SECRET') : '123456789');
 define('JWT_AUTH_CORS_ENABLE', true);
 
+require_once 'includes/class-singleton.php';
+require_once 'includes/class-plugin.php';
 require_once 'includes/class-menu.php';
 require_once 'includes/class-settings.php';
-require_once "includes/class-api.php";
+require_once "includes/class-http-client.php";
 
-class Plugin
+class Wpct_Http_Backend extends Plugin
 {
-    private $menu;
+    protected $name = 'Wpct Http Backed';
+    protected $textdomain = 'wpct-http-backend';
+    protected $dependencies = [
+        'JWT Authentication for WP-API' => '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>',
+        'Wpct String Translation' => '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/">Wpct String Translation</a>',
+    ];
 
     public static function activate()
     {
@@ -58,40 +65,19 @@ class Plugin
         }
     }
 
-    public function __construct()
+    public function init()
     {
-        $settings = new Settings();
-        $this->menu = new Menu('Wpct Http Backend', $settings);
-
-        load_plugin_textdomain(
-            'wpct-http-backend',
-            false,
-            dirname(plugin_basename(__FILE__)) . '/languages',
-        );
-    }
-
-    public function on_load()
-    {
-        // Plugin dependencies
-        add_filter('wpct_dependencies_check', function ($dependencies) {
-            $dependencies['JWT Authentication for WP-API'] = '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>';
-            $dependencies['Wpct String Translation'] = '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/">Wpct String Translation</a>';
-            return $dependencies;
-        });
-
-        $this->menu->on_load();
     }
 }
 
 register_deactivation_hook(__FILE__, function () {
-    Plugin::deactivate();
+    Wpct_Http_Backend::deactivate();
 });
 
 register_activation_hook(__FILE__, function () {
-    Plugin::activate();
+    Wpct_Http_Backend::activate();
 });
 
 add_action('plugins_loaded', function () {
-    $plugin = new Plugin();
-    $plugin->on_load();
+    $plugin = Wpct_Http_Backend::get_instance();
 }, 10);

@@ -68,7 +68,7 @@ class Http_Client
         if (isset($url_data['scheme'])) {
             return $url;
         } else {
-            $base_url = Http_Client::option_getter('base_url');
+            $base_url = Http_Client::option_getter('wpct-http-backend_general', 'base_url');
             return preg_replace('/\/$/', '', $base_url . '/' . preg_replace('/^\//', '', $url));
         }
     }
@@ -77,17 +77,17 @@ class Http_Client
     {
         $headers['Connection'] = 'keep-alive';
         $headers['Accept'] = 'application/json';
-        $headers['API-KEY'] = Http_Client::option_getter('api_key');
+        $headers['API-KEY'] = Http_Client::option_getter('wpct-http-backend_general', 'api_key');
         $headers['Accept-Language'] = Http_Client::get_locale();
 
-        return apply_filter('wpct_hb_headers', $headers, $method, $url);
+        return apply_filters('wpct_hb_headers', $headers, $method, $url);
     }
 
-    private static function option_getter($option)
+    private static function option_getter($setting, $option)
     {
-        $setting = get_option('wpct_hb');
+        $setting = get_option($setting);
         if (!$setting) {
-            throw new Exception('Wpct Http Backend: You should configure base url on plugin settings');
+            throw new \Exception('Wpct Http Backend: You should configure base url on plugin settings');
         }
 
         return isset($setting[$option]) ? $setting[$option] : null;
@@ -95,7 +95,7 @@ class Http_Client
 
     private static function get_locale()
     {
-        $locale = apply_filter('wpct_st_current_language', null, 'locale');
+        $locale = apply_filters('wpct_st_current_language', null, 'locale');
         if ($locale) return $locale;
 
         return get_locale();

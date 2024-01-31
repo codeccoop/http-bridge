@@ -6,8 +6,6 @@ require_once 'class-base-settings.php';
 
 class Settings extends BaseSettings
 {
-    public $group_name = 'wpct-http-backend';
-
     public function register()
     {
         $url = parse_url(get_site_url());
@@ -15,9 +13,9 @@ class Settings extends BaseSettings
         $this->register_setting(
             $setting_name,
             [
-                'base_url' => 'https://backend.' . $url['host'],
-                'api_key' => '123456789',
-            ]
+                'base_url' => 'http://example.' . $url['host'],
+                'api_key' => 'backend-api-key'
+            ],
         );
 
         $this->register_field('base_url', $setting_name);
