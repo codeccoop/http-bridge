@@ -2,9 +2,7 @@
 
 namespace WPCT_HB;
 
-require_once 'class-base-settings.php';
-
-class Settings extends BaseSettings
+class Settings extends Abstract\Settings
 {
     public function register()
     {

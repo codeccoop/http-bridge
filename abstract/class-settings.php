@@ -1,12 +1,12 @@
 <?php
 
-namespace WPCT_HB;
+namespace WPCT_HB\Abstract;
 
 class Undefined
 {
 };
 
-abstract class BaseSettings extends Singleton
+abstract class Settings extends Singleton
 {
 
     protected $group_name;

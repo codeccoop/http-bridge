@@ -2,7 +2,7 @@
 
 namespace WPCT_HB;
 
-class Menu extends Singleton
+class Menu extends Abstract\Singleton
 {
     private $name;
     private $settings;

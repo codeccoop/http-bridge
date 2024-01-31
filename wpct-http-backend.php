@@ -23,13 +23,15 @@ if (!defined('ABSPATH')) {
 define('JWT_AUTH_SECRET_KEY', getenv('WPCT_HB_AUTH_SECRET') ? getenv('WPCT_HB_AUTH_SECRET') : '123456789');
 define('JWT_AUTH_CORS_ENABLE', true);
 
-require_once 'includes/class-singleton.php';
-require_once 'includes/class-plugin.php';
+require_once 'abstract/class-singleton.php';
+require_once 'abstract/class-plugin.php';
+require_once 'abstract/class-settings.php';
+
 require_once 'includes/class-menu.php';
 require_once 'includes/class-settings.php';
 require_once "includes/class-http-client.php";
 
-class Wpct_Http_Backend extends Plugin
+class Wpct_Http_Backend extends Abstract\Plugin
 {
     protected $name = 'Wpct Http Backed';
     protected $textdomain = 'wpct-http-backend';
