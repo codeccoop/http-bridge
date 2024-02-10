@@ -2,6 +2,8 @@
 
 namespace WPCT_HB;
 
+require_once 'class-multipart.php';
+
 class Http_Client
 {
     public static function get($url, $headers = [])
@@ -29,6 +31,31 @@ class Http_Client
         return Http_Client::do_request($url, $args);
     }
 
+    public static function post_multipart($url, $data = [], $files = [], $headers = [])
+    {
+        $url = Http_Client::get_endpoint_url($url);
+        $multipart = new Multipart();
+        $multipart->add_array($data);
+        foreach ($files as $name => $path) {
+            $filename = basename($path);
+            $filetype = wp_check_filetype($filename);
+            if (!$filetype['type']) {
+                $filetype['type'] = mime_content_type($path);
+            }
+
+            $multipart->add_file($name, $path, $filetype['type']);
+        }
+        $headers = Http_Client::req_headers($headers, 'POST', $url);
+        $headers['Content-Type'] = $multipart->content_type();
+        $args = [
+            'method' => 'POST',
+            'headers' => $headers,
+            'body' => $multipart->data()
+        ];
+
+        return Http_Client::do_request($url, $args);
+    }
+
     public static function put($url, $data = [], $headers = [])
     {
         $url = Http_Client::get_endpoint_url($url);
@@ -39,6 +66,31 @@ class Http_Client
             'method' => 'PUT',
             'headers' => $headers,
             'body' => $payload
+        ];
+
+        return Http_Client::do_request($url, $args);
+    }
+
+    public static function put_multipart($url, $data = [], $files = [], $headers = [])
+    {
+        $url = Http_Client::get_endpoint_url($url);
+        $multipart = new Multipart();
+        $multipart->add_array($data);
+        foreach ($files as $name => $path) {
+            $filename = basename($path);
+            $filetype = wp_check_filetype($filename);
+            if (!$filetype['type']) {
+                $filetype['type'] = mime_content_type($path);
+            }
+
+            $multipart->add_file($name, $path, $filetype['type']);
+        }
+        $headers = Http_Client::req_headers($headers, 'PUT', $url);
+        $headers['Content-Type'] = $multipart->content_type();
+        $args = [
+            'method' => 'PUT',
+            'headers' => $headers,
+            'body' => $multipart->data()
         ];
 
         return Http_Client::do_request($url, $args);
@@ -114,10 +166,20 @@ function wpct_hb_post($url, $data = [], $headers = [])
     return Http_Client::post($url, $data, $headers);
 }
 
+function wpct_hn_post_multipart($url, $data = [], $files = [], $headers = [])
+{
+    return Http_Client::post_multipart($url, $data, $files, $headers);
+}
+
 // Performs a put request to Odoo
 function wpct_hb_put($url, $data = [], $headers = [])
 {
     return Http_Client::put($url, $data, $headers);
+}
+
+function wpct_hb_put_multipart($url, $data = [], $files = [], $headers = [])
+{
+    return Http_Client::put_multipart($url, $data, $files, $headers);
 }
 
 // Performs a delete request to Odoo
