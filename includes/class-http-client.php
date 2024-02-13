@@ -147,7 +147,7 @@ class Http_Client
 
     private static function get_locale()
     {
-        $locale = apply_filters('wpct_st_current_language', null, 'locale');
+        $locale = apply_filters('wpct_i18n_current_language', null, 'locale');
         if ($locale) return $locale;
 
         return get_locale();

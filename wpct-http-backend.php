@@ -37,7 +37,7 @@ class Wpct_Http_Backend extends Abstract\Plugin
     protected $textdomain = 'wpct-http-backend';
     protected $dependencies = [
         'JWT Authentication for WP-API' => '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>',
-        'Wpct String Translation' => '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/">Wpct String Translation</a>',
+        'Wpct i18n' => '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/">Wpct String Translation</a>',
     ];
 
     public static function activate()
