@@ -8,3 +8,4 @@ node_modules/
 *.tar.gz
 *.zip
 .nvimrc
+.php-cs-fixer.cache
