@@ -8,7 +8,6 @@ class Undefined
 
 abstract class Settings extends Singleton
 {
-
     protected $group_name;
     private $_defaults = [];
 
@@ -67,7 +66,21 @@ abstract class Settings extends Singleton
         );
     }
 
-    public function field_render($setting, $field, $value = new Undefined())
+    public function field_render()
+    {
+        $args = func_get_args();
+        $setting = $args[0];
+        $field = $args[1];
+        if (count($args) >= 3) {
+            $value = $args[3];
+        } else {
+            $value = new Undefined();
+        }
+
+        return $this->_field_render($setting, $field, $value);
+    }
+
+    private function _field_render($setting, $field, $value)
     {
         $is_root = false;
         if ($value instanceof Undefined) {
@@ -115,9 +128,11 @@ abstract class Settings extends Singleton
         $is_list = is_list($data);
         foreach (array_keys($data) as $key) {
             $fieldset .= '<tr>';
-            if (!$is_list) $fieldset .= "<th>{$key}</th>";
+            if (!$is_list) {
+                $fieldset .= "<th>{$key}</th>";
+            }
             $_field = $field . '][' . $key;
-            $fieldset .= "<td>{$this->field_render($setting,$_field,$data[$key])}</td>";
+            $fieldset .= "<td>{$this->field_render($setting, $_field, $data[$key])}</td>";
             $fieldset .= '</tr>';
         }
         $fieldset .= '</table>';
@@ -129,7 +144,7 @@ abstract class Settings extends Singleton
     {
         $defaults = $this->get_default($setting);
         ob_start();
-?>
+        ?>
         <div class="<?= $setting; ?>__<?= $field ?>--controls">
             <button class="button button-primary" data-action="add">Add</button>
             <button class="button button-secondary" data-action="remove">Remove</button>
@@ -147,7 +162,9 @@ abstract class Settings extends Singleton
     public function option_getter($setting, $option)
     {
         $setting = get_option($setting) ? get_option($setting) : [];
-        if (!key_exists($option, $setting)) return null;
+        if (!key_exists($option, $setting)) {
+            return null;
+        }
         return $setting[$option];
     }
 
@@ -160,7 +177,11 @@ abstract class Settings extends Singleton
 
 function is_list($arr)
 {
-    if (!is_array($arr)) return false;
-    if (sizeof($arr) === 0) return true;
+    if (!is_array($arr)) {
+        return false;
+    }
+    if (sizeof($arr) === 0) {
+        return true;
+    }
     return array_keys($arr) === range(0, count($arr) - 1);
 }
