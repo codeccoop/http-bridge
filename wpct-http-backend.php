@@ -10,7 +10,7 @@ namespace WPCT_HB;
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     wpct-http-backend
  * Domain Path:     /languages
- * Version:         1.0.0
+ * Version:         1.0.1
  *
  * @package         Wpct_Http_Backend
  */
