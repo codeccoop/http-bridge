@@ -72,7 +72,7 @@ abstract class Settings extends Singleton
         $setting = $args[0];
         $field = $args[1];
         if (count($args) >= 3) {
-            $value = $args[3];
+            $value = $args[2];
         } else {
             $value = new Undefined();
         }
