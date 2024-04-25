@@ -19,8 +19,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!defined('WPCT_HTTP_AUTH_SECRET')) {
+	define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
+}
+
 // JWT Authentication config
-define('JWT_AUTH_SECRET_KEY', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : defined('WPCT_HTTP_AUTH_SECRET') ? WPCT_HTTP_AUTH_SECRET : 123456789');
+define('JWT_AUTH_SECRET_KEY',  WPCT_HTTP_AUTH_SECRET);
 define('JWT_AUTH_CORS_ENABLE', true);
 
 require_once 'abstract/class-singleton.php';
