@@ -1,9 +1,9 @@
 <?php
 
-namespace WPCT_HB\Abstract;
+namespace WPCT_HTTP\Abstract;
 
-use WPCT_HB\Menu as Menu;
-use WPCT_HB\Settings as Settings;
+use WPCT_HTTP\Menu as Menu;
+use WPCT_HTTP\Settings as Settings;
 
 abstract class Plugin extends Singleton
 {

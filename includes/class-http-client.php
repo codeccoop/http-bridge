@@ -1,6 +1,6 @@
 <?php
 
-namespace WPCT_HB;
+namespace WPCT_HTTP;
 
 require_once 'class-multipart.php';
 
@@ -120,7 +120,7 @@ class Http_Client
         if (isset($url_data['scheme'])) {
             return $url;
         } else {
-            $base_url = Http_Client::option_getter('wpct-http-backend_general', 'base_url');
+            $base_url = Http_Client::option_getter('wpct-http-bridge_general', 'base_url');
             return preg_replace('/\/$/', '', $base_url . '/' . preg_replace('/^\//', '', $url));
         }
     }
@@ -129,17 +129,17 @@ class Http_Client
     {
         $headers['Connection'] = 'keep-alive';
         $headers['Accept'] = 'application/json';
-        $headers['API-KEY'] = Http_Client::option_getter('wpct-http-backend_general', 'api_key');
+        $headers['API-KEY'] = Http_Client::option_getter('wpct-http-bridge_general', 'api_key');
         $headers['Accept-Language'] = Http_Client::get_locale();
 
-        return apply_filters('wpct_hb_headers', $headers, $method, $url);
+        return apply_filters('wpct_http_headers', $headers, $method, $url);
     }
 
     private static function option_getter($setting, $option)
     {
         $setting = get_option($setting);
         if (!$setting) {
-            throw new \Exception('Wpct Http Backend: You should configure base url on plugin settings');
+            throw new \Exception('Wpct Http Bridge: You should configure base url on plugin settings');
         }
 
         return isset($setting[$option]) ? $setting[$option] : null;
@@ -155,13 +155,13 @@ class Http_Client
 }
 
 // Performs a get request to Odoo
-function wpct_hb_get($url, $headers = [])
+function wpct_http_get($url, $headers = [])
 {
     return Http_Client::get($url, $headers);
 }
 
 // Performs a post request to Odoo
-function wpct_hb_post($url, $data = [], $headers = [])
+function wpct_http_post($url, $data = [], $headers = [])
 {
     return Http_Client::post($url, $data, $headers);
 }
@@ -172,18 +172,18 @@ function wpct_hn_post_multipart($url, $data = [], $files = [], $headers = [])
 }
 
 // Performs a put request to Odoo
-function wpct_hb_put($url, $data = [], $headers = [])
+function wpct_http_put($url, $data = [], $headers = [])
 {
     return Http_Client::put($url, $data, $headers);
 }
 
-function wpct_hb_put_multipart($url, $data = [], $files = [], $headers = [])
+function wpct_http_put_multipart($url, $data = [], $files = [], $headers = [])
 {
     return Http_Client::put_multipart($url, $data, $files, $headers);
 }
 
 // Performs a delete request to Odoo
-function wpct_hb_delete($url, $headers = [])
+function wpct_http_delete($url, $headers = [])
 {
     return Http_Client::delete($url, $headers);
 }

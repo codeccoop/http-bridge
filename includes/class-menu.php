@@ -1,6 +1,6 @@
 <?php
 
-namespace WPCT_HB;
+namespace WPCT_HTTP;
 
 class Menu extends Abstract\Singleton
 {
@@ -50,7 +50,7 @@ class Menu extends Abstract\Singleton
         </div>
 <?php
         $output = ob_get_clean();
-        echo apply_filters('wpct_hb_menu_page_content', $output);
+        echo apply_filters('wpct_http_menu_page_content', $output);
     }
 
     public function get_settings()

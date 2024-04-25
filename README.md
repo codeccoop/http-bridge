@@ -1,4 +1,4 @@
-# WPCT Odoo Connect
+# Wpct Http bridge
 
 ## What's this pluggin for?
 
@@ -15,22 +15,22 @@ requests from WP to any backend. The connection headers are populated with two f
 2. Accept-Language: `<wp-current-locale>`
 
 With this two headers, WP can consume the backend's APIs with localization.
-The `<backend-instance-token>` is defined on the `settings/wpct-http-backend`
+The `<backend-instance-token>` is defined on the `settings/wpct-http-bridge`
 as an input field. The `<wp-current-locale>` value is recovered from
 the [Wpct String Translation](https://git.coopdevs.org/codeccoop/wp/wpct-string-translation/)
 plugin.
 
-The plugin expose the hook `'wpct_hb_headers'` as a filter to modify the headers
+The plugin expose the hook `'wpct_http_headers'` as a filter to modify the headers
 array before send the request.
 
 On the other hand, the plugins has [JWT Authentication for WP REST API plugin](https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/)
 as a depedency. On top of this plugin, implements JWT authentication over
 the WordPress Rest API that allow Odoo to perform CRUD operations against WP.
 
-JWT Authentication extends the WP user system. This means that Odoo should
+JWT Authentication extends the WP user system. This means that the backend should
 know some login credentials to generate access tokens. On install, the
-plugin will create a new WP User with login `wpct_oc_user` and password
-`wpct_oc_user`. Pleas, remember to change this user password and email to
+plugin will create a new WP User with login `wpct_http_user` and password
+`wpct_http_user`. Pleas, remember to change this user password and email to
 prevent security breaches.
 
 ### **Wordpress REST API**
@@ -54,5 +54,5 @@ authentication method.
 The plugin supports enviroment variable usage as configuration. There are two env
 variables:
 
--   `WPCT_HB_AUTH_SECRET`: A character string to sign the jwt tokens. Default value
+-   `WPCT_HTTP_AUTH_SECRET`: A character string to sign the jwt tokens. Default value
     is '123456789'.

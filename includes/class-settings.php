@@ -1,6 +1,6 @@
 <?php
 
-namespace WPCT_HB;
+namespace WPCT_HTTP;
 
 class Settings extends Abstract\Settings
 {

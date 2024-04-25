@@ -1,18 +1,18 @@
 <?php
 
-namespace WPCT_HB;
+namespace WPCT_HTTP;
 
 /**
- * Plugin Name:     Wpct Http Backend
- * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/wpct-http-backend
- * Description:     Configure and connect WP with Bakcend over HTTP requests
+ * Plugin Name:     Wpct Http Bridge
+ * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/wpct-http-bridge
+ * Description:     Connect WP with backends over HTTP requests
  * Author:          Codec Cooperativa
  * Author URI:      https://www.codeccoop.org
- * Text Domain:     wpct-http-backend
+ * Text Domain:     wpct-http
  * Domain Path:     /languages
- * Version:         1.0.1
+ * Version:         1.0.2
  *
- * @package         Wpct_Http_Backend
+ * @package         Wpct_Http
  */
 
 if (!defined('ABSPATH')) {
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // JWT Authentication config
-define('JWT_AUTH_SECRET_KEY', getenv('WPCT_HB_AUTH_SECRET') ? getenv('WPCT_HB_AUTH_SECRET') : '123456789');
+define('JWT_AUTH_SECRET_KEY', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : defined('WPCT_HTTP_AUTH_SECRET') ? WPCT_HTTP_AUTH_SECRET : 123456789');
 define('JWT_AUTH_CORS_ENABLE', true);
 
 require_once 'abstract/class-singleton.php';
@@ -31,10 +31,10 @@ require_once 'includes/class-menu.php';
 require_once 'includes/class-settings.php';
 require_once "includes/class-http-client.php";
 
-class Wpct_Http_Backend extends Abstract\Plugin
+class Wpct_Http_Bridge extends Abstract\Plugin
 {
-    protected $name = 'Wpct Http Backed';
-    protected $textdomain = 'wpct-http-backend';
+    protected $name = 'Wpct Http Bridge';
+    protected $textdomain = 'wpct-http-bridge';
     protected $dependencies = [
         'JWT Authentication for WP-API' => '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>',
         'Wpct i18n' => '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-i18n/">Wpct i18n</a>',
@@ -73,13 +73,13 @@ class Wpct_Http_Backend extends Abstract\Plugin
 }
 
 register_deactivation_hook(__FILE__, function () {
-    Wpct_Http_Backend::deactivate();
+    Wpct_Http_Bridge::deactivate();
 });
 
 register_activation_hook(__FILE__, function () {
-    Wpct_Http_Backend::activate();
+    Wpct_Http_Bridge::activate();
 });
 
 add_action('plugins_loaded', function () {
-    $plugin = Wpct_Http_Backend::get_instance();
+    $plugin = Wpct_Http_Bridge::get_instance();
 }, 10);

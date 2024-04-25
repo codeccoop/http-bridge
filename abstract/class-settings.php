@@ -1,6 +1,6 @@
 <?php
 
-namespace WPCT_HB\Abstract;
+namespace WPCT_HTTP\Abstract;
 
 class Undefined
 {
