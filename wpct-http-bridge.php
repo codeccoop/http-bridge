@@ -52,6 +52,23 @@ class Wpct_Http_Bridge extends Abstract\Plugin
         ],
     ];
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        add_filter('plugin_action_links', function ($links, $file) {
+            if ($file !== plugin_basename(__FILE__)) {
+                return $links;
+            }
+
+            $url = admin_url('options-general.php?page=wpct-http-bridge');
+            $label = __('Settings', 'wpct-http');
+            $link = "<a href='{$url}'>{$label}</a>";
+            array_unshift($links, $link);
+            return $links;
+        }, 5, 2);
+    }
+
     public static function activate()
     {
         $user = get_user_by('login', 'wpct_http_user');
