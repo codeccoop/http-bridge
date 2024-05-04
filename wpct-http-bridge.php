@@ -6,7 +6,7 @@ namespace WPCT_HTTP;
  * Plugin Name:     Wpct Http Bridge
  * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/wpct-http-bridge
  * Description:     Connect WP with backends over HTTP requests
- * Author:          Codec Cooperativa
+ * Author:          Codec
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     wpct-http
  * Domain Path:     /languages
@@ -20,11 +20,11 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('WPCT_HTTP_AUTH_SECRET')) {
-	define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
+    define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
 }
 
 // JWT Authentication config
-define('JWT_AUTH_SECRET_KEY',  WPCT_HTTP_AUTH_SECRET);
+define('JWT_AUTH_SECRET_KEY', WPCT_HTTP_AUTH_SECRET);
 define('JWT_AUTH_CORS_ENABLE', true);
 
 require_once 'abstract/class-singleton.php';
@@ -40,14 +40,24 @@ class Wpct_Http_Bridge extends Abstract\Plugin
     protected $name = 'Wpct Http Bridge';
     protected $textdomain = 'wpct-http-bridge';
     protected $dependencies = [
-        'JWT Authentication for WP-API' => '<a href="https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/">JWT Authentication for WP-API</a>',
-        'Wpct i18n' => '<a href="https://git.coopdevs.org/codeccoop/wp/wpct-i18n/">Wpct i18n</a>',
+        'jwt-authentication-for-wp-rest-api/jwt-auth.php' => [
+            'name' => 'JWT Authentication for WP-API',
+            'url' => 'https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/',
+            'download' => 'https://downloads.wordpress.org/plugin/jwt-authentication-for-wp-rest-api.1.3.4.zip',
+        ],
+        'wpct-i18n/wpct-i18n.php' => [
+            'name' => 'Wpct i18n',
+            'url' => 'https://git.coopdevs.org/codeccoop/wp/wpct-i18n/',
+            'download' => 'https://git.coopdevs.org/codeccoop/wp/wpct-i18n/-/releases/permalink/latest/downloads/plugins/wpct-i18n.zip'
+        ],
     ];
 
     public static function activate()
     {
         $user = get_user_by('login', 'wpct_http_user');
-        if ($user) return;
+        if ($user) {
+            return;
+        }
 
         $site_url = parse_url(get_site_url());
         $user_id = wp_insert_user([
