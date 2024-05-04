@@ -47,8 +47,8 @@ class Wpct_Http_Bridge extends Abstract\Plugin
         ],
         'wpct-i18n/wpct-i18n.php' => [
             'name' => 'Wpct i18n',
-            'url' => 'https://git.coopdevs.org/codeccoop/wp/wpct-i18n/',
-            'download' => 'https://git.coopdevs.org/codeccoop/wp/wpct-i18n/-/releases/permalink/latest/downloads/plugins/wpct-i18n.zip'
+            'url' => 'https://git.coopdevs.org/codeccoop/wp/plugins/wpct-i18n/',
+            'download' => 'https://git.coopdevs.org/codeccoop/wp/plugins/wpct-i18n/-/releases/permalink/latest/downloads/plugins/wpct-i18n.zip'
         ],
     ];
 
