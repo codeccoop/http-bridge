@@ -10,7 +10,7 @@ namespace WPCT_HTTP;
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     wpct-http
  * Domain Path:     /languages
- * Version:         1.0.2
+ * Version:         1.0.3
  *
  * @package         Wpct_Http
  */
