@@ -2,17 +2,17 @@
 # This file is distributed under the same license as the Wpct Http Bridge plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Wpct Http Bridge 0.1.7\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpct-http-bridge\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: Wpct Http Bridge 1.0.4\n"
+"Report-Msgid-Bugs-To: https://git.coopdevs.org/codeccoop/wp/plugin/wpct-http-bridge\n"
+"Last-Translator: Lucas García <lucas@codeccoop.org>\n"
+"Language-Team: English\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-01-29T19:35:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
-"X-Domain: wpct-http-bridge\n"
+"X-Domain: wpct-http\n"
 
 #. Plugin Name of the plugin
 msgid "Wpct Http Bridge"

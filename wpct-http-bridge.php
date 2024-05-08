@@ -1,7 +1,5 @@
 <?php
 
-namespace WPCT_HTTP;
-
 /**
  * Plugin Name:     Wpct Http Bridge
  * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/wpct-http-bridge
@@ -14,6 +12,8 @@ namespace WPCT_HTTP;
  *
  * @package         Wpct_Http
  */
+
+namespace WPCT_HTTP;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -38,6 +38,7 @@ require_once "includes/class-http-client.php";
 class Wpct_Http_Bridge extends Abstract\Plugin
 {
     protected $name = 'Wpct Http Bridge';
+	protected $index = 'wpct-http-bridge.php';
     protected $textdomain = 'wpct-http-bridge';
     protected $dependencies = [
         'jwt-authentication-for-wp-rest-api/jwt-auth.php' => [
@@ -62,7 +63,7 @@ class Wpct_Http_Bridge extends Abstract\Plugin
             }
 
             $url = admin_url('options-general.php?page=wpct-http-bridge');
-            $label = __('Settings', 'wpct-http');
+            $label = __('Settings');
             $link = "<a href='{$url}'>{$label}</a>";
             array_unshift($links, $link);
             return $links;
