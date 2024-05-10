@@ -34,9 +34,13 @@ class Http_Client
     public static function post_multipart($url, $data = [], $files = [], $headers = [])
     {
         $url = Http_Client::get_endpoint_url($url);
+
         $multipart = new Multipart();
         $multipart->add_array($data);
         foreach ($files as $name => $path) {
+            if (empty($path)) {
+                continue;
+            }
             $filename = basename($path);
             $filetype = wp_check_filetype($filename);
             if (!$filetype['type']) {
@@ -109,7 +113,9 @@ class Http_Client
     private static function do_request($url, $args)
     {
         $response = wp_remote_request($url, $args);
-        if (!is_wp_error($response)) return $response;
+        if (!is_wp_error($response)) {
+            return $response;
+        }
 
         return false;
     }
@@ -148,7 +154,9 @@ class Http_Client
     private static function get_locale()
     {
         $locale = apply_filters('wpct_i18n_current_language', null, 'locale');
-        if ($locale) return $locale;
+        if ($locale) {
+            return $locale;
+        }
 
         return get_locale();
     }
