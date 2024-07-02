@@ -1,0 +1,3 @@
+[submodule "submodules/i18n"]
+	path = submodules/i18n
+	url = git@git.coopdevs.org:codeccoop/wp/wpct-i18n.git
