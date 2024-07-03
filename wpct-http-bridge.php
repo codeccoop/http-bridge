@@ -15,11 +15,13 @@
 
 namespace WPCT_HTTP;
 
+use WPCT_ABSTRACT\Plugin;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!class_exists('Wpct_Http_Bridge')) :
+if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
     if (!defined('WPCT_HTTP_AUTH_SECRET')) {
         define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
@@ -35,7 +37,7 @@ if (!class_exists('Wpct_Http_Bridge')) :
     require_once 'includes/class-jwt.php';
     require_once 'includes/class-rest-controller.php';
 
-    class Wpct_Http_Bridge extends \WPCT_ABSTRACT\Plugin
+    class Wpct_Http_Bridge extends Plugin
     {
         protected $name = 'Wpct Http Bridge';
         protected $textdomain = 'wpct-http-bridge';
