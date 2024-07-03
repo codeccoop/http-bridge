@@ -2,6 +2,8 @@
 
 namespace WPCT_HTTP;
 
+use Exception;
+
 require_once 'class-multipart.php';
 
 class Http_Client
@@ -145,7 +147,7 @@ class Http_Client
     {
         $setting = get_option($setting);
         if (!$setting) {
-            throw new \Exception('Wpct Http Bridge: You should configure base url on plugin settings');
+            throw new Exception('Wpct Http Bridge: You should configure base url on plugin settings');
         }
 
         return isset($setting[$option]) ? $setting[$option] : null;

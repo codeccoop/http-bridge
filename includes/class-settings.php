@@ -2,7 +2,7 @@
 
 namespace WPCT_HTTP;
 
-class Settings extends Abstract\Settings
+class Settings extends \WPCT_ABSTRACT\Settings
 {
     public function register()
     {

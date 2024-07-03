@@ -19,99 +19,88 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!defined('WPCT_HTTP_AUTH_SECRET')) {
-    define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
-}
+if (!class_exists('Wpct_Http_Bridge')) :
 
-// JWT Authentication config
-define('JWT_AUTH_SECRET_KEY', WPCT_HTTP_AUTH_SECRET);
-define('JWT_AUTH_CORS_ENABLE', true);
+    if (!defined('WPCT_HTTP_AUTH_SECRET')) {
+        define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
+    }
 
-require_once 'abstract/class-singleton.php';
-require_once 'abstract/class-plugin.php';
-require_once 'abstract/class-settings.php';
+    require_once 'abstracts/class-singleton.php';
+    require_once 'abstracts/class-plugin.php';
+    require_once 'abstracts/class-settings.php';
 
-require_once 'includes/class-menu.php';
-require_once 'includes/class-settings.php';
-require_once "includes/class-http-client.php";
+    require_once 'includes/class-menu.php';
+    require_once 'includes/class-settings.php';
+    require_once 'includes/class-http-client.php';
 
-class Wpct_Http_Bridge extends Abstract\Plugin
-{
-    protected $name = 'Wpct Http Bridge';
-	protected $index = 'wpct-http-bridge.php';
-    protected $textdomain = 'wpct-http-bridge';
-    protected $dependencies = [
-        'jwt-authentication-for-wp-rest-api/jwt-auth.php' => [
-            'name' => 'JWT Authentication for WP-API',
-            'url' => 'https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/',
-            'download' => 'https://downloads.wordpress.org/plugin/jwt-authentication-for-wp-rest-api.1.3.4.zip',
-        ],
-        'wpct-i18n/wpct-i18n.php' => [
-            'name' => 'Wpct i18n',
-            'url' => 'https://git.coopdevs.org/codeccoop/wp/plugins/wpct-i18n/',
-            'download' => 'https://git.coopdevs.org/codeccoop/wp/plugins/wpct-i18n/-/releases/permalink/latest/downloads/plugins/wpct-i18n.zip'
-        ],
-    ];
-
-    public function __construct()
+    class Wpct_Http_Bridge extends \WPCT_ABSTRACT\Plugin
     {
-        parent::__construct();
+        protected $name = 'Wpct Http Bridge';
+        protected $textdomain = 'wpct-http-bridge';
 
-        add_filter('plugin_action_links', function ($links, $file) {
-            if ($file !== plugin_basename(__FILE__)) {
+        public function __construct()
+        {
+            parent::__construct();
+
+            add_filter('plugin_action_links', function ($links, $file) {
+                if ($file !== plugin_basename(__FILE__)) {
+                    return $links;
+                }
+
+                $url = admin_url('options-general.php?page=wpct-http-bridge');
+                $label = __('Settings');
+                $link = "<a href='{$url}'>{$label}</a>";
+                array_unshift($links, $link);
                 return $links;
+            }, 5, 2);
+
+            new REST_Controller();
+        }
+
+        public static function activate()
+        {
+            $user = get_user_by('login', 'wpct_http_user');
+            if ($user) {
+                return;
             }
 
-            $url = admin_url('options-general.php?page=wpct-http-bridge');
-            $label = __('Settings');
-            $link = "<a href='{$url}'>{$label}</a>";
-            array_unshift($links, $link);
-            return $links;
-        }, 5, 2);
-    }
+            $site_url = parse_url(get_site_url());
+            $user_id = wp_insert_user([
+                'user_nicename' => 'Wpct Http User',
+                'user_login' => 'wpct_http_user',
+                'user_pass' => 'wpct_http_pass',
+                'user_email' => 'wpct_http_user@' . $site_url['host'],
+                'role' => 'editor',
+            ]);
 
-    public static function activate()
-    {
-        $user = get_user_by('login', 'wpct_http_user');
-        if ($user) {
-            return;
+            if (is_wp_error($user_id)) {
+                throw new Exception($user_id->get_error_message());
+            }
         }
 
-        $site_url = parse_url(get_site_url());
-        $user_id = wp_insert_user([
-            'user_nicename' => 'Wpct Http User',
-            'user_login' => 'wpct_http_user',
-            'user_pass' => 'wpct_http_pass',
-            'user_email' => 'wpct_http_user@' . $site_url['host'],
-            'role' => 'editor',
-        ]);
+        public static function deactivate()
+        {
+            $user = get_user_by('login', 'wpct_http_user');
+            if ($user) {
+                wp_delete_user($user->ID);
+            }
+        }
 
-        if (is_wp_error($user_id)) {
-            throw new Exception($user_id->get_error_message());
+        public function init()
+        {
         }
     }
 
-    public static function deactivate()
-    {
-        $user = get_user_by('login', 'wpct_http_user');
-        if ($user) {
-            wp_delete_user($user->ID);
-        }
-    }
+    register_deactivation_hook(__FILE__, function () {
+        Wpct_Http_Bridge::deactivate();
+    });
 
-    public function init()
-    {
-    }
-}
+    register_activation_hook(__FILE__, function () {
+        Wpct_Http_Bridge::activate();
+    });
 
-register_deactivation_hook(__FILE__, function () {
-    Wpct_Http_Bridge::deactivate();
-});
+    add_action('plugins_loaded', function () {
+        $plugin = Wpct_Http_Bridge::get_instance();
+    }, 10);
 
-register_activation_hook(__FILE__, function () {
-    Wpct_Http_Bridge::activate();
-});
-
-add_action('plugins_loaded', function () {
-    $plugin = Wpct_Http_Bridge::get_instance();
-}, 10);
+endif;
