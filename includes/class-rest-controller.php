@@ -3,6 +3,7 @@
 namespace WPCT_HTTP;
 
 use Exception;
+use Error;
 use WP_Error;
 use WP_REST_Server;
 
@@ -17,7 +18,7 @@ class REST_Controller
     {
         return new WP_Error(
             $code,
-            __($message, 'wpct'),
+            __($message, 'wpct-http-bridge'),
             [
                 'status' => $status,
             ],
@@ -33,12 +34,12 @@ class REST_Controller
                 : null);
 
         if ($auth_header === null) {
-            return self::error('rest_unauthorized', 'Authorization header not found', 403);
+            throw new Exception('Authorization header not found', 400);
         }
 
         [ $token ] = sscanf($auth_header, 'Bearer %s');
         if (!$token) {
-            return self::error('rest_unauthorized', 'Authorization header malformed', 403);
+            throw new Exception('Authorization header malformed', 400);
         }
 
         return $token;
@@ -61,7 +62,7 @@ class REST_Controller
 
     private function init()
     {
-        register_rest_route("{$this->namespace}/v{$this->version}", '/auth', [
+        register_rest_route("{$this->namespace}/v{$this->version}", '/http-bridge/auth', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function () {
                 return $this->auth();
@@ -71,7 +72,7 @@ class REST_Controller
             }
         ]);
 
-        register_rest_route("{$this->namespace}/v{$this->version}", '/validate-token', [
+        register_rest_route("{$this->namespace}/v{$this->version}", '/http-bridge/validate-token', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => function () {
                 return $this->validate();
@@ -103,8 +104,8 @@ class REST_Controller
             'wpct_http_auth_response',
             [
                 'token' => $token,
-                'user_email' => $this->user->data->email,
-                'user_login' => $this->user->data->login,
+                'user_email' => $this->user->data->user_email,
+                'user_login' => $this->user->data->user_login,
                 'display_name' => $this->user->data->display_name,
             ],
             $this->user
@@ -118,8 +119,8 @@ class REST_Controller
             'wpct_http_validate_response',
             [
                 'token' => $token,
-                'user_email' => $this->user->data->email,
-                'user_login' => $this->user->data->login,
+                'user_email' => $this->user->data->user_email,
+                'user_login' => $this->user->data->user_login,
                 'display_name' => $this->user->data->display_name,
             ],
             $this->user
@@ -148,11 +149,18 @@ class REST_Controller
 
     private function validate_permission_callback()
     {
-        $token = self::get_auth();
+        try {
+            $token = self::get_auth();
+        } catch (Exception $e) {
+            return self::error('rest_unauthorized', $e->getMessage(), $e->getCode());
+        }
+
         try {
             $payload = (new JWT())->decode($token);
         } catch (Exception) {
             return self::error('rest_unauthorized', 'Invalid authorization token', 403);
+        } catch (Error) {
+            return self::error('rest_internal_error', 'Internal server error', 500);
         }
 
         if ($payload['iss'] !== get_bloginfo('url')) {
@@ -160,11 +168,11 @@ class REST_Controller
         }
 
         $now = time();
-        if ($payload['exp'] >= $now) {
+        if ($payload['exp'] <= $now) {
             return self::error('rest_unauthorized', 'The token is expired', 403);
         }
 
-        if ($payload['nbf'] <= $now) {
+        if ($payload['nbf'] >= $now) {
             return self::error('rest_unauthorized', 'The token is not valid yet', 403);
         }
 
@@ -193,8 +201,9 @@ class REST_Controller
             return $user_id;
         }
 
-        $auth = self::get_auth();
-        if (!$auth) {
+        try {
+            $auth = self::get_auth();
+        } catch (Exception) {
             return $user_id;
         }
 
@@ -206,9 +215,11 @@ class REST_Controller
             }
 
             return $user_id;
+        } catch (Error) {
+            return $user_id;
         }
 
-        return (int) $payload->data->user_id;
+        return (int) $payload['data']['user_id'];
     }
 
     private function rest_pre_dispatch($req)
