@@ -31,7 +31,7 @@ package:
   image: javieraviles/zip:latest
   stage: package
   script:      
-    - 'zip -r $ZIP * -x "*node_modules*" -x "*bin/*" -x "*tests/*" -x "*.gitignore" -x "*.gitlab-ci.yml" -x "*.gitmodules" -x "*phpunit.xml.dist" -x "*README.md" -x "*Gruntfile.js" -x "*package.json" -x "*package-lock.json" -x "*.travis.yml" -x "*.editorconfig" -x "*.ditignore" -x "*src/*"'
+    - 'zip -r $ZIP * -x "*node_modules*" -x "*bin/*" -x "*tests/*" -x "*.gitignore" -x "*.gitlab-ci.yml" -x "*.gitmodules" -x "*phpunit.xml.dist" -x "*README.md" -x "*Gruntfile.js" -x "*package.json" -x "*package-lock.json" -x "*.travis.yml" -x "*.editorconfig" -x "*.distignore" -x "*src/*"'
     - 'ls -lah'
   artifacts:
     paths:
