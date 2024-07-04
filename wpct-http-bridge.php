@@ -29,6 +29,7 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
     require_once 'abstracts/class-singleton.php';
     require_once 'abstracts/class-plugin.php';
+    require_once 'abstracts/class-menu.php';
     require_once 'abstracts/class-settings.php';
 
     require_once 'includes/class-menu.php';
@@ -39,8 +40,10 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
     class Wpct_Http_Bridge extends Plugin
     {
-        protected $name = 'Wpct Http Bridge';
-        protected $textdomain = 'wpct-http-bridge';
+        public static $name = 'Wpct Http Bridge';
+        public static $textdomain = 'wpct-http-bridge';
+
+        protected static $menu_class = '\WPCT_HTTP\Menu';
 
         public function __construct()
         {
@@ -63,31 +66,10 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
         public static function activate()
         {
-            $user = get_user_by('login', 'wpct_http_user');
-            if ($user) {
-                return;
-            }
-
-            $site_url = parse_url(get_site_url());
-            $user_id = wp_insert_user([
-                'user_nicename' => 'Wpct Http User',
-                'user_login' => 'wpct_http_user',
-                'user_pass' => 'wpct_http_pass',
-                'user_email' => 'wpct_http_user@' . $site_url['host'],
-                'role' => 'editor',
-            ]);
-
-            if (is_wp_error($user_id)) {
-                throw new Exception($user_id->get_error_message());
-            }
         }
 
         public static function deactivate()
         {
-            $user = get_user_by('login', 'wpct_http_user');
-            if ($user) {
-                wp_delete_user($user->ID);
-            }
         }
 
         public function init()
