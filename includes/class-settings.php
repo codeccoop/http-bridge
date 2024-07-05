@@ -13,12 +13,17 @@ class Settings extends BaseSettings
         $this->register_setting(
             $setting_name,
             [
-                'base_url' => 'http://example.' . $url['host'],
+                'base_url' => [
+                    'type' => 'string'
+                ],
+                'api_key' => [
+                    'type' => 'string'
+                ]
+            ],
+            [
+                'base_url' => 'http://' . $url['host'],
                 'api_key' => 'backend-api-key'
             ],
         );
-
-        $this->register_field('base_url', $setting_name);
-        $this->register_field('api_key', $setting_name);
     }
 }
