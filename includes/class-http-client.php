@@ -134,7 +134,7 @@ class Http_Client
             return (array) json_decode($response->body, true);
         };
 
-        if ($response->response['status'] !== 200) {
+        if ($response->response['code'] !== 200) {
             return new WP_Error(
                 'wpct_http_error',
                 __("Http error response status code: Request to {$url} with {$args['method']} method", 'wpct-http-bridge'),
