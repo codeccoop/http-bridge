@@ -2,6 +2,7 @@
 
 namespace WPCT_HTTP;
 
+use WP_Error;
 use Exception;
 
 require_once 'class-multipart.php';
@@ -114,12 +115,37 @@ class Http_Client
 
     private static function do_request($url, $args)
     {
+        $request = ['url' => $url, 'args' => $args];
         $response = wp_remote_request($url, $args);
-        if (!is_wp_error($response)) {
+        if (is_wp_error($response)) {
+            $response->add_data(['request' => $request]);
             return $response;
         }
 
-        return false;
+        $response = (object) $response;
+        $response->json = function () use ($response) {
+            if (!isset($response->headers['content-type'])) {
+                return null;
+            }
+            if ($response->headers['content-type'] !== 'application/json') {
+                return null;
+            }
+
+            return (array) json_decode($response->body, true);
+        };
+
+        if ($response->response['status'] !== 200) {
+            return new WP_Error(
+                'wpct_http_error',
+                __("Http error response status code: Request to {$url} with {$args['method']} method", 'wpct-http-bridge'),
+                [
+                    'request' => $request,
+                    'response' => $response,
+                ],
+            );
+        }
+
+        return $response;
     }
 
     private static function get_endpoint_url($url)
