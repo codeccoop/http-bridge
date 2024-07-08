@@ -27,8 +27,8 @@ class REST_Controller
 
     private static function get_auth()
     {
-        $auth_header = isset($_SERVER['HTTP_AUHTORIZATION'])
-            ? sanitize_text_field($_SERVER['HTTP_AUHTORIZATION'])
+        $auth_header = isset($_SERVER['HTTP_AUTHORIZATION'])
+            ? sanitize_text_field($_SERVER['HTTP_AUTHORIZATION'])
             : (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
                 ? sanitize_text_field($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
                 : null);
