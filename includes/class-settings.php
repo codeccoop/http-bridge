@@ -2,21 +2,27 @@
 
 namespace WPCT_HTTP;
 
-class Settings extends Abstract\Settings
+use WPCT_ABSTRACT\Settings as BaseSettings;
+
+class Settings extends BaseSettings
 {
     public function register()
     {
         $url = parse_url(get_site_url());
-        $setting_name = $this->group_name . '_general';
         $this->register_setting(
-            $setting_name,
+            'general',
             [
-                'base_url' => 'http://example.' . $url['host'],
+                'base_url' => [
+                    'type' => 'string'
+                ],
+                'api_key' => [
+                    'type' => 'string'
+                ]
+            ],
+            [
+                'base_url' => 'http://' . $url['host'],
                 'api_key' => 'backend-api-key'
             ],
         );
-
-        $this->register_field('base_url', $setting_name);
-        $this->register_field('api_key', $setting_name);
     }
 }

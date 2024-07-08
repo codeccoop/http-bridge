@@ -1,0 +1,3 @@
+[submodule "abstracts"]
+	path = abstracts
+	url = ../wpct-plugin-abstracts.git
