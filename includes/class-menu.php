@@ -8,7 +8,7 @@ class Menu extends BaseMenu
 {
     protected static $settings_class = '\WPCT_HTTP\Settings';
 
-    protected function render_page()
+    protected function render_page($echo = true)
     {
         ob_start();
         ?><div class="wrap">
