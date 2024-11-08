@@ -12,16 +12,29 @@ class Settings extends BaseSettings
         $this->register_setting(
             'general',
             [
-                'base_url' => [
-                    'type' => 'string'
+                'backends' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'name' => ['type' => 'string'],
+                            'base_url' => ['type' => 'string'],
+                            'headers' => [
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                            ],
+                        ],
+                    ],
                 ],
-                'api_key' => [
-                    'type' => 'string'
-                ]
             ],
             [
-                'base_url' => 'http://' . $url['host'],
-                'api_key' => 'backend-api-key'
+                'backends' => [
+                    [
+                        'name' => 'ERP',
+                        'base_url' => 'https://erp.' . $url['host'],
+                        'headers' => ['Authorization: Bearer <backend-api-token>'],
+                    ],
+                ],
             ],
         );
     }
