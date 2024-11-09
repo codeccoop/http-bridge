@@ -9,6 +9,13 @@ require_once 'class-multipart.php';
 
 class Http_Client
 {
+    /**
+	* Default request settings.
+	*
+	* @since 3.0.0
+	*
+	* @var array $settings_defaults.
+	*/
     private const settings_defaults = [
         'params' => [],
         'data' => [],
@@ -82,7 +89,7 @@ class Http_Client
     * mimetype should be encoded before and passed in as string.
     * If $files is defined and is array, content type switches to multipart/form-data.
     *
-    * @sice 3.0.0
+    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
@@ -109,7 +116,7 @@ class Http_Client
     /**
     * Performs a POST request with multipart/form-data content type payload.
     *
-    * @sice 3.0.0
+    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
@@ -149,7 +156,7 @@ class Http_Client
     * mimetype should be encoded before and passed in as string.
     * If $files is defined and is array, content type switches to multipart/form-data.
     *
-    * @sice 3.0.0
+    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
@@ -176,7 +183,7 @@ class Http_Client
     /**
     * Performs a PUT request with multipart/form-data content type payload.
     *
-    * @sice 3.0.0
+    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
