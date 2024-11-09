@@ -8,7 +8,7 @@ require_once 'class-multipart.php';
 
 class Http_Client
 {
-    private static const settings_defaults = [
+    private const settings_defaults = [
 		'params' => [],
         'data' => [],
         'headers' => [

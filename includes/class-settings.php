@@ -21,7 +21,13 @@ class Settings extends BaseSettings
                             'base_url' => ['type' => 'string'],
                             'headers' => [
                                 'type' => 'array',
-                                'items' => ['type' => 'string'],
+                                'items' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'name' => ['type' => 'string'],
+                                        'value' => ['type' => 'string'],
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -32,7 +38,12 @@ class Settings extends BaseSettings
                     [
                         'name' => 'ERP',
                         'base_url' => 'https://erp.' . $url['host'],
-                        'headers' => ['Authorization: Bearer <backend-api-token>'],
+                        'headers' => [
+							[
+								'name' => 'Authorization',
+                                'value' => 'Bearer <backend-api-token>'
+							]
+						],
                     ],
                 ],
             ],
