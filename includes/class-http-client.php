@@ -7,16 +7,21 @@ use WP_Http;
 
 require_once 'class-multipart.php';
 
+/**
+ * HTTP Client.
+ *
+ * @since 3.0.0
+ */
 class Http_Client
 {
     /**
-	* Default request settings.
-	*
-	* @since 3.0.0
-	*
-	* @var array $settings_defaults.
-	*/
-    private const settings_defaults = [
+    * Default request arguments.
+    *
+    * @since 3.0.0
+    *
+    * @var array $args_defaults.
+    */
+    private const args_defaults = [
         'params' => [],
         'data' => [],
         'headers' => [
@@ -28,19 +33,19 @@ class Http_Client
     ];
 
     /**
-    * Fills request settings with defaults.
+    * Fills request arguments with defaults.
     *
     * @since 3.0.0
     *
-    * @param array $settings Request settings.
-    * @return array Request settings with defaults.
+    * @param array $args Request arguments.
+    * @return array $args Request arguments with defaults.
     */
-    public static function req_settings($settings = [])
+    public static function req_args($args = [])
     {
-        $settings = array_merge(Http_Client::settings_defaults, (array) $settings);
-        $settings['headers'] = Http_Client::req_headers($settings['headers']);
+        $args = array_merge(Http_Client::args_defaults, (array) $args);
+        $args['headers'] = Http_Client::req_headers($args['headers']);
 
-        return $settings;
+        return $args;
     }
 
     /**
@@ -72,7 +77,7 @@ class Http_Client
     * @param string $url Target url.
     * @param array $params Associative array with query params.
     * @param array $headers Associative array with HTTP headers.
-    * @return array Responsive representation or WP_Error.
+    * @return array|WP_Error $response Response data or error.
     */
     public static function get($url, $params = [], $headers = [])
     {
@@ -95,16 +100,15 @@ class Http_Client
     * @param array $data Associative array with the request payload.
     * @param array $headers Associative array with HTTP headers.
     * @param array $files Associative array with filename and paths.
-    * @return array Response representation or WP_Error.
+    * @return array|WP_Error $response Response data or error.
     */
     public static function post($url, $data, $headers, $files = null)
     {
-        if (is_array($files)) {
+        if (is_array($files) && !empty($files)) {
             return Http_Client::post_multipart($url, $data, $files, $headers);
         }
 
         $body = is_string($data) ? $data : json_encode($data);
-        $headers = Http_Client::req_headers($headers, 'POST', $url);
 
         return Http_Client::do_request($url, [
             'method' => 'POST',
@@ -122,7 +126,7 @@ class Http_Client
     * @param array $data Associative array with the request payload.
     * @param array $files Associative array with filename and paths.
     * @param array $headers Associative array with HTTP headers.
-    * @return array Response representation or WP_Error.
+    * @return array|WP_Error $response Response data or error.
     */
     public static function post_multipart($url, $data, $files, $headers)
     {
@@ -162,11 +166,11 @@ class Http_Client
     * @param array $data Associative array with the request payload.
     * @param array $headers Associative array with HTTP headers.
     * @param array $files Associative array with filename and paths.
-    * @return array Response representation or WP_Error.
+    * @return array|WP_Error $response Response data or error.
     */
     public static function put($url, $data, $headers, $files = null)
     {
-        if (is_array($files)) {
+        if (is_array($files) && !empty($files)) {
             return Http_Client::put_multipart($url, $data, $files, $headers);
         }
 
@@ -189,7 +193,7 @@ class Http_Client
     * @param array $data Associative array with the request payload.
     * @param array $files Associative array with filename and paths.
     * @param array $headers Associative array with HTTP headers.
-    * @return array Response representation or WP_Error.
+    * @return array|WP_Error $response Response data or error.
     */
     private static function put_multipart($url, $data, $files, $headers)
     {
@@ -223,7 +227,7 @@ class Http_Client
     * @param string $url Target url.
     * @param array $params Associative array with query params.
     * @param array $headers Associative array with HTTP headers.
-    * @return array Responsive representation or WP_Error.
+    * @return array|WP_Error $response Response data or error.
     */
     public static function delete($url, $params, $headers)
     {
@@ -241,7 +245,7 @@ class Http_Client
     *
     * @param  string  $url Target URL.
     * @param  array $args  WP_Http::request arguments.
-    * @return array Response representation.
+    * @return array|WP_Error $response Response data or error.
     */
     private static function do_request($url, $args)
     {
@@ -267,7 +271,7 @@ class Http_Client
         );
 
         $request = apply_filters('wpct_http_request_args', ['url' => $url, 'args' => $args]);
-        $response = WP_Http::request($request['url'], $request['args']);
+        $response = wp_remote_request($request['url'], $request['args']);
         if (is_wp_error($response)) {
             $response->add_data(['request' => $request]);
             return $response;
@@ -293,7 +297,7 @@ class Http_Client
     * @since 3.0.0
     *
     * @param array $headers Associative array with HTTP headers.
-    * @return array Associative array with HTTP headers.
+    * @return array $headers Associative array with HTTP headers.
     */
     private static function req_headers($headers)
     {
@@ -328,12 +332,12 @@ class Http_Client
 * @since 3.0.0
 *
 * @param string $url Target URL.
-* @param array $settings Associative array with request settings.
-* @return array Response representation or WP_Error.
+* @param array $args Associative array with request arguments.
+* @return array|WP_Error $response Response data or error.
 */
-function wpct_http_get($url, $settings = [])
+function wpct_http_get($url, $args = [])
 {
-    ['params' => $params, 'headers' => $headers ] = Http_Client::req_settings($settings);
+    ['params' => $params, 'headers' => $headers ] = Http_Client::req_args($args);
     return Http_Client::get($url, $params, $headers);
 }
 
@@ -343,12 +347,12 @@ function wpct_http_get($url, $settings = [])
 * @since 3.0.0
 *
 * @param string $url Target URL.
-* @param array $settings Associative array with request settings.
-* @return array Response representation or WP_Error.
+* @param array $args Associative array with request arguments.
+* @return array|WP_Error $response Response data or error.
 */
-function wpct_http_post($url, $settings = [])
+function wpct_http_post($url, $args = [])
 {
-    ['data' => $data, 'headers' => $headers, 'files' => $files ] = Http_Client::req_settings($settings);
+    ['data' => $data, 'headers' => $headers, 'files' => $files ] = Http_Client::req_args($args);
     return Http_Client::post($url, $data, $headers, $files);
 }
 
@@ -358,12 +362,12 @@ function wpct_http_post($url, $settings = [])
 * @since 3.0.0
 *
 * @param string $url Target URL.
-* @param array $settings Associative array with request settings.
-* @return array Response representation or WP_Error.
+* @param array $args Associative array with request arguments.
+* @return array|WP_Error $response Response data or error.
 */
-function wpct_http_put($url, $settings = [])
+function wpct_http_put($url, $arguments = [])
 {
-    ['data' => $data, 'headers' => $headers, 'files' => $files ] = Http_Client::req_settings($settings);
+    ['data' => $data, 'headers' => $headers, 'files' => $files ] = Http_Client::req_args($arguments);
     return Http_Client::put($url, $data, $headers, $files);
 }
 
@@ -373,11 +377,11 @@ function wpct_http_put($url, $settings = [])
 * @since 3.0.0
 *
 * @param string $url Target URL.
-* @param array $settings Associative array with request settings.
-* @return array Response representation or WP_Error.
+* @param array $args Associative array with request arguments.
+* @return array|WP_Error $response Response data or error.
 */
-function wpct_http_delete($url, $settings = [])
+function wpct_http_delete($url, $args = [])
 {
-    ['params' => $params, 'headers' => $headers ] = Http_Client::req_settings($settings);
+    ['params' => $params, 'headers' => $headers ] = Http_Client::req_args($args);
     return Http_Client::delete($url, $params, $headers);
 }

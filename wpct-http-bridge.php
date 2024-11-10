@@ -35,6 +35,7 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
     require_once 'includes/class-menu.php';
     require_once 'includes/class-settings.php';
     require_once 'includes/class-http-client.php';
+    require_once 'includes/class-http-backend.php';
     require_once 'includes/class-jwt.php';
     require_once 'includes/class-rest-controller.php';
 
