@@ -303,7 +303,8 @@ class Http_Client
         return array_merge([
             'host' => $_SERVER['HTTP_HOST'],
             'referer' => $_SERVER['HTTP_REFERER'],
-            'accept-language' => Http_Client::get_locale()
+			'accept-language' => Http_Client::get_locale(),
+			'content-type' => 'application/json',
         ], (array) $headers);
     }
 
