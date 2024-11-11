@@ -3,7 +3,6 @@
 namespace WPCT_HTTP;
 
 use WP_Error;
-use WP_Http;
 
 require_once 'class-multipart.php';
 
