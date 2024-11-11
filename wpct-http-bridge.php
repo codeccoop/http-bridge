@@ -8,7 +8,7 @@
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     wpct-http
  * Domain Path:     /languages
- * Version:         3.0.0
+ * Version:         3.0.1
  *
  * @package         Wpct_Http
  */
