@@ -4,8 +4,18 @@ namespace WPCT_HTTP;
 
 use WPCT_ABSTRACT\Settings as BaseSettings;
 
+/**
+ * Plugin settings.
+ *
+ * @since 1.0.0
+ */
 class Settings extends BaseSettings
 {
+    /**
+     * Register plugin settings.
+     *
+     * @since 2.0.0
+     */
     public function register()
     {
         $url = parse_url(get_site_url());

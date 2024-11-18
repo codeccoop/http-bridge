@@ -9,7 +9,7 @@ module.exports = function( grunt ) {
 
 		addtextdomain: {
 			options: {
-				textdomain: 'wpct-odoo-connect',
+				textdomain: 'wpct-http-bridge',
 			},
 			update_all_domains: {
 				options: {

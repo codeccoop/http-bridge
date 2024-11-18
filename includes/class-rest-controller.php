@@ -7,13 +7,59 @@ use Error;
 use WP_Error;
 use WP_REST_Server;
 
+/**
+ * REST API Controller.
+ *
+ * @since 2.0.0
+ */
 class REST_Controller
 {
+    /**
+     * REST API namespaces handler.
+     *
+     * @var string $namespace REST API namespace.
+     *
+     * @since 2.0.0
+     */
     private $namespace = 'wpct';
+
+    /**
+     * REST API version handler.
+     *
+     * @var string $version REST API version.
+     *
+     * @since 2.0.0
+     */
     private $version = 1;
+
+    /**
+     * REST API version handler.
+     *
+     * @var string $version REST API version.
+     *
+     * @since 2.0.0
+     */
     private $user = null;
+
+    /**
+     * Authorization error handler.
+     *
+     * @var WP_Error|null $auth_error authorization error.
+     *
+     * @since 2.0.0
+     */
     private $auth_error = null;
 
+    /**
+     * WP_Error proxy.
+     *
+     * @param string $code Error code.
+     * @param string $message Error message.
+     * @param string $status HTTP status code.
+     * @return WP_Error API error.
+     *
+     * @since 2.0.0
+     */
     private static function error($code, $message, $status)
     {
         return new WP_Error(
@@ -25,6 +71,13 @@ class REST_Controller
         );
     }
 
+    /**
+     * Authorization header getter.
+     *
+     * @return string $token Bearer token.
+     *
+     * @since 2.0.0
+     */
     private static function get_auth()
     {
         $auth_header = isset($_SERVER['HTTP_AUTHORIZATION'])
@@ -45,6 +98,11 @@ class REST_Controller
         return $token;
     }
 
+    /**
+     * Bind methods to WP REST API hooks.
+     *
+     * @since 2.0.0
+     */
     public function __construct()
     {
         add_action('rest_api_init', function () {
@@ -60,6 +118,11 @@ class REST_Controller
         });
     }
 
+    /**
+     * Register API routes.
+     *
+     * @since 2.0.0
+     */
     private function init()
     {
         register_rest_route("{$this->namespace}/v{$this->version}", '/http-bridge/auth', [
@@ -83,6 +146,13 @@ class REST_Controller
         ]);
     }
 
+    /**
+     * Auth callback.
+     *
+     * @returns array<string, string> $token Login token.
+     *
+     * @since 2.0.0
+     */
     private function auth()
     {
         $issuedAt = time();
@@ -112,6 +182,13 @@ class REST_Controller
         );
     }
 
+    /**
+     * Validate callback.
+     *
+     * @return array<string, string> $token Validated token.
+     *
+     * @since 2.0.0
+     */
     private function validate()
     {
         $token = self::get_auth();
@@ -127,6 +204,13 @@ class REST_Controller
         );
     }
 
+    /**
+     * Performs auth requests permisison checks.
+     *
+     * @return boolean $success Request has permisisons.
+     *
+     * @since 2.0.0
+     */
     private function auth_permission_callback()
     {
         $data = (array) json_decode(file_get_contents('php://input'), true);
@@ -147,6 +231,13 @@ class REST_Controller
         return true;
     }
 
+    /**
+     * Performs validation requests permission checks.
+     *
+     * @return boolean $success Request has permissions.
+     *
+     * @since 2.0.0
+     */
     private function validate_permission_callback()
     {
         try {
@@ -184,6 +275,14 @@ class REST_Controller
         return true;
     }
 
+    /**
+     * Determine current user from bearer authentication.
+     *
+     * @param int|null $user_id Already identified user ID.
+     * @return int|null $user_id Identified user ID.
+     *
+     * @since 2.0.0
+     */
     private function determine_current_user($user_id)
     {
         $rest_api_slug = rest_get_url_prefix();
@@ -222,6 +321,11 @@ class REST_Controller
         return (int) $payload['data']['user_id'];
     }
 
+    /**
+     * Abort rest dispatches if auth errors.
+     *
+     * @since 2.0.0
+     */
     private function rest_pre_dispatch($req)
     {
         if (is_wp_error($this->auth_error)) {

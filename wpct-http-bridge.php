@@ -2,15 +2,13 @@
 
 /**
  * Plugin Name:     Wpct Http Bridge
- * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/wpct-http-bridge
+ * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/plugins/wpct-http-bridge
  * Description:     Connect WP with backends over HTTP requests
  * Author:          Codec
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     wpct-http
  * Domain Path:     /languages
- * Version:         3.0.1
- *
- * @package         Wpct_Http
+ * Version:         3.0.2
  */
 
 namespace WPCT_HTTP;
@@ -39,13 +37,45 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
     require_once 'includes/class-jwt.php';
     require_once 'includes/class-rest-controller.php';
 
+    /**
+     * HTTP Bridge plugin.
+     *
+     * @since 1.0.0
+     */
     class Wpct_Http_Bridge extends Plugin
     {
+        /**
+         * Plugin name handle.
+         *
+         * @var string $name Plugin name.
+         *
+         * @since 1.0.0
+         */
         public static $name = 'Wpct Http Bridge';
+
+        /**
+         * Plugin textdomain handle.
+         *
+         * @var string $textdomain Plugin textdomain.
+         *
+         * @since 1.0.0
+         */
         public static $textdomain = 'wpct-http-bridge';
 
+        /**
+         * Plugin menu class name handle.
+         *
+         * @var string $menu_class Menu class name.
+         *
+         * @since 1.0.0
+         */
         protected static $menu_class = '\WPCT_HTTP\Menu';
 
+        /**
+         * Setup the rest controller.
+         *
+         * @since 1.0.0
+         */
         public function __construct()
         {
             parent::__construct();
@@ -65,14 +95,29 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
             new REST_Controller();
         }
 
+        /**
+         * Plugin activation callback.
+         *
+         * @since 1.0.0
+         */
         public static function activate()
         {
         }
 
+        /**
+         * Plugin deactivation callback.
+         *
+         * @since 1.0.0
+         */
         public static function deactivate()
         {
         }
 
+        /**
+         * Plugin initialization.
+         *
+         * @since 1.0.0
+         */
         public function init()
         {
         }

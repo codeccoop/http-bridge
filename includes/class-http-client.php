@@ -18,7 +18,7 @@ class Http_Client
     *
     * @since 3.0.0
     *
-    * @var array $args_defaults.
+    * @var array $args_defaults Default request arguments.
     */
     private const args_defaults = [
         'params' => [],
@@ -303,8 +303,8 @@ class Http_Client
         return array_merge([
             'host' => $_SERVER['HTTP_HOST'],
             'referer' => $_SERVER['HTTP_REFERER'],
-			'accept-language' => Http_Client::get_locale(),
-			'content-type' => 'application/json',
+            'accept-language' => Http_Client::get_locale(),
+            'content-type' => 'application/json',
         ], (array) $headers);
     }
 

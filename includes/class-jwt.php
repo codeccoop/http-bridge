@@ -5,27 +5,27 @@ namespace WPCT_HTTP;
 use Exception;
 
 /**
- * JWT REST API authentication
+ * JWT REST API authentication.
  *
  * @since 2.0.0
  */
 class JWT
 {
-	/**
-	 * Handle auth secret.
-	 *
-	 * @since 2.0.0
-	 */
+    /**
+     * Handle auth secret.
+     *
+     * @since 2.0.0
+     */
     private static $key = WPCT_HTTP_AUTH_SECRET;
 
-	/**
-	 * Get encoded payload token.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param array $payload Token payload.
-	 * @return string $token JWT encoded token.
-	 */
+    /**
+     * Get encoded payload token.
+     *
+     * @since 2.0.0
+     *
+     * @param array $payload Token payload.
+     * @return string $token JWT encoded token.
+     */
     public function encode($payload)
     {
         $header = json_encode([
@@ -42,14 +42,14 @@ class JWT
         return $header . '.' . $payload . '.' . $signature;
     }
 
-	/**
-	 * Get decoded token payload.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param string $token JWT encoded token.
-	 * @return array $payload Token payload.
-	 */
+    /**
+     * Get decoded token payload.
+     *
+     * @since 2.0.0
+     *
+     * @param string $token JWT encoded token.
+     * @return array $payload Token payload.
+     */
     public function decode($token)
     {
         if (
@@ -79,27 +79,27 @@ class JWT
         return $payload;
     }
 
-	/**
-	 * URL conformant base64 encoder.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param string $text Source string.
-	 * @return string $base64 Encoded string.
-	 */
+    /**
+     * URL conformant base64 encoder.
+     *
+     * @since 2.0.0
+     *
+     * @param string $text Source string.
+     * @return string $base64 Encoded string.
+     */
     private function base64URLEncode($text)
     {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($text));
     }
 
-	/**
-	 * URL conformant base64 decoder.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param string $base64 Encoded string.
-	 * @return string $text Decoded string.
-	 */
+    /**
+     * URL conformant base64 decoder.
+     *
+     * @since 2.0.0
+     *
+     * @param string $base64 Encoded string.
+     * @return string $text Decoded string.
+     */
     private function base64URLDecode($text)
     {
         return base64_decode(

@@ -8,33 +8,20 @@ the two realms.
 
 ## How does it work?
 
-The plugin implements GET, POST, PUT & DELETE http methods on php to perform
-requests from WP to any backend. The connection headers are populated with two fields:
+The plugin offers a high level API to perform HTTP requests from wordpress, as well as,
+a bearer authentication system to allow remote source control of the wordpress instance
+over REST API calls. The core feature is the _backends_ setting with which you
+can configure multiple backend connections to connect with in a bidirectional way.
 
-1. API-KEY: `<backend-api-key>`
-2. Accept-Language: `<wp-current-locale>`
-
-With this two headers, WP can consume the backend's APIs with localization.
-The `<backend-api-key>` is defined on the `settings/wpct-http-bridge`
-as an input field. The `<wp-current-locale>` value is recovered from
-the [Wpct i18n](https://git.coopdevs.org/codeccoop/wp/plugins/wpct-i18n/)
-plugin.
-
-The plugin expose the hook `'wpct_http_headers'` as a filter to modify the headers
-array before send the request.
-
-On the other hand, the plugins implements JWT authentication over the WordPress Rest
-API that allow your backend to perform CRUD operations against WP.
-
-JWT authentication extends the WP user system. This means that the backend should
-know some login credentials to generate access tokens.
+Bearer authentication extends the WP user system. This means that the backend should
+know some login credentials to generate access tokens. You can create custom roles
+to assign to your backend user to limit its capabilities.
 
 ## Environment variables
 
 The plugin supports enviroment variable usage as configuration.
 
-- `WPCT_HTTP_AUTH_SECRET`: A character string to sign the jwt tokens. Default value
-is '123456789'.
+- `WPCT_HTTP_AUTH_SECRET`: A character string to sign the jwt tokens.
 
 ## Wordpress REST API
 
@@ -64,10 +51,10 @@ The plugin register two new endpoints on the `wpct/v1` namespace of the WP REST 
 
 ```json
 {
-	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZGF0YSI6eyJ1c2VyX2lkIjoxfX0.2jlFOg305ui0VTqC-RcoQP8kH7uF5DvW5O-FyNAHTDU",
-	"user_login": "admin",
-	"user_email": "admin@example.coop",
-	"display_name": "Admin"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZGF0YSI6eyJ1c2VyX2lkIjoxfX0.2jlFOg305ui0VTqC-RcoQP8kH7uF5DvW5O-FyNAHTDU",
+  "user_login": "admin",
+  "user_email": "admin@example.coop",
+  "display_name": "Admin"
 }
 ```
 
@@ -81,11 +68,11 @@ The plugin register two new endpoints on the `wpct/v1` namespace of the WP REST 
 
 ```json
 {
-	"code": "rest_bad_request",
-	"message": "Missing login credentials",
-	"data": {
-		"status": 400
-	}
+  "code": "rest_bad_request",
+  "message": "Missing login credentials",
+  "data": {
+    "status": 400
+  }
 }
 ```
 
@@ -99,11 +86,11 @@ The plugin register two new endpoints on the `wpct/v1` namespace of the WP REST 
 
 ```json
 {
-	"code": "rest_unauthorized",
-	"message": "Invalid credentials",
-	"data": {
-		"status": 403
-	}
+  "code": "rest_unauthorized",
+  "message": "Invalid credentials",
+  "data": {
+    "status": 403
+  }
 }
 ```
 
@@ -123,10 +110,10 @@ The plugin register two new endpoints on the `wpct/v1` namespace of the WP REST 
 
 ```json
 {
-	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZGF0YSI6eyJ1c2VyX2lkIjoxfX0.2jlFOg305ui0VTqC-RcoQP8kH7uF5DvW5O-FyNAHTDU",
-	"user_login": "admin",
-	"user_email": "admin@example.coop",
-	"display_name": "Admin"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZGF0YSI6eyJ1c2VyX2lkIjoxfX0.2jlFOg305ui0VTqC-RcoQP8kH7uF5DvW5O-FyNAHTDU",
+  "user_login": "admin",
+  "user_email": "admin@example.coop",
+  "display_name": "Admin"
 }
 ```
 
@@ -140,29 +127,186 @@ The plugin register two new endpoints on the `wpct/v1` namespace of the WP REST 
 
 ```json
 {
-	"code": "rest_unauthorized",
-	"message": "Invalid credentials",
-	"data": {
-		"status": 403
-	}
+  "code": "rest_unauthorized",
+  "message": "Invalid credentials",
+  "data": {
+    "status": 403
+  }
 }
 ```
 
-## Filters
+## API
 
-### `wpct_http_headers`
+### Getters
 
-Filter the HTTP headers before each request sent.
+#### `wpct_http_backend`
+
+Get backend configuration by name.
 
 Arguments:
 
-1. `array $headers`: Assoicative array with header names and values.
-2. `string $method`: Method of the request.
-3. `string $url`: URL of the request.
+1. `any $default`: Default value.
+2. `string $name`: Backend name.
+
+Returns:
+
+1. `array|null $backend`: Backend data.
+
+Example:
 
 ```php
-add_filter('wpct_http_headers', function ($headers, $method, $url) {
-	return $headers;
+$backend = apply_filter('wpct_http_backend', null, 'Odoo');
+if (!empty($backend)) {
+	// do something
+}
+```
+
+#### `wpct_http_backends`
+
+Get configured backends list.
+
+Arguments:
+
+1. `any $default`: Default value.
+
+Returns:
+
+1. `array $backends`: List of available backends.
+
+Example:
+
+```php
+$backends = apply_filters('wpct_http_backends', []);
+foreach ($backends as $backend) {
+	// do something
+}
+```
+
+### Methods
+
+#### `wpct_http_get`
+
+Performs GET requests.
+
+Arguments:
+
+1. `string $url`: Target URL.
+2. `array $args`: Request arguments.
+
+Returns:
+
+1. `array|WP_Error`: Request response.
+
+Example:
+
+```php
+$response = wpct_http_get('https://example.coop/api/echo', [
+	'headers' => [
+		'Accept': 'application/json'
+	],
+	'params' => [
+		'foo' => 'bar',
+	],
+]);
+```
+
+#### `wpct_http_post`
+
+Performs POST requests.
+
+Arguments:
+
+1. `string $url`: Target URL.
+2. `array $args`: Request arguments.
+
+Returns:
+
+1. `array|WP_Error`: Request response.
+
+Example:
+
+```php
+$response = wpct_http_post('https://example.coop/api/echo', [
+	'headers' => [
+		'Accept': 'application/json'
+	],
+	'data' => [
+		'foo' => 'bar',
+	],
+	'files' => [
+		'file-name' => '/path/to/file.ext',
+	],
+]);
+```
+
+#### `wpct_http_put`
+
+Performs PUT requests.
+
+Arguments:
+
+1. `string $url`: Target URL.
+2. `array $args`: Request arguments.
+
+Returns:
+
+1. `array|WP_Error`: Request response.
+
+Example:
+
+```php
+$response = wpct_http_put('https://example.coop/api/echo', [
+	'headers' => [
+		'Accept': 'application/json'
+	],
+	'data' => [
+		'foo' => 'bar',
+	],
+	'files' => [
+		'file-name' => '/path/to/file.ext',
+	],
+]);
+```
+
+#### `wpct_http_delete`
+
+Performs DELETE requests.
+
+Arguments:
+
+1. `string $url`: Target URL.
+2. `array $args`: Request arguments.
+
+Returns:
+
+1. `array|WP_Error`: Request response.
+
+Example:
+
+```php
+$response = wpct_http_delete('https://example.coop/api/echo', [
+	'headers' => [
+		'Accept': 'application/json'
+	],
+	'params' => [
+		'foo' => 'bar',
+	],
+]);
+```
+
+### Filters
+
+#### `wpct_http_request_args`
+
+Filter the HTTP request arguments before is sent.
+
+Arguments:
+
+1. `array $args`: Array with `url`, `method`, `headers`, `files`, `params` and `data` keys.
+
+```php
+add_filter('wpct_http_req_args', function ($args) {
+	return $args;
 }, 10, 3);
 ```
 
