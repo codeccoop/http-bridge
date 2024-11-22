@@ -4,9 +4,18 @@ The plugin register two new endpoints on the `wp-bridges/v1` namespace of the WP
 
 ## Get auth JWT
 
-**URL**: `wp-json/wp-bridges/v1/http-bridge/auth`
+**URL**: `/wp-json/wp-bridges/v1/http/auth`
 
 **Method**: `POST`
+
+**Body**:
+
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
 
 **Authentication**: No
 
@@ -63,7 +72,7 @@ The plugin register two new endpoints on the `wp-bridges/v1` namespace of the WP
 
 ## Token validation
 
-**URL**: `wp-json/wp-bridges/v1/http-bridge/validate`
+**URL**: `/wp-json/wp-bridges/v1/http/validate-token`
 
 **Method**: GET
 

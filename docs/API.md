@@ -2,7 +2,7 @@
 
 ## Getters
 
-### `wpct_http_backend`
+### `http_bridge_backend`
 
 Get backend configuration by name.
 
@@ -18,13 +18,13 @@ Get backend configuration by name.
 #### Example
 
 ```php
-$backend = apply_filter('wpct_http_backend', null, 'Odoo');
+$backend = apply_filter('http_bridge_backend', null, 'Odoo');
 if (!empty($backend)) {
 	// do something
 }
 ```
 
-### `wpct_http_backends`
+### `http_bridge_backends`
 
 Get configured backends list.
 
@@ -39,7 +39,7 @@ Get configured backends list.
 #### Example
 
 ```php
-$backends = apply_filters('wpct_http_backends', []);
+$backends = apply_filters('http_bridge_backends', []);
 foreach ($backends as $backend) {
 	// do something
 }
@@ -47,7 +47,7 @@ foreach ($backends as $backend) {
 
 ## Methods
 
-### `wpct_http_get`
+### `http_bridge_get`
 
 Performs GET requests.
 
@@ -63,7 +63,7 @@ Performs GET requests.
 #### Example
 
 ```php
-$response = wpct_http_get('https://example.coop/api/echo', [
+$response = http_bridge_get('https://example.coop/api/echo', [
 	'headers' => [
 		'Accept': 'application/json'
 	],
@@ -73,7 +73,7 @@ $response = wpct_http_get('https://example.coop/api/echo', [
 ]);
 ```
 
-### `wpct_http_post`
+### `http_bridge_post`
 
 Performs POST requests.
 
@@ -89,7 +89,7 @@ Performs POST requests.
 #### Example
 
 ```php
-$response = wpct_http_post('https://example.coop/api/echo', [
+$response = http_bridge_post('https://example.coop/api/echo', [
 	'headers' => [
 		'Accept': 'application/json'
 	],
@@ -102,7 +102,7 @@ $response = wpct_http_post('https://example.coop/api/echo', [
 ]);
 ```
 
-### `wpct_http_put`
+### `http_bridge_put`
 
 Performs PUT requests.
 
@@ -118,7 +118,7 @@ Performs PUT requests.
 #### Example
 
 ```php
-$response = wpct_http_put('https://example.coop/api/echo', [
+$response = http_bridge_put('https://example.coop/api/echo', [
 	'headers' => [
 		'Accept': 'application/json'
 	],
@@ -131,7 +131,7 @@ $response = wpct_http_put('https://example.coop/api/echo', [
 ]);
 ```
 
-### `wpct_http_delete`
+### `http_bridge_delete`
 
 Performs DELETE requests.
 
@@ -147,7 +147,7 @@ Performs DELETE requests.
 #### Example
 
 ```php
-$response = wpct_http_delete('https://example.coop/api/echo', [
+$response = http_bridge_delete('https://example.coop/api/echo', [
 	'headers' => [
 		'Accept': 'application/json'
 	],
@@ -159,7 +159,7 @@ $response = wpct_http_delete('https://example.coop/api/echo', [
 
 ## Filters
 
-### `wpct_http_request_args`
+### `http_bridge_request_args`
 
 Filter the HTTP request arguments before is sent.
 
@@ -170,12 +170,12 @@ Filter the HTTP request arguments before is sent.
 #### Example
 
 ```php
-add_filter('wpct_http_req_args', function ($args) {
+add_filter('http_bridge_req_args', function ($args) {
 	return $args;
 }, 10, 3);
 ```
 
-### `wpct_http_validate_response`
+### `http_bridge_validate_response`
 
 Filters the login data to be returned on REST API requests to the validate endpoint.
 
@@ -187,12 +187,12 @@ Filters the login data to be returned on REST API requests to the validate endpo
 #### Example
 
 ```php
-add_filter('wpct_http_validate_response', function ($login_data, $user) {
+add_filter('http_bridge_validate_response', function ($login_data, $user) {
 	return $login_data;
 }, 10, 2);
 ```
 
-### `wpct_http_auth_response`
+### `http_bridge_auth_response`
 
 Filters the login data to be returned on REST API requests to the auth endpoint.
 
@@ -204,12 +204,12 @@ Filters the login data to be returned on REST API requests to the auth endpoint.
 #### Example
 
 ```php
-add_filter('wpct_http_auth_response', function ($login_data, $user) {
+add_filter('http_bridge_auth_response', function ($login_data, $user) {
 	return $login_data;
 }, 10, 2);
 ```
 
-### `wpct_http_auth_expire`
+### `http_bridge_auth_expire`
 
 Filters the `exp` claim value of generated JWTs. Default value is `time() + 86400`,
 24 hours from now.
@@ -222,12 +222,12 @@ Filters the `exp` claim value of generated JWTs. Default value is `time() + 8640
 #### Example
 
 ```php
-add_filter('wpct_http_auth_expire', function ($exp, $issuedAt) {
+add_filter('http_bridge_auth_expire', function ($exp, $issuedAt) {
 	return $exp;
 }, 10, 2);
 ```
 
-### `wpct_http_auth_not_before`
+### `http_bridge_auth_not_before`
 
 Filters the `nbf` claim value of generated JWTs. Default value is `time()`.
 
@@ -239,7 +239,7 @@ Filters the `nbf` claim value of generated JWTs. Default value is `time()`.
 #### Example
 
 ```php
-add_filter('wpct_http_auth_not_before', function ($nbf, $issuedAt) {
+add_filter('http_bridge_auth_not_before', function ($nbf, $issuedAt) {
 	return $nbf;
 }, 10, 2);
 ```
