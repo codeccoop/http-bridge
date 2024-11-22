@@ -8,7 +8,7 @@ use WP_Error;
 use WP_REST_Server;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**
@@ -54,13 +54,9 @@ class REST_Controller
      */
     private static function error($code, $message, $status)
     {
-        return new WP_Error(
-            $code,
-            __($message, 'wpct-http-bridge'),
-            [
-                'status' => $status,
-            ],
-        );
+        return new WP_Error($code, __($message, 'wpct-http-bridge'), [
+            'status' => $status,
+        ]);
     }
 
     /**
@@ -80,7 +76,7 @@ class REST_Controller
             throw new Exception('Authorization header not found', 400);
         }
 
-        [ $token ] = sscanf($auth_header, 'Bearer %s');
+        [$token] = sscanf($auth_header, 'Bearer %s');
         if (!$token) {
             throw new Exception('Authorization header malformed', 400);
         }
@@ -111,25 +107,33 @@ class REST_Controller
      */
     private function init()
     {
-        register_rest_route("{$this->namespace}/v{$this->version}", '/http-bridge/auth', [
-            'methods' => WP_REST_Server::CREATABLE,
-            'callback' => function () {
-                return $this->auth();
-            },
-            'permission_callback' => function () {
-                return $this->auth_permission_callback();
-            }
-        ]);
+        register_rest_route(
+            "{$this->namespace}/v{$this->version}",
+            '/http-bridge/auth',
+            [
+                'methods' => WP_REST_Server::CREATABLE,
+                'callback' => function () {
+                    return $this->auth();
+                },
+                'permission_callback' => function () {
+                    return $this->auth_permission_callback();
+                },
+            ]
+        );
 
-        register_rest_route("{$this->namespace}/v{$this->version}", '/http-bridge/validate-token', [
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => function () {
-                return $this->validate();
-            },
-            'permission_callback' => function () {
-                return $this->validate_permission_callback();
-            }
-        ]);
+        register_rest_route(
+            "{$this->namespace}/v{$this->version}",
+            '/http-bridge/validate-token',
+            [
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => function () {
+                    return $this->validate();
+                },
+                'permission_callback' => function () {
+                    return $this->validate_permission_callback();
+                },
+            ]
+        );
     }
 
     /**
@@ -140,14 +144,22 @@ class REST_Controller
     private function auth()
     {
         $issuedAt = time();
-        $notBefore = apply_filters('wpct_http_auth_not_before', $issuedAt, $issuedAt);
-        $expire = apply_filters('wpct_http_auth_expire', $issuedAt + (60 * 60 * 24 * 7), $issuedAt);
+        $notBefore = apply_filters(
+            'wpct_http_auth_not_before',
+            $issuedAt,
+            $issuedAt
+        );
+        $expire = apply_filters(
+            'wpct_http_auth_expire',
+            $issuedAt + 60 * 60 * 24 * 7,
+            $issuedAt
+        );
 
         $claims = [
-            'iss'  => get_bloginfo('url'),
-            'iat'  => $issuedAt,
-            'nbf'  => $notBefore,
-            'exp'  => $expire,
+            'iss' => get_bloginfo('url'),
+            'iat' => $issuedAt,
+            'nbf' => $notBefore,
+            'exp' => $expire,
             'data' => [
                 'user_id' => $this->user->data->ID,
             ],
@@ -199,7 +211,11 @@ class REST_Controller
         }
 
         if (!(isset($data['username']) && isset($data['password']))) {
-            return self::error('rest_bad_request', 'Missing login credentials', 400);
+            return self::error(
+                'rest_bad_request',
+                'Missing login credentials',
+                400
+            );
         }
 
         $user = wp_authenticate($data['username'], $data['password']);
@@ -221,32 +237,64 @@ class REST_Controller
         try {
             $token = self::get_auth();
         } catch (Exception $e) {
-            return self::error('rest_unauthorized', $e->getMessage(), $e->getCode());
+            return self::error(
+                'rest_unauthorized',
+                $e->getMessage(),
+                $e->getCode()
+            );
         }
 
         try {
             $payload = (new JWT())->decode($token);
         } catch (Exception) {
-            return self::error('rest_unauthorized', 'Invalid authorization token', 403);
+            return self::error(
+                'rest_unauthorized',
+                'Invalid authorization token',
+                403
+            );
         } catch (Error) {
-            return self::error('rest_internal_error', 'Internal server error', 500);
+            return self::error(
+                'rest_internal_error',
+                'Internal server error',
+                500
+            );
         }
 
         if ($payload['iss'] !== get_bloginfo('url')) {
-            return self::error('rest_unauthorized', 'The iss do not match with this server', 403);
+            return self::error(
+                'rest_unauthorized',
+                'The iss do not match with this server',
+                403
+            );
         }
 
         $now = time();
         if ($payload['exp'] <= $now) {
-            return self::error('rest_unauthorized', 'The token is expired', 403);
+            return self::error(
+                'rest_unauthorized',
+                'The token is expired',
+                403
+            );
         }
 
         if ($payload['nbf'] >= $now) {
-            return self::error('rest_unauthorized', 'The token is not valid yet', 403);
+            return self::error(
+                'rest_unauthorized',
+                'The token is not valid yet',
+                403
+            );
         }
 
         if (!isset($payload['data']['user_id'])) {
-            return self::error('rest_unauthorized', 'User ID not found in the token', 403);
+            return self::error(
+                'rest_unauthorized',
+                'User ID not found in the token',
+                403
+            );
+        }
+
+        if ($error = $this->cors_allowed()) {
+            return $error;
         }
 
         $this->user = get_user_by('ID', (int) $payload['data']['user_id']);
@@ -263,15 +311,18 @@ class REST_Controller
     {
         $rest_api_slug = rest_get_url_prefix();
         $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
-        $is_rest_request = defined('REST_REQUEST') && REST_REQUEST || strpos(
-            $requested_url,
-            $rest_api_slug
-        );
+        $is_rest_request =
+            (defined('REST_REQUEST') && REST_REQUEST) ||
+            strpos($requested_url, $rest_api_slug);
+
         if ($is_rest_request && $user_id) {
             return $user_id;
         }
 
-        $validate_uri = strpos($requested_url, "{$this->namespace}/v{$this->version}/validate-token");
+        $validate_uri = strpos(
+            $requested_url,
+            "{$this->namespace}/v{$this->version}/validate-token"
+        );
         if ($validate_uri > 0) {
             return $user_id;
         }
@@ -286,7 +337,11 @@ class REST_Controller
             $payload = (new JWT())->decode($auth);
         } catch (Exception $e) {
             if ($e->getMessage() === 'Invalid token format') {
-                $this->auth_error = self::error('rest_unauthorized', $e->getMessage(), ['status' => $e->getCode()]);
+                $this->auth_error = self::error(
+                    'rest_unauthorized',
+                    $e->getMessage(),
+                    ['status' => $e->getCode()]
+                );
             }
 
             return $user_id;
@@ -299,6 +354,8 @@ class REST_Controller
 
     /**
      * Abort rest dispatches if auth errors.
+     *
+     * @return object|WP_Error $request REST Request instance.
      */
     private function rest_pre_dispatch($req)
     {
@@ -307,5 +364,36 @@ class REST_Controller
         }
 
         return $req;
+    }
+
+    /**
+     * Check CORS policies based on configured backends.
+     *
+     * @return null|WP_Error $error CORS error.
+     */
+    private function cors_allowed()
+    {
+        try {
+            $self = parse_url(get_option('siteurl'));
+            $backends = apply_filters('http_bridge_backends', []);
+            $origins = array_map(function ($backend) {
+                $url = parse_url($backend['url']);
+                return $url['host'];
+            }, $backends);
+            $origins[] = $self['host'];
+
+            $origin = $_SERVER['HTTP_HOST'];
+            if (in_array($origin, $origins)) {
+                return;
+            }
+
+            return self::error('rest_unauthorized', 'Invalid host', [
+                'status' => '403',
+            ]);
+        } catch (Exception $e) {
+            return self::error('rest_internal_error', 'Internal Server Error', [
+                'status' => '500',
+            ]);
+        }
     }
 }

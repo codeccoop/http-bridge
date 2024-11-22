@@ -78,5 +78,9 @@ The plugin supports enviroment variable usage as configuration.
 
 ## Developers
 
-The plugin offers some hooks to expose its internal API. Go to [documentation](./docs/API.md) to see
-more details about the hooks. 
+The plugin offers some hooks to expose its internal API. Go to [API](./docs/API.md) to see
+more details about the hooks, or to [REST API](./docs/REST-API.md) to see its endpoints.
+
+## Roadmap
+
+1. [ ] Add test coverage with phpunit.
