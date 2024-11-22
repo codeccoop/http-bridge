@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the HTTP Bridge plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: HTTP Bridge 1.0.0\n"
+"Project-Id-Version: HTTP Bridge\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/http-bridge\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
