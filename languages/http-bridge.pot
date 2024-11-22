@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Codec Cooperativa
-# This file is distributed under the same license as the Wpct Http Bridge plugin.
+# This file is distributed under the same license as the Http Bridge plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Wpct Http Bridge 1.0.4\n"
-"Report-Msgid-Bugs-To: https://git.coopdevs.org/codeccoop/wp/plugin/wpct-http-bridge\n"
+"Project-Id-Version: Http Bridge 1.0.0\n"
+"Report-Msgid-Bugs-To: https://git.coopdevs.org/codeccoop/wp/plugin/bridges/http-bridge\n"
 "Last-Translator: Lucas García <lucas@codeccoop.org>\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -12,14 +12,14 @@ msgstr ""
 "POT-Creation-Date: 2024-01-29T19:35:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
-"X-Domain: wpct-http\n"
+"X-Domain: http-bridge\n"
 
 #. Plugin Name of the plugin
-msgid "Wpct Http Bridge"
+msgid "Http Bridge"
 msgstr ""
 
 #. Plugin URI of the plugin
-msgid "https://git.coopdevs.org/codeccoop/wp/wpct-http-bridge"
+msgid "https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge"
 msgstr ""
 
 #. Description of the plugin
@@ -35,14 +35,14 @@ msgid "https://www.codeccoop.org"
 msgstr ""
 
 # Options menu
-msgid "wpct-http-bridge_general--title"
+msgid "http-bridge_general--title"
 msgstr ""
 
-msgid "wpct-http-bridge_general--description"
+msgid "http-bridge_general--description"
 msgstr ""
 
-msgid "wpct-http-bridge_general__base_url--label"
+msgid "http-bridge_general__base_url--label"
 msgstr ""
 
-msgid "wpct-http-bridge_general__api_key--label"
+msgid "http-bridge_general__api_key--label"
 msgstr ""

@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Plugin Name:     Wpct Http Bridge
- * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/plugins/wpct-http-bridge
- * Description:     Connect WP with backends over HTTP requests
+ * Plugin Name:     HTTP Bridge
+ * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge
+ * Description:     Connect WP with backends over HTTP
  * Author:          Codec
  * Author URI:      https://www.codeccoop.org
- * Text Domain:     wpct-http
+ * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         3.0.2
+ * Version:         1.0.0
  */
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use WPCT_ABSTRACT\Plugin;
 
@@ -19,10 +19,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
+if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) :
 
-    if (!defined('WPCT_HTTP_AUTH_SECRET')) {
-        define('WPCT_HTTP_AUTH_SECRET', getenv('WPCT_HTTP_AUTH_SECRET') ? getenv('WPCT_HTTP_AUTH_SECRET') : '123456789');
+    if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
+        define('HTTP_BRIDGE_AUTH_SECRET', getenv('HTTP_BRIDGE_AUTH_SECRET') ? getenv('HTTP_BRIDGE_AUTH_SECRET') : '123456789');
     }
 
     require_once 'abstracts/class-singleton.php';
@@ -39,42 +39,32 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
     /**
      * HTTP Bridge plugin.
-     *
-     * @since 1.0.0
      */
-    class Wpct_Http_Bridge extends Plugin
+    class HTTP_Bridge extends Plugin
     {
         /**
          * Plugin name handle.
          *
          * @var string $name Plugin name.
-         *
-         * @since 1.0.0
          */
-        public static $name = 'Wpct Http Bridge';
+        public static $name = 'HTTP Bridge';
 
         /**
          * Plugin textdomain handle.
          *
          * @var string $textdomain Plugin textdomain.
-         *
-         * @since 1.0.0
          */
-        public static $textdomain = 'wpct-http-bridge';
+        public static $textdomain = 'http-bridge';
 
         /**
          * Plugin menu class name handle.
          *
          * @var string $menu_class Menu class name.
-         *
-         * @since 1.0.0
          */
-        protected static $menu_class = '\WPCT_HTTP\Menu';
+        protected static $menu_class = '\HTTP_BRIDGE\Menu';
 
         /**
          * Setup the rest controller.
-         *
-         * @since 1.0.0
          */
         public function __construct()
         {
@@ -85,7 +75,7 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
                     return $links;
                 }
 
-                $url = admin_url('options-general.php?page=wpct-http-bridge');
+                $url = admin_url('options-general.php?page=http-bridge');
                 $label = __('Settings');
                 $link = "<a href='{$url}'>{$label}</a>";
                 array_unshift($links, $link);
@@ -97,8 +87,6 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
         /**
          * Plugin activation callback.
-         *
-         * @since 1.0.0
          */
         public static function activate()
         {
@@ -106,8 +94,6 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
         /**
          * Plugin deactivation callback.
-         *
-         * @since 1.0.0
          */
         public static function deactivate()
         {
@@ -115,8 +101,6 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
 
         /**
          * Plugin initialization.
-         *
-         * @since 1.0.0
          */
         public function init()
         {
@@ -124,15 +108,15 @@ if (!class_exists('\WPCT_HTTP\Wpct_Http_Bridge')) :
     }
 
     register_deactivation_hook(__FILE__, function () {
-        Wpct_Http_Bridge::deactivate();
+        HTTP_Bridge::deactivate();
     });
 
     register_activation_hook(__FILE__, function () {
-        Wpct_Http_Bridge::activate();
+        HTTP_Bridge::activate();
     });
 
     add_action('plugins_loaded', function () {
-        $plugin = Wpct_Http_Bridge::get_instance();
+        $plugin = HTTP_Bridge::get_instance();
     }, 10);
 
 endif;

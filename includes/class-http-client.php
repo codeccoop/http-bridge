@@ -1,22 +1,22 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use WP_Error;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 require_once 'class-multipart.php';
 
 /**
  * HTTP Client.
- *
- * @since 3.0.0
  */
 class Http_Client
 {
     /**
     * Default request arguments.
-    *
-    * @since 3.0.0
     *
     * @var array $args_defaults Default request arguments.
     */
@@ -34,8 +34,6 @@ class Http_Client
     /**
     * Fills request arguments with defaults.
     *
-    * @since 3.0.0
-    *
     * @param array $args Request arguments.
     * @return array $args Request arguments with defaults.
     */
@@ -49,8 +47,6 @@ class Http_Client
 
     /**
     * Add query params to URLs.
-    *
-    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $params Associative array with query params.
@@ -71,8 +67,6 @@ class Http_Client
     /**
     * Performs a GET request.
     *
-    * @since 3.0.0
-    *
     * @param string $url Target url.
     * @param array $params Associative array with query params.
     * @param array $headers Associative array with HTTP headers.
@@ -92,8 +86,6 @@ class Http_Client
     * Performs a POST request. Default content type is application/json, any other
     * mimetype should be encoded before and passed in as string.
     * If $files is defined and is array, content type switches to multipart/form-data.
-    *
-    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
@@ -118,8 +110,6 @@ class Http_Client
 
     /**
     * Performs a POST request with multipart/form-data content type payload.
-    *
-    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
@@ -159,8 +149,6 @@ class Http_Client
     * mimetype should be encoded before and passed in as string.
     * If $files is defined and is array, content type switches to multipart/form-data.
     *
-    * @since 3.0.0
-    *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
     * @param array $headers Associative array with HTTP headers.
@@ -185,8 +173,6 @@ class Http_Client
 
     /**
     * Performs a PUT request with multipart/form-data content type payload.
-    *
-    * @since 3.0.0
     *
     * @param string $url Target URL.
     * @param array $data Associative array with the request payload.
@@ -221,8 +207,6 @@ class Http_Client
     /**
     * Performs a DETELE request.
     *
-    * @since 3.0.0
-    *
     * @param string $url Target url.
     * @param array $params Associative array with query params.
     * @param array $headers Associative array with HTTP headers.
@@ -239,8 +223,6 @@ class Http_Client
 
     /**
     * Performs a request on top of WP_Http client
-    *
-    * @since 3.0.0
     *
     * @param  string  $url Target URL.
     * @param  array $args  WP_Http::request arguments.
@@ -269,7 +251,7 @@ class Http_Client
             $args
         );
 
-        $request = apply_filters('wpct_http_request_args', ['url' => $url, 'args' => $args]);
+        $request = apply_filters('http_bridge_request_args', ['url' => $url, 'args' => $args]);
         $response = wp_remote_request($request['url'], $request['args']);
         if (is_wp_error($response)) {
             $response->add_data(['request' => $request]);
@@ -278,8 +260,8 @@ class Http_Client
 
         if ($response['response']['code'] !== 200) {
             return new WP_Error(
-                'wpct_http_error',
-                __("Http error response status code: Request to {$url} with {$args['method']} method", 'wpct-http-bridge'),
+                'http_bridge_error',
+                __("HTTP error response status code: Request to {$url} with {$args['method']} method", 'http-bridge'),
                 [
                     'request' => $request,
                     'response' => $response,
@@ -292,8 +274,6 @@ class Http_Client
 
     /**
     * Add default headers to an array.
-    *
-    * @since 3.0.0
     *
     * @param array $headers Associative array with HTTP headers.
     * @return array $headers Associative array with HTTP headers.
@@ -311,8 +291,6 @@ class Http_Client
     /**
     * Use wpct-i18n to get the current language locale.
     *
-    * @since 2.0.4
-    *
     * @return string ISO-2 locale representation.
     */
     private static function get_locale()
@@ -329,13 +307,11 @@ class Http_Client
 /**
 * Public function to perform a GET requests.
 *
-* @since 3.0.0
-*
 * @param string $url Target URL.
 * @param array $args Associative array with request arguments.
 * @return array|WP_Error $response Response data or error.
 */
-function wpct_http_get($url, $args = [])
+function http_bridge_get($url, $args = [])
 {
     ['params' => $params, 'headers' => $headers ] = Http_Client::req_args($args);
     return Http_Client::get($url, $params, $headers);
@@ -344,13 +320,11 @@ function wpct_http_get($url, $args = [])
 /**
 * Public function to perform a POST requests.
 *
-* @since 3.0.0
-*
 * @param string $url Target URL.
 * @param array $args Associative array with request arguments.
 * @return array|WP_Error $response Response data or error.
 */
-function wpct_http_post($url, $args = [])
+function http_bridge_post($url, $args = [])
 {
     ['data' => $data, 'headers' => $headers, 'files' => $files ] = Http_Client::req_args($args);
     return Http_Client::post($url, $data, $headers, $files);
@@ -359,13 +333,11 @@ function wpct_http_post($url, $args = [])
 /**
 * Public function to perform a PUT requests.
 *
-* @since 3.0.0
-*
 * @param string $url Target URL.
 * @param array $args Associative array with request arguments.
 * @return array|WP_Error $response Response data or error.
 */
-function wpct_http_put($url, $arguments = [])
+function http_bridge_put($url, $arguments = [])
 {
     ['data' => $data, 'headers' => $headers, 'files' => $files ] = Http_Client::req_args($arguments);
     return Http_Client::put($url, $data, $headers, $files);
@@ -374,13 +346,11 @@ function wpct_http_put($url, $arguments = [])
 /**
 * Public function to perform a DELETE requests.
 *
-* @since 3.0.0
-*
 * @param string $url Target URL.
 * @param array $args Associative array with request arguments.
 * @return array|WP_Error $response Response data or error.
 */
-function wpct_http_delete($url, $args = [])
+function http_bridge_delete($url, $args = [])
 {
     ['params' => $params, 'headers' => $headers ] = Http_Client::req_args($args);
     return Http_Client::delete($url, $params, $headers);

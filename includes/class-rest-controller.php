@@ -1,16 +1,18 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use Exception;
 use Error;
 use WP_Error;
 use WP_REST_Server;
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * REST API Controller.
- *
- * @since 2.0.0
  */
 class REST_Controller
 {
@@ -18,17 +20,13 @@ class REST_Controller
      * REST API namespaces handler.
      *
      * @var string $namespace REST API namespace.
-     *
-     * @since 2.0.0
      */
-    private $namespace = 'wpct';
+    private $namespace = 'wp-bridges';
 
     /**
      * REST API version handler.
      *
      * @var string $version REST API version.
-     *
-     * @since 2.0.0
      */
     private $version = 1;
 
@@ -36,8 +34,6 @@ class REST_Controller
      * REST API version handler.
      *
      * @var string $version REST API version.
-     *
-     * @since 2.0.0
      */
     private $user = null;
 
@@ -45,8 +41,6 @@ class REST_Controller
      * Authorization error handler.
      *
      * @var WP_Error|null $auth_error authorization error.
-     *
-     * @since 2.0.0
      */
     private $auth_error = null;
 
@@ -57,8 +51,6 @@ class REST_Controller
      * @param string $message Error message.
      * @param string $status HTTP status code.
      * @return WP_Error API error.
-     *
-     * @since 2.0.0
      */
     private static function error($code, $message, $status)
     {
@@ -75,8 +67,6 @@ class REST_Controller
      * Authorization header getter.
      *
      * @return string $token Bearer token.
-     *
-     * @since 2.0.0
      */
     private static function get_auth()
     {
@@ -100,8 +90,6 @@ class REST_Controller
 
     /**
      * Bind methods to WP REST API hooks.
-     *
-     * @since 2.0.0
      */
     public function __construct()
     {
@@ -120,8 +108,6 @@ class REST_Controller
 
     /**
      * Register API routes.
-     *
-     * @since 2.0.0
      */
     private function init()
     {
@@ -150,8 +136,6 @@ class REST_Controller
      * Auth callback.
      *
      * @returns array<string, string> $token Login token.
-     *
-     * @since 2.0.0
      */
     private function auth()
     {
@@ -186,8 +170,6 @@ class REST_Controller
      * Validate callback.
      *
      * @return array<string, string> $token Validated token.
-     *
-     * @since 2.0.0
      */
     private function validate()
     {
@@ -208,8 +190,6 @@ class REST_Controller
      * Performs auth requests permisison checks.
      *
      * @return boolean $success Request has permisisons.
-     *
-     * @since 2.0.0
      */
     private function auth_permission_callback()
     {
@@ -235,8 +215,6 @@ class REST_Controller
      * Performs validation requests permission checks.
      *
      * @return boolean $success Request has permissions.
-     *
-     * @since 2.0.0
      */
     private function validate_permission_callback()
     {
@@ -280,8 +258,6 @@ class REST_Controller
      *
      * @param int|null $user_id Already identified user ID.
      * @return int|null $user_id Identified user ID.
-     *
-     * @since 2.0.0
      */
     private function determine_current_user($user_id)
     {
@@ -323,8 +299,6 @@ class REST_Controller
 
     /**
      * Abort rest dispatches if auth errors.
-     *
-     * @since 2.0.0
      */
     private function rest_pre_dispatch($req)
     {

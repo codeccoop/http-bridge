@@ -1,6 +1,6 @@
 {
-  "name": "wpct-http-bridge",
-  "version": "3.0.2",
+  "name": "http-bridge",
+  "version": "1.0.0",
   "main": "Gruntfile.js",
   "author": "Còdec Cooperativa",
   "scripts": {

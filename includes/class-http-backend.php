@@ -1,20 +1,20 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use Exception;
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * HTTP Backend
- *
- * @since 3.0.0
  */
 class Http_Backend
 {
     /**
      * Handle backend data.
-     *
-     * @since 3.0.0
      *
      * @var array|null $data Backend data.
      */
@@ -23,19 +23,15 @@ class Http_Backend
     /**
      * Backends data getter.
      *
-     * @since 3.0.1
-     *
      * @return array $backends Backends data.
      */
     public static function get_backends()
     {
-        return Settings::get_setting('wpct-http-bridge', 'general', 'backends');
+        return Settings::get_setting('http-bridge', 'general', 'backends');
     }
 
     /**
      * Store backend data
-     *
-     * @since 3.0.0
      */
     public function __construct($name)
     {
@@ -47,8 +43,6 @@ class Http_Backend
 
     /**
      * Backend data getter.
-     *
-     * @since 3.0.0
      *
      * @return array|null $backend Backen data.
      */
@@ -66,8 +60,6 @@ class Http_Backend
 
     /**
      * Intercept class gets and lookup on backend data.
-     *
-     * @since 3.0.0
      */
     public function __get($attr)
     {
@@ -80,8 +72,6 @@ class Http_Backend
 
     /**
      * Get backend absolute URL.
-     *
-     * @since 3.0.0
      *
      * @param string $path URL relative path.
      * @return string $url Absolute URL.
@@ -100,8 +90,6 @@ class Http_Backend
     /**
      * Get backend default headers.
      *
-     * @since 3.0.0
-     *
      * @return array $headers Backend headers.
      */
     public function get_headers()
@@ -116,10 +104,10 @@ class Http_Backend
 }
 
 // Get new backend instance.
-add_filter('wpct_http_backend', function ($default, $name) {
+add_filter('http_bridge_backend', function ($default, $name) {
     return new Http_Backend($name);
 }, 10, 2);
 
-add_filter('wpct_http_backends', function () {
+add_filter('http_bridge_backends', function () {
     return Http_Backend::get_backends();
 }, 10);

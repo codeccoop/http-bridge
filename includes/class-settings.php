@@ -1,20 +1,20 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use WPCT_ABSTRACT\Settings as BaseSettings;
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Plugin settings.
- *
- * @since 1.0.0
  */
 class Settings extends BaseSettings
 {
     /**
      * Register plugin settings.
-     *
-     * @since 2.0.0
      */
     public function register()
     {

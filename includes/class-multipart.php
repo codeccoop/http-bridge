@@ -1,19 +1,20 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 /**
  * Multipart data encoder.
- *
- * @since 2.0.0
  */
 class Multipart
 {
     /**
      * End of line handler.
      *
-     * @constant string EOL end of line chars.
-     * @since 2.0.0
+     * @var string EOL end of line chars.
      */
     public const EOL = "\r\n";
 
@@ -21,8 +22,6 @@ class Multipart
      * Encoded data handler.
      *
      * @var string $_data encoded data.
-     *
-     * @since 2.0.0
      */
     private $_data = '';
 
@@ -30,14 +29,11 @@ class Multipart
      * Mime boundary handler.
      *
      * @var string $_mime_boundary Unique part ID.
-     * @since 2.0.0
      */
     private $_mime_boundary;
 
     /**
      * Creates a random mime boundary.
-     *
-     * @since 2.0.0
      */
     public function __construct()
     {
@@ -47,8 +43,6 @@ class Multipart
 
     /**
      * Add part header boundary
-     *
-     * @since 2.0.0
      */
     private function _add_part_header()
     {
@@ -60,8 +54,6 @@ class Multipart
      *
      * @param array<string|int, mixed> $data Input data.
      * @param string $prefix Field name prefix.
-     *
-     * @since 2.0.0
      */
     public function add_array($data, $prefix = '')
     {
@@ -87,8 +79,6 @@ class Multipart
      *
      * @param string $key Part name.
      * @param any $value Part value.
-     *
-     * @since 2.0.0
      */
     public function add_part($key, $value)
     {
@@ -105,8 +95,6 @@ class Multipart
      * @param string $filename File name.
      * @param string $type File type.
      * @param string|null $content File content.
-     *
-     * @since 2.0.0.
      */
     public function add_file($key, $filename, $type, $content = null)
     {
@@ -126,8 +114,6 @@ class Multipart
      * Get bounded mime content type.
      *
      * @return string $content_type Mime content type.
-     *
-     * @since 2.0.0.
      */
     public function content_type()
     {
@@ -138,8 +124,6 @@ class Multipart
      * Get content data.
      *
      * @return string $data Content data.
-     *
-     * @since 2.0.0
      */
     public function data()
     {
