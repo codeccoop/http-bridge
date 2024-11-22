@@ -7,32 +7,32 @@
     "messages": {
       "": {
         "domain": "messages",
-        "lang": "ca",
+        "lang": "es_ES",
         "plural-forms": "nplurals=2; plural=(n != 1);"
       },
-      "Backend name": ["Nom del backend"],
-      "This name is already in use": ["El nom ja \u00e9s en \u00fas"],
+      "Backend name": ["Nombre del backend"],
+      "This name is already in use": ["Este nombre ya est\u00e1 en uso"],
       "Backend base URL": ["URL base del backend"],
-      "Add": ["Afegir"],
+      "Add": ["A\u00f1adir"],
       "Remove backend": ["Eliminar backend"],
       "Remove": ["Eliminar"],
-      "Add": ["Afegir"],
-      "Backend HTTP Headers": ["Cap\u00e7aleres HTTP"],
+      "Add": ["A\u00f1adir"],
+      "Backend HTTP Headers": ["Cabeceras HTTP"],
       "Header-Name": [""],
       "Value": [""],
       "Drop": ["Descartar"],
       "General": [""],
-      "Error": ["Error"],
+      "Error": [""],
       "Save": ["Guardar"],
-      "Loading": ["Carregant"],
-      "Add Backend": ["Afegir Backend"],
-      "Backends": [""],
+      "Loading": ["Cargando"],
+      "Add Backend": ["A\u00f1adir Backend"],
+      "Backends": ["Backends"],
       "General": [""],
       "Block connections from unkown origins": [
-        "Bloquejar connexions d'origens desconeguts"
+        "Bloquear conexiones de origenes desconocidos"
       ],
       "Should HTTP Bridge block requests from origins not listed as backends? If active, incomming connections should include HTTP Origin header": [
-        "HTTP Bridge ha de bloquejar peticions des d'origens no llistats als backends? Si \u00e9s aix\u00ed, les peticions entrants hauran d'informar la cap\u00e7alera HTTP d'origen"
+        "HTTP Bridge ha de bloquear peitciones des de or\u00edgenes no listados en los backends? De ser as\u00ed, las peticiones entrantes deber\u00e1n informar la cabecera HTTP de origen"
       ]
     }
   }
