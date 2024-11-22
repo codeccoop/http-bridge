@@ -2,6 +2,7 @@
 
 namespace HTTP_BRIDGE;
 
+use WPCT_ABSTRACT\Singleton as Singleton;
 use Exception;
 use Error;
 use WP_Error;
@@ -14,7 +15,7 @@ if (!defined('ABSPATH')) {
 /**
  * REST API Controller.
  */
-class REST_Controller
+class REST_Controller extends Singleton
 {
     /**
      * REST API namespaces handler.
@@ -38,6 +39,11 @@ class REST_Controller
     private $user = null;
 
     /**
+     * @var array $settings Handle the plugin settings names list.
+     */
+    private static $settings = ['general'];
+
+    /**
      * Authorization error handler.
      *
      * @var WP_Error|null $auth_error authorization error.
@@ -54,7 +60,7 @@ class REST_Controller
      */
     private static function error($code, $message, $status)
     {
-        return new WP_Error($code, __($message, 'wpct-http-bridge'), [
+        return new WP_Error($code, __($message, 'http-bridge'), [
             'status' => $status,
         ]);
     }
@@ -85,6 +91,14 @@ class REST_Controller
     }
 
     /**
+     * Starts the controller.
+     */
+    public static function start()
+    {
+        return REST_Controller::get_instance();
+    }
+
+    /**
      * Bind methods to WP REST API hooks.
      */
     public function __construct()
@@ -97,9 +111,14 @@ class REST_Controller
             return $this->determine_current_user($user_id);
         });
 
-        add_filter('rest_pre_dispatch', function ($req) {
-            return $this->rest_pre_dispatch($req);
-        });
+        add_filter(
+            'rest_pre_dispatch',
+            function ($result, $server, $request) {
+                return $this->rest_pre_dispatch($result, $server, $request);
+            },
+            10,
+            3
+        );
     }
 
     /**
@@ -109,7 +128,32 @@ class REST_Controller
     {
         register_rest_route(
             "{$this->namespace}/v{$this->version}",
-            '/http-bridge/auth',
+            '/http/settings',
+            [
+                [
+                    'methods' => WP_REST_Server::READABLE,
+                    'callback' => function () {
+                        return $this->get_settings();
+                    },
+                    'permission_callback' => function () {
+                        return $this->settings_permission_callback();
+                    },
+                ],
+                [
+                    'methods' => WP_REST_Server::CREATABLE,
+                    'callback' => function () {
+                        return $this->set_settings();
+                    },
+                    'permission_callback' => function () {
+                        return $this->settings_permission_callback();
+                    },
+                ],
+            ]
+        );
+
+        register_rest_route(
+            "{$this->namespace}/v{$this->version}",
+            '/http/auth',
             [
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => function () {
@@ -123,7 +167,7 @@ class REST_Controller
 
         register_rest_route(
             "{$this->namespace}/v{$this->version}",
-            '/http-bridge/validate-token',
+            '/http/validate-token',
             [
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => function () {
@@ -134,6 +178,52 @@ class REST_Controller
                 },
             ]
         );
+    }
+
+    /**
+     * GET requests settings endpoint callback.
+     *
+     * @return array $settings Associative array with settings data.
+     */
+    private function get_settings()
+    {
+        $settings = [];
+        foreach (self::$settings as $setting) {
+            $settings[$setting] = Settings::get_setting(
+                'http-bridge',
+                $setting
+            );
+        }
+
+        return $settings;
+    }
+
+    /**
+     * POST requests settings endpoint callback. Store settings on the options table.
+     *
+     * @return array $response New settings state.
+     */
+    private function set_settings()
+    {
+        $data = (array) json_decode(file_get_contents('php://input'), true);
+        $response = [];
+        foreach (self::$settings as $setting) {
+            if (!isset($data[$setting])) {
+                continue;
+            }
+
+            $from = Settings::get_setting('http-bridge', $setting);
+            $to = $data[$setting];
+
+            foreach (array_keys($from) as $key) {
+                $to[$key] = isset($to[$key]) ? $to[$key] : $from[$key];
+            }
+
+            update_option('http-bridge_' . $setting, $to);
+            $response[$setting] = $to;
+        }
+
+        return $response;
     }
 
     /**
@@ -199,6 +289,22 @@ class REST_Controller
     }
 
     /**
+     * Check if current user can manage options
+     *
+     * @return boolean $allowed
+     */
+    private function settings_permission_callback()
+    {
+        return current_user_can('manage_options')
+            ? true
+            : self::error(
+                'rest_unauthorized',
+                'You can\'t manage options',
+                403
+            );
+    }
+
+    /**
      * Performs auth requests permisison checks.
      *
      * @return boolean $success Request has permisisons.
@@ -255,7 +361,7 @@ class REST_Controller
         } catch (Error) {
             return self::error(
                 'rest_internal_error',
-                'Internal server error',
+                'Internal Server Error',
                 500
             );
         }
@@ -291,10 +397,6 @@ class REST_Controller
                 'User ID not found in the token',
                 403
             );
-        }
-
-        if ($error = $this->cors_allowed()) {
-            return $error;
         }
 
         $this->user = get_user_by('ID', (int) $payload['data']['user_id']);
@@ -357,13 +459,24 @@ class REST_Controller
      *
      * @return object|WP_Error $request REST Request instance.
      */
-    private function rest_pre_dispatch($req)
+    private function rest_pre_dispatch($result, $server, $request)
     {
         if (is_wp_error($this->auth_error)) {
             return $this->auth_error;
         }
 
-        return $req;
+        if (
+            preg_match(
+                "/^\/{$this->namespace}\/v{$this->version}\//",
+                $request->get_route()
+            )
+        ) {
+            if ($error = $this->cors_allowed()) {
+                return $error;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -373,21 +486,49 @@ class REST_Controller
      */
     private function cors_allowed()
     {
+        $whitelist = (bool) Settings::get_setting(
+            'http-bridge',
+            'general',
+            'whitelist'
+        );
+
+        if (!$whitelist) {
+            return;
+        }
+
         try {
             $self = parse_url(get_option('siteurl'));
             $backends = apply_filters('http_bridge_backends', []);
-            $origins = array_map(function ($backend) {
-                $url = parse_url($backend['url']);
-                return $url['host'];
+            $sources = array_map(function ($backend) {
+                return parse_url($backend['base_url']);
             }, $backends);
-            $origins[] = $self['host'];
+            $sources[] = $self;
 
-            $origin = $_SERVER['HTTP_HOST'];
-            if (in_array($origin, $origins)) {
-                return;
+            $origin = isset($_SERVER['HTTP_ORIGIN'])
+                ? $_SERVER['HTTP_ORIGIN']
+                : (isset($_SERVER['HTTP_REFERER'])
+                    ? $_SERVER['HTTP_REFERER']
+                    : null);
+
+            if (!$origin) {
+                return self::error(
+                    'rest_bad_request',
+                    'HTTP Origin is required',
+                    400
+                );
             }
 
-            return self::error('rest_unauthorized', 'Invalid host', [
+            $origin = parse_url($origin);
+            foreach ($sources as $source) {
+                if (
+                    $origin['host'] === $source['host'] &&
+                    $origin['scheme'] === $source['scheme']
+                ) {
+                    return;
+                }
+            }
+
+            return self::error('rest_unauthorized', 'HTTP Origin blacklisted', [
                 'status' => '403',
             ]);
         } catch (Exception $e) {
