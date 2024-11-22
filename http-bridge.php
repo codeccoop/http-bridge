@@ -4,7 +4,7 @@
  * Plugin Name:     HTTP Bridge
  * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge
  * Description:     Connect WP with backends over HTTP
- * Author:          Codec
+ * Author:          Còdec
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     http-bridge
  * Domain Path:     /languages
@@ -16,14 +16,25 @@ namespace HTTP_BRIDGE;
 use WPCT_ABSTRACT\Plugin;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
-if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) :
-
+if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
     if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
-        define('HTTP_BRIDGE_AUTH_SECRET', getenv('HTTP_BRIDGE_AUTH_SECRET') ? getenv('HTTP_BRIDGE_AUTH_SECRET') : '123456789');
+        define(
+            'HTTP_BRIDGE_AUTH_SECRET',
+            getenv('HTTP_BRIDGE_AUTH_SECRET')
+                ? getenv('HTTP_BRIDGE_AUTH_SECRET')
+                : '123456789'
+        );
     }
+
+    /**
+     * Handle plugin version.
+     *
+     * @var string HTTP_BRIDGE_VERSION Current plugin version.
+     */
+    define('HTTP_BRIDGE_VERSION', '1.0.0');
 
     require_once 'abstracts/class-singleton.php';
     require_once 'abstracts/class-plugin.php';
@@ -64,25 +75,73 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) :
         protected static $menu_class = '\HTTP_BRIDGE\Menu';
 
         /**
-         * Setup the rest controller.
+         * Setup the rest controller and bind wp hooks.
          */
         public function __construct()
         {
             parent::__construct();
+            REST_Controller::start();
 
-            add_filter('plugin_action_links', function ($links, $file) {
-                if ($file !== plugin_basename(__FILE__)) {
+            $this->wp_hooks();
+        }
+
+        /**
+         * Bind plugin to wp hooks.
+         */
+        private function wp_hooks()
+        {
+            add_filter(
+                'plugin_action_links',
+                function ($links, $file) {
+                    if ($file !== plugin_basename(__FILE__)) {
+                        return $links;
+                    }
+
+                    $url = admin_url('options-general.php?page=http-bridge');
+                    $label = __('Settings', 'http-bridge');
+                    $link = "<a href='{$url}'>{$label}</a>";
+                    array_unshift($links, $link);
                     return $links;
-                }
+                },
+                5,
+                2
+            );
 
-                $url = admin_url('options-general.php?page=http-bridge');
-                $label = __('Settings');
-                $link = "<a href='{$url}'>{$label}</a>";
-                array_unshift($links, $link);
-                return $links;
-            }, 5, 2);
+            // Enqueue plugin admin client scripts
+            add_action('admin_enqueue_scripts', function ($admin_page) {
+                $this->admin_enqueue_scripts($admin_page);
+            });
+        }
 
-            new REST_Controller();
+        /**
+         * Enqueue admin client scripts
+         *
+         * @param string $admin_page Current admin page.
+         */
+        private function admin_enqueue_scripts($admin_page)
+        {
+            if ('settings_page_http-bridge' !== $admin_page) {
+                return;
+            }
+
+            wp_enqueue_script(
+                $this->get_textdomain(),
+                plugins_url('assets/plugin.bundle.js', __FILE__),
+                [
+                    'react',
+                    'react-jsx-runtime',
+                    'wp-api-fetch',
+                    'wp-components',
+                    'wp-dom-ready',
+                    'wp-element',
+                    'wp-i18n',
+                    'wp-api',
+                ],
+                HTTP_BRIDGE_VERSION,
+                ['in_footer' => true]
+            );
+
+            wp_enqueue_style('wp-components');
         }
 
         /**
@@ -115,8 +174,11 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) :
         HTTP_Bridge::activate();
     });
 
-    add_action('plugins_loaded', function () {
-        $plugin = HTTP_Bridge::get_instance();
-    }, 10);
-
+    add_action(
+        'plugins_loaded',
+        function () {
+            $plugin = HTTP_Bridge::get_instance();
+        },
+        10
+    );
 endif;

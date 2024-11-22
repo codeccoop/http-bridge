@@ -1,7 +1,7 @@
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
-      changes: 
+      changes:
         - README.md
         - .gitlab-ci.yml
       when: never
@@ -30,10 +30,10 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: "true"
 
-package: 
+package:
   image: javieraviles/zip:latest
   stage: package
-  script:      
+  script:
     - 'zip -r $ZIP * -x "*CODE_OF_CONDUCT.md" -x "*node_modules*" -x "*bin/*" -x "*tests/*" -x "*.gitignore" -x "*.gitlab-ci.yml" -x "*.gitmodules" -x "*phpunit.xml.dist" -x "*Gruntfile.js" -x "*package.json" -x "*package-lock.json" -x "*.travis.yml" -x "*.editorconfig" -x "*.distignore" -x "*src/*"'
     - 'ls -lah'
   artifacts:
@@ -45,7 +45,7 @@ upload:
   script:
     - |
       curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZIP} ${PACKAGE_REGISTRY_URL}/${ZIP}
-      
+
 release:
   # Caution, as of 2021-02-02 these assets links require a login, see:
   # https://gitlab.com/gitlab-org/gitlab/-/issues/299384
@@ -54,5 +54,5 @@ release:
   script:
     - |
       release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
-        --assets-link "{\"name\":\"${ZIP}\",\"url\":\"${PACKAGE_REGISTRY_URL}\/${ZIP}\",\"link_type\":\"package\",\"filepath\":\"\/plugins\/${ZIP}\"}"
+        --assets-link "{\"name\":\"${ZIP}\",\"url\":\"${PACKAGE_REGISTRY_URL}\/${ZIP}\",\"link_type\":\"package\",\"filepath\":\"\/plugins\/bridges\/${ZIP}\"}"
 
