@@ -29,7 +29,7 @@ export default function GeneralSettings() {
       <CardBody>
         <PanelRow>
           <ToggleControl
-            label={__("Block connections from unkown origins", "http-brige")}
+            label={__("Block connections from unkown origins", "http-bridge")}
             checked={whitelist}
             onChange={() => update({ whitelist: !whitelist })}
             help={__(

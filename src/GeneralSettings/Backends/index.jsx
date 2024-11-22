@@ -12,7 +12,7 @@ export default function Backends({ backends, setBackends }) {
   const tabs = backends
     .map(({ name, base_url, headers }) => ({
       name,
-      title: __(name, "http-bridge"),
+      title: name,
       base_url,
       headers,
     }))

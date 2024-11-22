@@ -62,7 +62,8 @@ export default function SettingsProvider({ children }) {
         saveSettings,
       ]}
     >
-      {(loading && <Loading message={__("Loading")} />) || children}
+      {(loading && <Loading message={__("Loading", "http-bridge")} />) ||
+        children}
     </SettingsContext.Provider>
   );
 }

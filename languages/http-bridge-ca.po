@@ -44,6 +44,95 @@ msgstr ""
 msgid "Settings"
 msgstr "Configuració"
 
+#: includes/class-http-client.php:264
+msgid "HTTP error response status code: Request to %s with %s method"
+msgstr "Codi d'error a la resposta HTTP: Petició a %s amb %s mètode"
+
+#: includes/class-menu.php:30
+msgid "Loading"
+msgstr "Carregant"
+
+#: src/providers/I18n.jsx:36
+#: src/providers/Settings.jsz:65
+msgid "Loading"
+msgstr "Carregant"
+
+#: src/GeneralSettings/Backends/Backend.jsx:47
+#: src/GeneralSettings/Backends/Backend.jsx:124
+msgid "Backend name"
+msgstr "Nom del backend"
+
+#: src/GeneralSettings/Backends/Backend.jsx:49
+#: src/GeneralSettings/Backends/Backend.jsx:126
+msgid "This name is already in use"
+msgstr "El nom ja és en ús"
+
+#: src/GeneralSettings/Backends/Backend.jsx:57
+#: src/GeneralSettings/Backends/Backend.jsx:136
+msgid "Backend base URL"
+msgstr "URL base del backend"
+
+#: src/GeneralSettings/Backends/Backend.jsx:68
+#: src/GeneralSettings/Backends/Headers.jsx:91
+msgid "Add"
+msgstr "Afegir"
+
+#: src/GeneralSettings/Backends/Backend.jsx:151
+msgid "Remove backend"
+msgstr "Eliminar backend"
+
+#: src/GeneralSettings/Backends/Backend.jsx:159
+msgid "Remove"
+msgstr "Eliminar"
+
+#: src/GeneralSettings/Backends/Headers.jsx:49
+msgid "Backend HTTP Headers"
+msgstr "Capçaleres HTTP"
+
+#: src/GeneralSettings/Backends/Headers.jsx:57
+msgid "Header-Name"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Headers.jsx:65
+msgid "Value"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Headers.jsx:78
+msgid "Drop"
+msgstr "Descartar"
+
+#: src/GeneralSettings/Backends/index.jsx:21
+msgid "Add Backend"
+msgstr "Afegir Backend"
+
+#: src/GeneralSettings/Backends/index.jsx:54
+msgid "Backends"
+msgstr ""
+
+#: src/GeneralSettings/index.jsx:27
+msgid "General"
+msgstr ""
+
+#: src/GeneralSettings/index.jsx:32
+msgid "Block connections from unkown origins"
+msgstr "Bloquejar connexions d'origens desconeguts"
+
+#: src/GeneralSettings/index.jsx:35
+msgid "Should HTTP Bridge block requests from origins not listed as backends? If active, incomming connections should include HTTP Origin header"
+msgstr "HTTP Bridge ha de bloquejar peticions des d'origens no llistats als backends? Si és així, les peticions entrants hauran d'informar la capçalera HTTP d'origen"
+
+#: src/SettingsPage/index.jsx:45
+msgid "Error"
+msgstr "Error"
+
+#: src/SettingsPage/index.jsx:45
+msgid "Save"
+msgstr "Guardar"
+
+#: src/SettingsPage/index.jsx:60
+msgid "General"
+msgstr ""
+
 #: includes/class-rest-controller.php:63
 msgid "You can't manage options"
 msgstr "No pots gestionar les opcions"
@@ -66,7 +155,7 @@ msgstr "Token d'autorizació invàlid"
 
 #: includes/class-rest-controller.php:63
 msgid "Internal Server Error"
-msgstr "Error intern del servidor"
+msgstr "Error Intern del Servidor"
 
 #: includes/class-rest-controller.php:63
 msgid "The iss do not match with this server"
@@ -74,7 +163,7 @@ msgstr "El iss no coincideix amb aquest servidor"
 
 #: includes/class-rest-controller.php:63
 msgid "The token is expired"
-msgstr "El token és caducat"
+msgstr "El token ha caducat"
 
 #: includes/class-rest-controller.php:63
 msgid "The token is not valid yet"
@@ -92,19 +181,12 @@ msgstr "L'origen HTTP es necessari"
 msgid "HTTP Origin blacklisted"
 msgstr "Origen HTTP bloquejat"
 
-#: includes/class-menu.php:30
-msgid "Loading"
-msgstr "Carregant"
-
-#: includes/class-http-client.php:264
-msgid "HTTP error response status code: Request to %s with %s method"
-msgstr "Codi d'error a la resposta HTTP: Petició a %s amb %s mètode"
-
 #: abstracts/class-menu:72
 msgid "HTTP Bridge"
 msgstr ""
 
 #: abstracts/class-menu:91
+#: abstracts/class-settings.php:214
 msgid "http-bridge_general--title"
 msgstr "General"
 

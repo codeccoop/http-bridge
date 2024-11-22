@@ -33,7 +33,8 @@ export default function I18nProvider({ children }) {
 
   return (
     <I18nContext.Provider value={translations}>
-      {(loading && <Loading message={__("Loading")} />) || children}
+      {(loading && <Loading message={__("Loading", "http-bridge")} />) ||
+        children}
     </I18nContext.Provider>
   );
 }
