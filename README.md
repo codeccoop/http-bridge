@@ -1,4 +1,8 @@
-# Wpct Http bridge
+# HTTP bridge
+
+![HTTP Bridge]()
+
+Connect WP with backends over HTTP.
 
 ## What's this pluggin for?
 
@@ -8,365 +12,68 @@ the two realms.
 
 ## How does it work?
 
-The plugin offers a high level API to perform HTTP requests from wordpress, as well as,
-a bearer authentication system to allow remote source control of the wordpress instance
-over REST API calls. The core feature is the _backends_ setting with which you
-can configure multiple backend connections to connect with in a bidirectional way.
+The plugin offers a high level API to perform HTTP requests from WordPress, as well as,
+a bearer authentication system based on JWT to allow remote source control of the
+WordPress instance over its REST API.
 
-Bearer authentication extends the WP user system. This means that the backend should
-know some login credentials to generate access tokens. You can create custom roles
-to assign to your backend user to limit its capabilities.
+The other core feature offered by the plugin is the _backends_ setting with which you
+can configure multiple backend connections to connect with and reuse in your instance.
+Each backend can be configured with a set of default headers to perform authentication
+against the remote server over the HTTP protocol.
 
-## Environment variables
-
-The plugin supports enviroment variable usage as configuration.
-
-- `WPCT_HTTP_AUTH_SECRET`: A character string to sign the jwt tokens.
+> Bearer authentication extends the WP user system. This means that the backend should
+> know some login credentials to generate access tokens. If your are concerned about
+> security about this login mechanism, you can create custom roles to assign to your
+> backend user to limit its capabilities.
 
 ## Wordpress REST API
 
 The WordPress REST API provides an interface for applications to interact with
-your WordPress site by sending and receiving data as JSON (JavaScript Object Notation)
-objects. In other words, the REST API allow the same actions user's can perform
-from worpress administartion page, but automatized. For more information about
-Wordpress REST API see the [official documentation](https://developer.wordpress.org/rest-api/).
+your WordPress site by sending and receiving data as JSON (JavaScript Object
+Notation) objects. In other words, the REST API allow the same actions user's
+can perform from WordPress administartion page, but automatized. For more information
+about Wordpress REST API see the [official documentation](https://developer.wordpress.org/rest-api/).
 
-## Endpoints
+## Installation
 
-The plugin register two new endpoints on the `wpct/v1` namespace of the WP REST API.
+Download the [latest release](https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge/-/releases/permalink/latest/downloads/plugins/bridges/http-bridge.zip)
+as a zipfile. Once downloaded, go to your site plugins page and upload the zip file as a
+new plugin, WordPress will handle the rest.
 
-### Get auth JWT
+> Go to the [releases](https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge/-/releases)
+> to find previous versions.
 
-**URL**: `wp-json/wpct/v1/http-bridge/auth`
+If you have access to a console on your server, you can install it with `wp-cli` with the
+next command:
 
-**Method**: `POST`
-
-**Authentication**: No
-
-#### Response
-
-**Code**: 200
-
-**Content**:
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZGF0YSI6eyJ1c2VyX2lkIjoxfX0.2jlFOg305ui0VTqC-RcoQP8kH7uF5DvW5O-FyNAHTDU",
-  "user_login": "admin",
-  "user_email": "admin@example.coop",
-  "display_name": "Admin"
-}
+```shell
+wp plugin install https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge/-/releases/permalink/latest/downloads/plugins/bridges/http-bridge.zip
 ```
 
-#### Bad request
+## Getting started
 
-**Condition**: Missing login credentials or not valid JSON payload
+See [install](#install) section to learn how to install the plugin. Once installed,
+go to `Settings > HTTP Bridge` to configure your backend connections. The settings
+page has two main sections:
 
-**Code**: 400
+1. General
+   - **Whitelist backends**: Controls if HTTP Bridge should block incomming connections
+     from other sources than the listed on de _backends_ setting.
+   - **Backends**: List of configured backend connections. Each backend needs a unique
+     name, a base URL, and, optional, a map of HTTP headers.
 
-**Content**:
+## Auth secret
 
-```json
-{
-  "code": "rest_bad_request",
-  "message": "Missing login credentials",
-  "data": {
-    "status": 400
-  }
-}
-```
+To be able to cryptographicaly sign the JWT, HTTP Bridge needs a secret. This secret
+should be defined as a const on your code as `HTTP_BRIDGE_AUTH_SECRET`. Default value
+is `123456789`.
 
-#### Unauthorized
+## Developers
 
-**Condition**: User credentials are invalid
+The plugin offers some hooks to expose its internal API. Go to [API](./docs/API.md) to see
+more details about the hooks, or to [REST API](./docs/REST-API.md) to see its endpoints.
 
-**Code**: 403
+## Roadmap
 
-**Content**:
-
-```json
-{
-  "code": "rest_unauthorized",
-  "message": "Invalid credentials",
-  "data": {
-    "status": 403
-  }
-}
-```
-
-#### Token validation
-
-**URL**: `wp-json/wpct/v1/http-bridge/validate`
-
-**Method**: GET
-
-**Authentication**: Bearer authentication
-
-#### Response
-
-**Code**: 200
-
-**Content**:
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZGF0YSI6eyJ1c2VyX2lkIjoxfX0.2jlFOg305ui0VTqC-RcoQP8kH7uF5DvW5O-FyNAHTDU",
-  "user_login": "admin",
-  "user_email": "admin@example.coop",
-  "display_name": "Admin"
-}
-```
-
-#### Unauthorized
-
-**Condition**: Invalid token
-
-**Code**: 403
-
-**Content**:
-
-```json
-{
-  "code": "rest_unauthorized",
-  "message": "Invalid credentials",
-  "data": {
-    "status": 403
-  }
-}
-```
-
-## API
-
-### Getters
-
-#### `wpct_http_backend`
-
-Get backend configuration by name.
-
-Arguments:
-
-1. `any $default`: Default value.
-2. `string $name`: Backend name.
-
-Returns:
-
-1. `array|null $backend`: Backend data.
-
-Example:
-
-```php
-$backend = apply_filter('wpct_http_backend', null, 'Odoo');
-if (!empty($backend)) {
-	// do something
-}
-```
-
-#### `wpct_http_backends`
-
-Get configured backends list.
-
-Arguments:
-
-1. `any $default`: Default value.
-
-Returns:
-
-1. `array $backends`: List of available backends.
-
-Example:
-
-```php
-$backends = apply_filters('wpct_http_backends', []);
-foreach ($backends as $backend) {
-	// do something
-}
-```
-
-### Methods
-
-#### `wpct_http_get`
-
-Performs GET requests.
-
-Arguments:
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-Returns:
-
-1. `array|WP_Error`: Request response.
-
-Example:
-
-```php
-$response = wpct_http_get('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'params' => [
-		'foo' => 'bar',
-	],
-]);
-```
-
-#### `wpct_http_post`
-
-Performs POST requests.
-
-Arguments:
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-Returns:
-
-1. `array|WP_Error`: Request response.
-
-Example:
-
-```php
-$response = wpct_http_post('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'data' => [
-		'foo' => 'bar',
-	],
-	'files' => [
-		'file-name' => '/path/to/file.ext',
-	],
-]);
-```
-
-#### `wpct_http_put`
-
-Performs PUT requests.
-
-Arguments:
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-Returns:
-
-1. `array|WP_Error`: Request response.
-
-Example:
-
-```php
-$response = wpct_http_put('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'data' => [
-		'foo' => 'bar',
-	],
-	'files' => [
-		'file-name' => '/path/to/file.ext',
-	],
-]);
-```
-
-#### `wpct_http_delete`
-
-Performs DELETE requests.
-
-Arguments:
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-Returns:
-
-1. `array|WP_Error`: Request response.
-
-Example:
-
-```php
-$response = wpct_http_delete('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'params' => [
-		'foo' => 'bar',
-	],
-]);
-```
-
-### Filters
-
-#### `wpct_http_request_args`
-
-Filter the HTTP request arguments before is sent.
-
-Arguments:
-
-1. `array $args`: Array with `url`, `method`, `headers`, `files`, `params` and `data` keys.
-
-```php
-add_filter('wpct_http_req_args', function ($args) {
-	return $args;
-}, 10, 3);
-```
-
-### `wpct_http_validate_response`
-
-Filters the login data to be returned on REST API requests to the validate endpoint.
-
-Arguments:
-
-1. `array $login_data`: Data to be returned with the auth token and user data.
-2. `array $user`: WP_User instance of the authenticated user.
-
-```php
-add_filter('wpct_http_validate_response', function ($login_data, $user) {
-	return $login_data;
-}, 10, 2);
-```
-
-### `wpct_http_auth_response`
-
-Filters the login data to be returned on REST API requests to the auth endpoint.
-
-Arguments:
-
-1. `array $login_data`: Data to be returned with the auth token and user data.
-2. `array $user`: WP_User instance of the authenticated user.
-
-```php
-add_filter('wpct_http_auth_response', function ($login_data, $user) {
-	return $login_data;
-}, 10, 2);
-```
-
-### `wpct_http_auth_expire`
-
-Filters the `exp` claim value of generated JWTs. Default value is `time() + 86400`,
-24 hours from now.
-
-Arguments:
-
-1. `int $exp`: PHP timestamp.
-2. `int $issuedAt`: PHP timestamp.
-
-```php
-add_filter('wpct_http_auth_expire', function ($exp, $issuedAt) {
-	return $exp;
-}, 10, 2);
-```
-
-### `wpct_http_auth_not_before`
-
-Filters the `nbf` claim value of generated JWTs. Default value is `time()`.
-
-Arguments:
-
-1. `int $nbf`: PHP timestamp.
-2. `int $issuedAt`: PHP timestamp.
-
-```php
-add_filter('wpct_http_auth_not_before', function ($nbf, $issuedAt) {
-	return $nbf;
-}, 10, 2);
-```
+1. [ ] Add test coverage with phpunit.
+2. [ ] Improve admin client UX.

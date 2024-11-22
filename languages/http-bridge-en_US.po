@@ -1,0 +1,203 @@
+# Copyright (C) 2024 Còdec
+# This file is distributed under the same license as the HTTP Bridge plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: HTTP Bridge 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/http-bridge\n"
+"Last-Translator: Lucas García <lucas@codeccoop.org>\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-11-22T20:46:26+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language: en_US\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: http-bridge\n"
+
+#. Plugin Name of the plugin
+#: http-bridge.php
+msgid "HTTP Bridge"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: http-bridge.php
+msgid "https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge"
+msgstr ""
+
+#. Description of the plugin
+#: http-bridge.php
+msgid "Connect WP with backends over HTTP"
+msgstr ""
+
+#. Author of the plugin
+#: http-bridge.php
+msgid "Còdec"
+msgstr ""
+
+#. Author URI of the plugin
+#: http-bridge.php
+msgid "https://www.codeccoop.org"
+msgstr ""
+
+#: http-bridge.php:101
+msgid "Settings"
+msgstr ""
+
+#: includes/class-http-client.php:268
+msgid "HTTP error response status code: Request to %s with %s method"
+msgstr ""
+
+#: includes/class-menu.php:30
+msgid "Loading"
+msgstr ""
+
+#: src/providers/I18n.jsx:36
+#: src/providers/Settings.jsz:65
+msgid "Loading"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Backend.jsx:47
+#: src/GeneralSettings/Backends/Backend.jsx:124
+msgid "Backend name"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Backend.jsx:49
+#: src/GeneralSettings/Backends/Backend.jsx:126
+msgid "This name is already in use"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Backend.jsx:57
+#: src/GeneralSettings/Backends/Backend.jsx:136
+msgid "Backend base URL"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Backend.jsx:68
+#: src/GeneralSettings/Backends/Headers.jsx:91
+msgid "Add"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Backend.jsx:151
+msgid "Remove backend"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Backend.jsx:159
+msgid "Remove"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Headers.jsx:49
+msgid "Backend HTTP Headers"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Headers.jsx:57
+msgid "Header-Name"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Headers.jsx:65
+msgid "Value"
+msgstr ""
+
+#: src/GeneralSettings/Backends/Headers.jsx:78
+msgid "Drop"
+msgstr ""
+
+#: src/GeneralSettings/Backends/index.jsx:21
+msgid "Add Backend"
+msgstr ""
+
+#: src/GeneralSettings/Backends/index.jsx:54
+msgid "Backends"
+msgstr ""
+
+#: src/GeneralSettings/index.jsx:27
+msgid "General"
+msgstr ""
+
+#: src/GeneralSettings/index.jsx:32
+msgid "Block connections from unkown origins"
+msgstr ""
+
+#: src/GeneralSettings/index.jsx:35
+msgid "Should HTTP Bridge block requests from origins not listed as backends? If active, incomming connections should include HTTP Origin header"
+msgstr ""
+
+#: src/SettingsPage/index.jsx:45
+msgid "Error"
+msgstr ""
+
+#: src/SettingsPage/index.jsx:45
+msgid "Save"
+msgstr ""
+
+#: src/SettingsPage/index.jsx:60
+msgid "General"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "You can't manage options"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "Invalid JSON data"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "Missing login credentials"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "Invalid credentials"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "Invalid auhtorization token"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "Internal Server Error"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "The iss do not match with this server"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "The token is expired"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "The token is not valid yet"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "User ID not found in the token"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "HTTP Origin is required"
+msgstr ""
+
+#: includes/class-rest-controller.php:63
+msgid "HTTP Origin blacklisted"
+msgstr ""
+
+#: abstracts/class-menu:72
+msgid "HTTP Bridge"
+msgstr ""
+
+#: abstracts/class-menu:91
+#: abstracts/class-settings.php:214
+msgid "http-bridge_general--title"
+msgstr "General"
+
+#: abstracts/class-settings.php:216
+msgid "http-bridge_general--description"
+msgstr "Plugin settings"
+
+#: abstracts/class-settings.php:240
+msgid "wpct-bridge_general__whitelist--label"
+msgstr "Block connections from unknown origins"
+
+#: abstracts/class-settings.php:240
+msgid "wpct-bridge_general__backends--label"
+msgstr "Backends"

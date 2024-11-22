@@ -1,27 +1,30 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use WPCT_ABSTRACT\Settings as BaseSettings;
 
+if (!defined('ABSPATH')) {
+    exit();
+}
+
 /**
  * Plugin settings.
- *
- * @since 1.0.0
  */
 class Settings extends BaseSettings
 {
     /**
      * Register plugin settings.
-     *
-     * @since 2.0.0
      */
     public function register()
     {
         $url = parse_url(get_site_url());
+
+        // Register general settings
         $this->register_setting(
             'general',
             [
+                'whitelist' => ['type' => 'boolean'],
                 'backends' => [
                     'type' => 'array',
                     'items' => [
@@ -44,19 +47,20 @@ class Settings extends BaseSettings
                 ],
             ],
             [
+                'whitelist' => false,
                 'backends' => [
                     [
                         'name' => 'ERP',
                         'base_url' => 'https://erp.' . $url['host'],
                         'headers' => [
-							[
-								'name' => 'Authorization',
-                                'value' => 'Bearer <backend-api-token>'
-							]
-						],
+                            [
+                                'name' => 'Authorization',
+                                'value' => 'Bearer <backend-api-token>',
+                            ],
+                        ],
                     ],
                 ],
-            ],
+            ]
         );
     }
 }

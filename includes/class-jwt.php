@@ -1,27 +1,25 @@
 <?php
 
-namespace WPCT_HTTP;
+namespace HTTP_BRIDGE;
 
 use Exception;
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * JWT REST API authentication.
- *
- * @since 2.0.0
  */
 class JWT
 {
     /**
      * Handle auth secret.
-     *
-     * @since 2.0.0
      */
-    private static $key = WPCT_HTTP_AUTH_SECRET;
+    private static $key = HTTP_BRIDGE_AUTH_SECRET;
 
     /**
      * Get encoded payload token.
-     *
-     * @since 2.0.0
      *
      * @param array $payload Token payload.
      * @return string $token JWT encoded token.
@@ -44,8 +42,6 @@ class JWT
 
     /**
      * Get decoded token payload.
-     *
-     * @since 2.0.0
      *
      * @param string $token JWT encoded token.
      * @return array $payload Token payload.
@@ -82,8 +78,6 @@ class JWT
     /**
      * URL conformant base64 encoder.
      *
-     * @since 2.0.0
-     *
      * @param string $text Source string.
      * @return string $base64 Encoded string.
      */
@@ -94,8 +88,6 @@ class JWT
 
     /**
      * URL conformant base64 decoder.
-     *
-     * @since 2.0.0
      *
      * @param string $base64 Encoded string.
      * @return string $text Decoded string.
