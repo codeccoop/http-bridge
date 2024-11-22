@@ -141,6 +141,12 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
                 ['in_footer' => true]
             );
 
+            wp_set_script_translations(
+                $this->get_textdomain(),
+                $this->get_textdomain(),
+                plugin_dir_path(__FILE__) . 'languages'
+            );
+
             wp_enqueue_style('wp-components');
         }
 

@@ -9,7 +9,6 @@ import {
 import { useState } from "@wordpress/element";
 
 // source
-import I18nProvider, { useI18n } from "../providers/I18n";
 import SettingsProvider, { useSubmitSettings } from "../providers/Settings";
 import GeneralSettings from "../GeneralSettings";
 
@@ -21,7 +20,7 @@ const tabs = [
 ];
 
 function SaveButton() {
-  const __ = useI18n();
+  const __ = wp.i18n.__;
   const submit = useSubmitSettings();
 
   const [loading, setLoading] = useState(false);
@@ -48,28 +47,26 @@ function SaveButton() {
 }
 
 export default function SettingsPage() {
-  const __ = useI18n();
+  const __ = wp.i18n.__;
   return (
-    <I18nProvider>
-      <SettingsProvider>
-        <Heading level={1}>HTTP Bridge</Heading>
-        <TabPanel
-          initialTabName="general"
-          tabs={tabs.map(({ name, title }) => ({
-            name,
-            title: __(title, "http-bridge"),
-          }))}
-        >
-          {() => (
-            <>
-              <Spacer />
-              <GeneralSettings />
-            </>
-          )}
-        </TabPanel>
-        <Spacer />
-        <SaveButton />
-      </SettingsProvider>
-    </I18nProvider>
+    <SettingsProvider>
+      <Heading level={1}>HTTP Bridge</Heading>
+      <TabPanel
+        initialTabName="general"
+        tabs={tabs.map(({ name, title }) => ({
+          name,
+          title: __(title, "http-bridge"),
+        }))}
+      >
+        {() => (
+          <>
+            <Spacer />
+            <GeneralSettings />
+          </>
+        )}
+      </TabPanel>
+      <Spacer />
+      <SaveButton />
+    </SettingsProvider>
   );
 }

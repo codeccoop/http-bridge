@@ -13,10 +13,9 @@ import {
 // source
 import { useGeneral } from "../providers/Settings";
 import Backends from "./Backends";
-import { useI18n } from "../providers/I18n";
 
 export default function GeneralSettings() {
-  const __ = useI18n();
+  const __ = wp.i18n.__;
   const [{ whitelist, backends }, save] = useGeneral();
 
   const update = (field) => save({ whitelist, backends, ...field });
@@ -32,6 +31,7 @@ export default function GeneralSettings() {
             label={__("Block connections from unkown origins", "http-bridge")}
             checked={whitelist}
             onChange={() => update({ whitelist: !whitelist })}
+            __nextHasNoMarginBottom
             help={__(
               "Should HTTP Bridge block requests from origins not listed as backends? If active, incomming connections should include HTTP Origin header",
               "http-bridge"

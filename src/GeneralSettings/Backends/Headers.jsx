@@ -7,11 +7,8 @@ import {
 } from "@wordpress/components";
 import { useEffect } from "@wordpress/element";
 
-// source
-import { useI18n } from "../../providers/I18n";
-
 export default function BackendHeaders({ headers, setHeaders }) {
-  const __ = useI18n();
+  const __ = wp.i18n.__;
   const setHeader = (attr, index, value) => {
     const newHeaders = headers.map((header, i) => {
       if (index === i) header[attr] = value;

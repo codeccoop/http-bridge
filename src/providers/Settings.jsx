@@ -1,6 +1,5 @@
 // vendor
 import React from "react";
-import { __ } from "@wordpress/i18n";
 import apiFetch from "@wordpress/api-fetch";
 import {
   createContext,
@@ -24,6 +23,7 @@ const defaultSettings = {
 const SettingsContext = createContext([defaultSettings, noop]);
 
 export default function SettingsProvider({ children }) {
+  const __ = wp.i18n.__;
   const [general, setGeneral] = useState({ ...defaultSettings.general });
   const [loading, setLoading] = useState(true);
 

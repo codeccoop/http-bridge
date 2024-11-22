@@ -10,10 +10,9 @@ import { useState, useRef, useEffect } from "@wordpress/element";
 // source
 import BackendHeaders from "./Headers";
 import useBackendNames from "../../hooks/useBackendNames";
-import { useI18n } from "../../providers/I18n";
 
 function NewBackend({ add }) {
-  const __ = useI18n();
+  const __ = wp.i18n.__;
   const backendNames = useBackendNames();
 
   const [name, setName] = useState("");
@@ -76,7 +75,7 @@ let focus = false;
 export default function Backend({ update, remove, ...data }) {
   if (data.name === "add") return <NewBackend add={update} />;
 
-  const __ = useI18n();
+  const __ = wp.i18n.__;
   const [name, setName] = useState(data.name);
   const initialName = useRef(data.name);
   const nameInput = useRef();
