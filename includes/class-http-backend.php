@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use Exception;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**
@@ -37,7 +37,9 @@ class Http_Backend
     {
         $this->data = $this->get_backend($name);
         if (!$this->data) {
-            throw new Exception("Http backend error: Unkown backend with name {$name}");
+            throw new Exception(
+                "Http backend error: Unkown backend with name {$name}"
+            );
         }
     }
 
@@ -84,7 +86,9 @@ class Http_Backend
         }
 
         $base_url = $this->base_url;
-        return preg_replace('/\/$/', '', $base_url) . '/' . preg_replace('/^\//', '', $path);
+        return preg_replace('/\/$/', '', $base_url) .
+            '/' .
+            preg_replace('/^\//', '', $path);
     }
 
     /**
@@ -96,7 +100,7 @@ class Http_Backend
     {
         $headers = [];
         foreach ($this->headers as $header) {
-            $headers[strtolower(trim($header['name']))] = trim($header['value']);
+            $headers[trim($header['name'])] = trim($header['value']);
         }
 
         return $headers;
@@ -104,10 +108,19 @@ class Http_Backend
 }
 
 // Get new backend instance.
-add_filter('http_bridge_backend', function ($default, $name) {
-    return new Http_Backend($name);
-}, 10, 2);
+add_filter(
+    'http_bridge_backend',
+    function ($default, $name) {
+        return new Http_Backend($name);
+    },
+    10,
+    2
+);
 
-add_filter('http_bridge_backends', function () {
-    return Http_Backend::get_backends();
-}, 10);
+add_filter(
+    'http_bridge_backends',
+    function () {
+        return Http_Backend::get_backends();
+    },
+    10
+);
