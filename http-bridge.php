@@ -36,17 +36,17 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
      */
     define('HTTP_BRIDGE_VERSION', '1.0.3');
 
-    require_once 'abstracts/class-singleton.php';
     require_once 'abstracts/class-plugin.php';
-    require_once 'abstracts/class-menu.php';
-    require_once 'abstracts/class-settings.php';
+
+    require_once 'deps/i18n/wpct-i18n.php';
 
     require_once 'includes/class-menu.php';
     require_once 'includes/class-settings.php';
     require_once 'includes/class-http-client.php';
     require_once 'includes/class-http-backend.php';
     require_once 'includes/class-jwt.php';
-    require_once 'includes/class-rest-controller.php';
+    require_once 'includes/class-rest-settings-controller.php';
+    require_once 'includes/class-rest-auth-controller.php';
 
     /**
      * HTTP Bridge plugin.
@@ -80,7 +80,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
         public function __construct()
         {
             parent::__construct();
-            REST_Controller::start();
+            REST_Auth_Controller::setup();
 
             $this->wp_hooks();
         }

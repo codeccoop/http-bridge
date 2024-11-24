@@ -2,32 +2,32 @@
 
 namespace HTTP_BRIDGE;
 
-use WPCT_ABSTRACT\Singleton as Singleton;
 use Exception;
 use Error;
 use WP_Error;
 use WP_REST_Server;
+use WPCT_ABSTRACT\Singleton;
 
 if (!defined('ABSPATH')) {
     exit();
 }
 
 /**
- * REST API Controller.
+ * REST API Auth Controller.
  */
-class REST_Controller extends Singleton
+class REST_Auth_Controller extends Singleton
 {
     /**
-     * REST API namespaces handler.
+     * Handle REST API controller namespace.
      *
      * @var string $namespace REST API namespace.
      */
     private $namespace = 'wp-bridges';
 
     /**
-     * REST API version handler.
+     * Handle REST API controller namespace version.
      *
-     * @var string $version REST API version.
+     * @var int $version REST API namespace version.
      */
     private $version = 1;
 
@@ -39,31 +39,11 @@ class REST_Controller extends Singleton
     private $user = null;
 
     /**
-     * @var array $settings Handle the plugin settings names list.
-     */
-    private static $settings = ['general'];
-
-    /**
      * Authorization error handler.
      *
      * @var WP_Error|null $auth_error authorization error.
      */
     private $auth_error = null;
-
-    /**
-     * WP_Error proxy.
-     *
-     * @param string $code Error code.
-     * @param string $message Error message.
-     * @param string $status HTTP status code.
-     * @return WP_Error API error.
-     */
-    private static function error($code, $message, $status)
-    {
-        return new WP_Error($code, __($message, 'http-bridge'), [
-            'status' => $status,
-        ]);
-    }
 
     /**
      * Authorization header getter.
@@ -91,22 +71,34 @@ class REST_Controller extends Singleton
     }
 
     /**
-     * Starts the controller.
+     * Setup a new rest settings controller.
+     *
+     * @return object $controller Instance of REST_Controller.
      */
-    public static function start()
+    public static function setup()
     {
-        return REST_Controller::get_instance();
+        return new REST_Auth_Controller();
     }
 
     /**
-     * Bind methods to WP REST API hooks.
+     * Internal WP_Error proxy.
+     *
+     * @param string $code
+     * @param string $message
+     * @param int $status
+     */
+    private static function error($code, $message, $status)
+    {
+        return new WP_Error($code, __($message, 'http-bridge'), [
+            'status' => $status,
+        ]);
+    }
+
+    /**
+     * Binds auth checks to rest api hooks and registers routes.
      */
     public function __construct()
     {
-        add_action('rest_api_init', function () {
-            $this->init();
-        });
-
         add_action('determine_current_user', function ($user_id) {
             return $this->determine_current_user($user_id);
         });
@@ -119,41 +111,17 @@ class REST_Controller extends Singleton
             10,
             3
         );
+
+        add_action('rest_api_init', function () {
+            $this->init();
+        });
     }
 
-    /**
-     * Register API routes.
-     */
     private function init()
     {
         register_rest_route(
             "{$this->namespace}/v{$this->version}",
-            '/http/settings',
-            [
-                [
-                    'methods' => WP_REST_Server::READABLE,
-                    'callback' => function () {
-                        return $this->get_settings();
-                    },
-                    'permission_callback' => function () {
-                        return $this->settings_permission_callback();
-                    },
-                ],
-                [
-                    'methods' => WP_REST_Server::CREATABLE,
-                    'callback' => function () {
-                        return $this->set_settings();
-                    },
-                    'permission_callback' => function () {
-                        return $this->settings_permission_callback();
-                    },
-                ],
-            ]
-        );
-
-        register_rest_route(
-            "{$this->namespace}/v{$this->version}",
-            '/http/auth',
+            '/http-bridge/auth',
             [
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => function () {
@@ -167,7 +135,7 @@ class REST_Controller extends Singleton
 
         register_rest_route(
             "{$this->namespace}/v{$this->version}",
-            '/http/validate-token',
+            '/http-bridge/validate-token',
             [
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => function () {
@@ -178,52 +146,6 @@ class REST_Controller extends Singleton
                 },
             ]
         );
-    }
-
-    /**
-     * GET requests settings endpoint callback.
-     *
-     * @return array $settings Associative array with settings data.
-     */
-    private function get_settings()
-    {
-        $settings = [];
-        foreach (self::$settings as $setting) {
-            $settings[$setting] = Settings::get_setting(
-                'http-bridge',
-                $setting
-            );
-        }
-
-        return $settings;
-    }
-
-    /**
-     * POST requests settings endpoint callback. Store settings on the options table.
-     *
-     * @return array $response New settings state.
-     */
-    private function set_settings()
-    {
-        $data = (array) json_decode(file_get_contents('php://input'), true);
-        $response = [];
-        foreach (self::$settings as $setting) {
-            if (!isset($data[$setting])) {
-                continue;
-            }
-
-            $from = Settings::get_setting('http-bridge', $setting);
-            $to = $data[$setting];
-
-            foreach (array_keys($from) as $key) {
-                $to[$key] = isset($to[$key]) ? $to[$key] : $from[$key];
-            }
-
-            update_option('http-bridge_' . $setting, $to);
-            $response[$setting] = $to;
-        }
-
-        return $response;
     }
 
     /**
@@ -286,22 +208,6 @@ class REST_Controller extends Singleton
             ],
             $this->user
         );
-    }
-
-    /**
-     * Check if current user can manage options
-     *
-     * @return boolean $allowed
-     */
-    private function settings_permission_callback()
-    {
-        return current_user_can('manage_options')
-            ? true
-            : self::error(
-                'rest_unauthorized',
-                'You can\'t manage options',
-                403
-            );
     }
 
     /**

@@ -14,6 +14,13 @@ if (!defined('ABSPATH')) {
 class Settings extends BaseSettings
 {
     /**
+     * Handle plugin settings rest controller class name.
+     *
+     * @var string $rest_controller_class Settings REST Controller class name.
+     */
+    protected static $rest_controller_class = '\HTTP_BRIDGE\REST_Settings_Controller';
+
+    /**
      * Register plugin settings.
      */
     public function register()
