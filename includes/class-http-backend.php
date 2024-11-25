@@ -27,7 +27,9 @@ class Http_Backend
      */
     public static function get_backends()
     {
-        return Settings::get_setting('http-bridge', 'general', 'backends');
+        return array_map(function ($backend_data) {
+            return new HTTP_Backend($backend_data['name']);
+        }, Settings::get_setting('http-bridge', 'general', 'backends'));
     }
 
     /**
@@ -35,7 +37,7 @@ class Http_Backend
      */
     public function __construct($name)
     {
-        $this->data = $this->get_backend($name);
+        $this->data = $this->get_backend_data($name);
         if (!$this->data) {
             throw new Exception(
                 "Http backend error: Unkown backend with name {$name}"
@@ -46,11 +48,11 @@ class Http_Backend
     /**
      * Backend data getter.
      *
-     * @return array|null $backend Backen data.
+     * @return array|null Backen data.
      */
-    private function get_backend($name)
+    private function get_backend_data($name)
     {
-        $backends = static::get_backends();
+        $backends = Settings::get_setting('http-bridge', 'general', 'backends');
         foreach ($backends as $backend) {
             if ($backend['name'] === $name) {
                 return $backend;
