@@ -11,8 +11,10 @@ domReady(() => {
   const root = createRoot(document.getElementById("http-bridge"));
 
   root.render(
-    <ErrorBoundary fallback={<h1>Error</h1>}>
-      <SettingsPage />
-    </ErrorBoundary>
+    <div style={{ position: "relative" }}>
+      <ErrorBoundary fallback={<h1>Error</h1>}>
+        <SettingsPage />
+      </ErrorBoundary>
+    </div>
   );
 });

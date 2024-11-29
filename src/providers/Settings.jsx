@@ -6,12 +6,8 @@ import {
   useContext,
   useState,
   useEffect,
+  useRef,
 } from "@wordpress/element";
-
-// source
-import Loading from "../Loading";
-
-const noop = () => {};
 
 const defaultSettings = {
   general: {
@@ -20,15 +16,16 @@ const defaultSettings = {
   },
 };
 
-const SettingsContext = createContext([defaultSettings, noop]);
+const SettingsContext = createContext([defaultSettings, () => {}]);
 
-export default function SettingsProvider({ children }) {
-  const __ = wp.i18n.__;
+export default function SettingsProvider({ children, setLoading }) {
+  const persisted = useRef(true);
+
   const [general, setGeneral] = useState({ ...defaultSettings.general });
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    apiFetch({
+  const fetchSettings = () => {
+    setLoading(true);
+    return apiFetch({
       path: `${window.wpApiSettings.root}wp-bridges/v1/http-bridge/settings`,
       headers: {
         "X-WP-Nonce": wpApiSettings.nonce,
@@ -37,10 +34,32 @@ export default function SettingsProvider({ children }) {
       .then((settings) => {
         setGeneral(settings.general);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          persisted.current = true;
+        }, 500);
+      });
+  };
+
+  const beforeUnload = useRef((ev) => {
+    if (!persisted.current) {
+      ev.preventDefault();
+      ev.returnValue = true;
+    }
+  }).current;
+
+  useEffect(() => {
+    fetchSettings();
+    window.addEventListener("beforeunload", (ev) => beforeUnload(ev));
   }, []);
 
+  useEffect(() => {
+    persisted.current = false;
+  }, [general]);
+
   const saveSettings = () => {
+    setLoading(true);
     return apiFetch({
       path: `${window.wpApiSettings.root}wp-bridges/v1/http-bridge/settings`,
       method: "POST",
@@ -49,7 +68,7 @@ export default function SettingsProvider({ children }) {
       },
       mode: "same-origin",
       data: { general },
-    });
+    }).then(fetchSettings);
   };
 
   return (
@@ -62,8 +81,7 @@ export default function SettingsProvider({ children }) {
         saveSettings,
       ]}
     >
-      {(loading && <Loading message={__("Loading", "http-bridge")} />) ||
-        children}
+      {children}
     </SettingsContext.Provider>
   );
 }

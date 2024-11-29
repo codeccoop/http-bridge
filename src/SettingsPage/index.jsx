@@ -11,6 +11,7 @@ import { useState } from "@wordpress/element";
 // source
 import SettingsProvider, { useSubmitSettings } from "../providers/Settings";
 import GeneralSettings from "../GeneralSettings";
+import Spinner from "../Spinner";
 
 const tabs = [
   {
@@ -19,18 +20,20 @@ const tabs = [
   },
 ];
 
-function SaveButton() {
+function SaveButton({ loading, setLoading }) {
   const __ = wp.i18n.__;
   const submit = useSubmitSettings();
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   const onClick = () => {
     setLoading(true);
     submit()
       .then(() => setLoading(false))
-      .catch(() => setError(true));
+      .catch(() => {
+        console.error(err);
+        setError(true);
+      });
   };
 
   return (
@@ -48,8 +51,20 @@ function SaveButton() {
 
 export default function SettingsPage() {
   const __ = wp.i18n.__;
+
+  const [loaders, setLoaders] = useState([]);
+
+  const loading = loaders.length > 0;
+  const setLoading = (state) => {
+    const newLoaders = loaders
+      .slice(1)
+      .concat(state)
+      .filter((state) => state);
+    setLoaders(newLoaders);
+  };
+
   return (
-    <SettingsProvider>
+    <SettingsProvider setLoading={setLoading}>
       <Heading level={1}>HTTP Bridge</Heading>
       <TabPanel
         initialTabName="general"
@@ -66,7 +81,8 @@ export default function SettingsPage() {
         )}
       </TabPanel>
       <Spacer />
-      <SaveButton />
+      <SaveButton loading={loading} setLoading={setLoading} />
+      <Spinner show={loading} />
     </SettingsProvider>
   );
 }
