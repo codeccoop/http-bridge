@@ -315,6 +315,29 @@ class Http_Client
 
         return get_locale();
     }
+
+    /**
+     * Splits query params from URLs.
+     * 
+     * @param string $url Target URL.
+     * 
+     * @return array Tuple with URL and query params as array.
+     */
+    public static function sanitize_url($url)
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return new WP_Error('invalid_url', "{$url} is not a valid URL", ['url' => $url]);
+        }
+
+        $params = [];
+        $url_data = parse_url($url);
+        if (isset($url_data['query'])) {
+            $params = str_parse($url_data['query']);
+            $url = preg_replace('/\?' . $url_data['query'] . '/', '', $url);
+        }
+
+        return [$url, $params];
+    }
 }
 
 /**
@@ -326,7 +349,14 @@ class Http_Client
  */
 function http_bridge_get($url, $args = [])
 {
+    [$url, $query] = Http_Client::sanitize_url($url);
+    if (is_wp_error($url)) {
+        return $url;
+    }
+
     ['params' => $params, 'headers' => $headers] = Http_Client::req_args($args);
+    $params = array_merge($query, $params);
+
     return Http_Client::get($url, $params, $headers);
 }
 
@@ -339,11 +369,17 @@ function http_bridge_get($url, $args = [])
  */
 function http_bridge_post($url, $args = [])
 {
+    [$url] = Http_Client::sanitize_url($url);
+    if (is_wp_error($url)) {
+        return $url;
+    }
+
     [
         'data' => $data,
         'headers' => $headers,
         'files' => $files,
     ] = Http_Client::req_args($args);
+
     return Http_Client::post($url, $data, $headers, $files);
 }
 
@@ -356,11 +392,17 @@ function http_bridge_post($url, $args = [])
  */
 function http_bridge_put($url, $arguments = [])
 {
+    [$url] = Http_Client::sanitize_url($url);
+    if (is_wp_error($url)) {
+        return $url;
+    }
+
     [
         'data' => $data,
         'headers' => $headers,
         'files' => $files,
     ] = Http_Client::req_args($arguments);
+
     return Http_Client::put($url, $data, $headers, $files);
 }
 
@@ -373,6 +415,13 @@ function http_bridge_put($url, $arguments = [])
  */
 function http_bridge_delete($url, $args = [])
 {
+    [$url, $query] = Http_Client::sanitize_url($url);
+    if (is_wp_error($url)) {
+        return $url;
+    }
+
     ['params' => $params, 'headers' => $headers] = Http_Client::req_args($args);
+    $params = array_merge($query, $params);
+
     return Http_Client::delete($url, $params, $headers);
 }
