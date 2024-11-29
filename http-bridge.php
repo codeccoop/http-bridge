@@ -8,7 +8,7 @@
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.0.3
+ * Version:         1.0.4
  */
 
 namespace HTTP_BRIDGE;
@@ -34,7 +34,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
      *
      * @var string HTTP_BRIDGE_VERSION Current plugin version.
      */
-    define('HTTP_BRIDGE_VERSION', '1.0.3');
+    define('HTTP_BRIDGE_VERSION', '1.0.4');
 
     require_once 'abstracts/class-plugin.php';
 
