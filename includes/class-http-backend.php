@@ -64,6 +64,10 @@ class Http_Backend
 
     /**
      * Intercept class gets and lookup on backend data.
+     * 
+     * @param string $attr Attribute name.
+     * 
+     * @return mixed Attribute value or null.
      */
     public function __get($attr)
     {
@@ -75,9 +79,10 @@ class Http_Backend
     }
 
     /**
-     * Get backend absolute URL.
+     * Gets backend absolute URL.
      *
      * @param string $path URL relative path.
+     * 
      * @return string $url Absolute URL.
      */
     public function get_endpoint_url($path)
@@ -94,7 +99,7 @@ class Http_Backend
     }
 
     /**
-     * Get backend default headers.
+     * Gets backend default headers.
      *
      * @return array $headers Backend headers.
      */
@@ -109,7 +114,7 @@ class Http_Backend
     }
 }
 
-// Get new backend instance.
+// Gets a new backend instance.
 add_filter(
     'http_bridge_backend',
     function ($default, $name) {
@@ -119,6 +124,7 @@ add_filter(
     2
 );
 
+// Gets all configured backend instances.
 add_filter(
     'http_bridge_backends',
     function () {

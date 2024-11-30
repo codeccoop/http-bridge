@@ -22,7 +22,8 @@ class JWT
      * Get encoded payload token.
      *
      * @param array $payload Token payload.
-     * @return string $token JWT encoded token.
+     * 
+     * @return string JWT encoded token.
      */
     public function encode($payload)
     {
@@ -44,7 +45,8 @@ class JWT
      * Get decoded token payload.
      *
      * @param string $token JWT encoded token.
-     * @return array $payload Token payload.
+     * 
+     * @return array Token payload.
      */
     public function decode($token)
     {
@@ -79,7 +81,8 @@ class JWT
      * URL conformant base64 encoder.
      *
      * @param string $text Source string.
-     * @return string $base64 Encoded string.
+     * 
+     * @return string Encoded string.
      */
     private function base64URLEncode($text)
     {
@@ -90,7 +93,8 @@ class JWT
      * URL conformant base64 decoder.
      *
      * @param string $base64 Encoded string.
-     * @return string $text Decoded string.
+     * 
+     * @return string Decoded string.
      */
     private function base64URLDecode($text)
     {

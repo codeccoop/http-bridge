@@ -52,7 +52,7 @@ class Multipart
     /**
      * Encode array data as multipart text.
      *
-     * @param array<string|int, mixed> $data Input data.
+     * @param array<string|int>, mixed> $data Input data.
      * @param string $prefix Field name prefix.
      */
     public function add_array($data, $prefix = '')
@@ -113,7 +113,7 @@ class Multipart
     /**
      * Get bounded mime content type.
      *
-     * @return string $content_type Mime content type.
+     * @return string Mime content type.
      */
     public function content_type()
     {
@@ -123,7 +123,7 @@ class Multipart
     /**
      * Get content data.
      *
-     * @return string $data Content data.
+     * @return string Content data.
      */
     public function data()
     {

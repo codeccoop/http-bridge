@@ -73,7 +73,7 @@ class REST_Auth_Controller extends Singleton
     /**
      * Setup a new rest settings controller.
      *
-     * @return object $controller Instance of REST_Controller.
+     * @return object Instance of REST_Controller.
      */
     public static function setup()
     {
@@ -151,7 +151,7 @@ class REST_Auth_Controller extends Singleton
     /**
      * Auth callback.
      *
-     * @returns array<string, string> $token Login token.
+     * @return array<string, string> Login token.
      */
     private function auth()
     {
@@ -313,7 +313,8 @@ class REST_Auth_Controller extends Singleton
      * Determine current user from bearer authentication.
      *
      * @param int|null $user_id Already identified user ID.
-     * @return int|null $user_id Identified user ID.
+     * 
+     * @return int|null Identified user ID.
      */
     private function determine_current_user($user_id)
     {
@@ -363,7 +364,7 @@ class REST_Auth_Controller extends Singleton
     /**
      * Abort rest dispatches if auth errors.
      *
-     * @return object|WP_Error $request REST Request instance.
+     * @return object|WP_Error REST Request instance.
      */
     private function rest_pre_dispatch($result, $server, $request)
     {
@@ -388,7 +389,7 @@ class REST_Auth_Controller extends Singleton
     /**
      * Check CORS policies based on configured backends.
      *
-     * @return null|WP_Error $error CORS error.
+     * @return null|WP_Error CORS error.
      */
     private function cors_allowed()
     {

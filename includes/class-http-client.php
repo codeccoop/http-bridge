@@ -35,7 +35,8 @@ class Http_Client
      * Fills request arguments with defaults.
      *
      * @param array $args Request arguments.
-     * @return array $args Request arguments with defaults.
+     * 
+     * @return array Request arguments with defaults.
      */
     public static function req_args($args = [])
     {
@@ -50,6 +51,7 @@ class Http_Client
      *
      * @param string $url Target URL.
      * @param array $params Associative array with query params.
+     * 
      * @return string URL with query params.
      */
     private static function add_query_str($url, $params)
@@ -70,7 +72,8 @@ class Http_Client
      * @param string $url Target url.
      * @param array $params Associative array with query params.
      * @param array $headers Associative array with HTTP headers.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     public static function get($url, $params = [], $headers = [])
     {
@@ -91,7 +94,8 @@ class Http_Client
      * @param array $data Associative array with the request payload.
      * @param array $headers Associative array with HTTP headers.
      * @param array $files Associative array with filename and paths.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     public static function post($url, $data, $headers, $files = null)
     {
@@ -115,7 +119,8 @@ class Http_Client
      * @param array $data Associative array with the request payload.
      * @param array $files Associative array with filename and paths.
      * @param array $headers Associative array with HTTP headers.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     public static function post_multipart($url, $data, $files, $headers)
     {
@@ -153,7 +158,8 @@ class Http_Client
      * @param array $data Associative array with the request payload.
      * @param array $headers Associative array with HTTP headers.
      * @param array $files Associative array with filename and paths.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     public static function put($url, $data, $headers, $files = null)
     {
@@ -178,7 +184,8 @@ class Http_Client
      * @param array $data Associative array with the request payload.
      * @param array $files Associative array with filename and paths.
      * @param array $headers Associative array with HTTP headers.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     private static function put_multipart($url, $data, $files, $headers)
     {
@@ -210,7 +217,8 @@ class Http_Client
      * @param string $url Target url.
      * @param array $params Associative array with query params.
      * @param array $headers Associative array with HTTP headers.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     public static function delete($url, $params, $headers)
     {
@@ -226,7 +234,8 @@ class Http_Client
      *
      * @param  string  $url Target URL.
      * @param  array $args  WP_Http::request arguments.
-     * @return array|WP_Error $response Response data or error.
+     * 
+     * @return array|WP_Error Response data or error.
      */
     private static function do_request($url, $args)
     {
@@ -345,7 +354,8 @@ class Http_Client
  *
  * @param string $url Target URL.
  * @param array $args Associative array with request arguments.
- * @return array|WP_Error $response Response data or error.
+ * 
+ * @return array|WP_Error Response data or error.
  */
 function http_bridge_get($url, $args = [])
 {
@@ -365,7 +375,8 @@ function http_bridge_get($url, $args = [])
  *
  * @param string $url Target URL.
  * @param array $args Associative array with request arguments.
- * @return array|WP_Error $response Response data or error.
+ * 
+ * @return array|WP_Error Response data or error.
  */
 function http_bridge_post($url, $args = [])
 {
@@ -388,7 +399,8 @@ function http_bridge_post($url, $args = [])
  *
  * @param string $url Target URL.
  * @param array $args Associative array with request arguments.
- * @return array|WP_Error $response Response data or error.
+ * 
+ * @return array|WP_Error Response data or error.
  */
 function http_bridge_put($url, $arguments = [])
 {
@@ -411,7 +423,8 @@ function http_bridge_put($url, $arguments = [])
  *
  * @param string $url Target URL.
  * @param array $args Associative array with request arguments.
- * @return array|WP_Error $response Response data or error.
+ * 
+ * @return array|WP_Error Response data or error.
  */
 function http_bridge_delete($url, $args = [])
 {
