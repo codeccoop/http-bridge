@@ -335,9 +335,12 @@ class Http_Client
     public static function sanitize_url($url)
     {
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return new WP_Error('invalid_url', "{$url} is not a valid URL", [
-                'url' => $url,
-            ]);
+            return [
+                new WP_Error('invalid_url', "{$url} is not a valid URL", [
+                    'url' => $url,
+                ]),
+                null,
+            ];
         }
 
         $params = [];
