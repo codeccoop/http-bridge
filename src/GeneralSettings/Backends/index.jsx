@@ -1,12 +1,15 @@
 // vendor
 import React from "react";
 import { TabPanel } from "@wordpress/components";
+import { useState } from "@wordpress/element";
 
 // source
 import Backend from "./Backend";
 
 export default function Backends({ backends, setBackends }) {
   const __ = wp.i18n.__;
+
+  const [currentTab, setCurrentTab] = useState(backends[0]?.name || "add");
   const tabs = backends
     .map(({ name, base_url, headers }) => ({
       name,
@@ -30,6 +33,7 @@ export default function Backends({ backends, setBackends }) {
 
     newBackends.forEach((backend) => delete backend.title);
     setBackends(newBackends);
+    setCurrentTab(newBackends[index].name);
   };
 
   const removeBackend = ({ name }) => {
@@ -38,6 +42,7 @@ export default function Backends({ backends, setBackends }) {
       .slice(0, index)
       .concat(backends.slice(index + 1));
     setBackends(newBackends);
+    setCurrentTab(newBackends[index - 1]?.name || "add");
   };
 
   return (
@@ -53,7 +58,11 @@ export default function Backends({ backends, setBackends }) {
       >
         {__("Backends", "http-bridge")}
       </label>
-      <TabPanel tabs={tabs}>
+      <TabPanel
+        tabs={tabs}
+        onSelect={setCurrentTab}
+        initialTabName={currentTab}
+      >
         {(backend) => (
           <Backend
             {...backend}
