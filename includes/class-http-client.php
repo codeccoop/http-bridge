@@ -355,7 +355,7 @@ class Http_Client
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return new WP_Error(
                 'invalid_url',
-                printf(__('%s is not a valid URL', 'http-bridge'), $url),
+                sprintf(__('%s is not a valid URL', 'http-bridge'), $url),
                 [
                     'url' => $url,
                 ]
@@ -393,7 +393,7 @@ class Http_Client
                     } else {
                         return new WP_Error(
                             'posts_bridge_unkown_content_type',
-                            printf(
+                            sprintf(
                                 __(
                                     'Content type %s is unkown. Please, encode request data as string before submit if working with custom content types',
                                     'http-bridge'
@@ -423,12 +423,24 @@ class Http_Client
             $response->add_data([
                 'request' => ['url' => $url, 'args' => $args],
             ]);
+        } else {
+            $content_type = static::get_content_type($response['headers']);
+            if ($content_type === 'application/json') {
+                $data = json_decode($response['body'], true);
+            } elseif ($content_type === 'application/x-www-form-urlencoded') {
+                parse_str($response['body'], $data);
+            } elseif ($content_type === 'multipart/form-data') {
+                $data = Multipart::from($response['body'])->decode();
+            } else {
+                $data = null;
+            }
+            $response['data'] = $data;
         }
 
         if ($response['response']['code'] !== 200) {
             $response = new WP_Error(
                 'http_bridge_error',
-                printf(
+                sprintf(
                     __(
                         'HTTP error response status code: Request to %s with %s method',
                         'http-bridge'
@@ -444,17 +456,6 @@ class Http_Client
         }
 
         do_action('http_bridge_response', $response, $request);
-        $response['data'] = function () use ($response) {
-            $content_type = $this->get_content_type($response['headers']);
-            if ($content_type === 'application/json') {
-                return json_decode($response['body'], true);
-            } elseif ($content_type === 'application/x-www-form-urlencoded') {
-                parse_str($response['body'], $data);
-                return $data;
-            } else {
-                return $response['body'];
-            }
-        };
 
         return $response;
     }
