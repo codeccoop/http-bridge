@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * HTTP Backend
+ * HTTP backend connexión.
  */
 class Http_Backend
 {
@@ -29,7 +29,7 @@ class Http_Backend
     {
         return array_map(function ($backend_data) {
             return new HTTP_Backend($backend_data['name']);
-        }, Settings::get_setting('http-bridge', 'general', 'backends'));
+        }, Settings::get_setting('http-bridge', 'general')->backends);
     }
 
     /**
@@ -37,7 +37,7 @@ class Http_Backend
      */
     public function __construct($name)
     {
-        $this->data = $this->get_backend_data($name);
+        $this->data = $this->load_data($name);
         if (!$this->data) {
             throw new Exception(
                 "Http backend error: Unkown backend with name {$name}"
@@ -50,9 +50,9 @@ class Http_Backend
      *
      * @return array|null Backen data.
      */
-    private function get_backend_data($name)
+    private function load_data($name)
     {
-        $backends = Settings::get_setting('http-bridge', 'general', 'backends');
+        $backends = Settings::get_setting('http-bridge', 'general')->backends;
         foreach ($backends as $backend) {
             if ($backend['name'] === $name) {
                 return $backend;
@@ -63,10 +63,10 @@ class Http_Backend
     }
 
     /**
-     * Intercept class gets and lookup on backend data.
-     * 
+     * Intercepts class attributes accesses and lookup on backend data.
+     *
      * @param string $attr Attribute name.
-     * 
+     *
      * @return mixed Attribute value or null.
      */
     public function __get($attr)
@@ -82,20 +82,24 @@ class Http_Backend
      * Gets backend absolute URL.
      *
      * @param string $path URL relative path.
-     * 
+     *
      * @return string $url Absolute URL.
      */
-    public function get_endpoint_url($path)
+    public function url($path = '')
     {
-        $url_data = parse_url($path);
-        if (isset($url_data['scheme'])) {
-            return $path;
+        $parsed = parse_url($path);
+        if (!isset($parsed['path'])) {
+            return $this->base_url;
+        } else {
+            $path = $parsed['path'];
         }
 
-        $base_url = $this->base_url;
-        return preg_replace('/\/$/', '', $base_url) .
+        $url =
+            preg_replace('/\/+$/', '', $this->base_url) .
             '/' .
-            preg_replace('/^\//', '', $path);
+            preg_replace('/^\/+/', '', $path);
+
+        return apply_filters('http_bridge_backend_url', $url, $this);
     }
 
     /**
@@ -103,32 +107,77 @@ class Http_Backend
      *
      * @return array $headers Backend headers.
      */
-    public function get_headers()
+    public function headers()
     {
         $headers = [];
         foreach ($this->headers as $header) {
             $headers[trim($header['name'])] = trim($header['value']);
         }
 
-        return $headers;
+        return apply_filters('http_bridge_backend_headers', $headers, $this);
+    }
+
+    /**
+     * Performs a GET HTTP request to the backend.
+     *
+     * @param string $endpoint Target backend endpoint as relative path.
+     * @param array $params URL query params.
+     * @param array $headers Additional HTTP headers.
+     *
+     * @return array|WP_Error Request response.
+     */
+    public function get($endpoint, $params = [], $headers = [])
+    {
+        $url = $this->url($endpoint);
+        $headers = array_merge($this->headers(), (array) $headers);
+        return http_bridge_get($url, $params, $headers);
+    }
+
+    /**
+     * Performs a POST HTTP request to the backend.
+     *
+     * @param string $endpoint Target backend endpoint as relative path.
+     * @param array $params URL query params.
+     * @param array $headers Additional HTTP headers.
+     *
+     * @return array|WP_Error Request response.
+     */
+    public function post($endpoint, $data = [], $headers = [], $files = [])
+    {
+        $url = $this->url($endpoint);
+        $headers = array_merge($this->headers(), (array) $headers);
+        return http_bridge_post($url, $data, $headers, $files);
+    }
+
+    /**
+     * Performs a PUT HTTP request to the backend.
+     *
+     * @param string $endpoint Target backend endpoint as relative path.
+     * @param array $params URL query params.
+     * @param array $headers Additional HTTP headers.
+     *
+     * @return array|WP_Error Request response.
+     */
+    public function put($endpoint, $data = [], $headers = [], $files = [])
+    {
+        $url = $this->url($endpoint);
+        $headers = array_merge($this->headers(), (array) $headers);
+        return http_bridge_put($url, $data, $headers, $files);
+    }
+
+    /**
+     * Performs a DELETE HTTP request to the backend.
+     *
+     * @param string $endpoint Target backend endpoint as relative path.
+     * @param array $params URL query params.
+     * @param array $headers Additional HTTP headers.
+     *
+     * @return array|WP_Error Request response.
+     */
+    public function delete($endpoint, $params = [], $headers = [])
+    {
+        $url = $this->url($endpoint);
+        $headers = array_merge($this->headers(), (array) $headers);
+        return http_bridge_delete($url, $params, $headers);
     }
 }
-
-// Gets a new backend instance.
-add_filter(
-    'http_bridge_backend',
-    function ($default, $name) {
-        return new Http_Backend($name);
-    },
-    10,
-    2
-);
-
-// Gets all configured backend instances.
-add_filter(
-    'http_bridge_backends',
-    function () {
-        return Http_Backend::get_backends();
-    },
-    10
-);

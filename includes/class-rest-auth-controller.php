@@ -77,7 +77,7 @@ class REST_Auth_Controller extends Singleton
      */
     public static function setup()
     {
-        return new REST_Auth_Controller();
+        return REST_Auth_Controller::get_instance();
     }
 
     /**
@@ -97,7 +97,7 @@ class REST_Auth_Controller extends Singleton
     /**
      * Binds auth checks to rest api hooks and registers routes.
      */
-    public function __construct()
+    protected function construct(...$args)
     {
         add_action('determine_current_user', function ($user_id) {
             return $this->determine_current_user($user_id);
@@ -313,7 +313,7 @@ class REST_Auth_Controller extends Singleton
      * Determine current user from bearer authentication.
      *
      * @param int|null $user_id Already identified user ID.
-     * 
+     *
      * @return int|null Identified user ID.
      */
     private function determine_current_user($user_id)
@@ -393,11 +393,8 @@ class REST_Auth_Controller extends Singleton
      */
     private function cors_allowed()
     {
-        $whitelist = (bool) Settings::get_setting(
-            'http-bridge',
-            'general',
-            'whitelist'
-        );
+        $whitelist = (bool) Settings::get_setting('http-bridge', 'general')
+            ->whitelist;
 
         if (!$whitelist) {
             return;
@@ -409,7 +406,8 @@ class REST_Auth_Controller extends Singleton
             $sources = array_map(function ($backend) {
                 return parse_url($backend->base_url);
             }, $backends);
-            $sources[] = $self;
+            $sources[] = array_merge($self, ['scheme' => 'http']);
+            $sources[] = array_merge($self, ['scheme' => 'https']);
 
             $origin = isset($_SERVER['HTTP_ORIGIN'])
                 ? $_SERVER['HTTP_ORIGIN']

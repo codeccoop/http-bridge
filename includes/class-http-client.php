@@ -16,34 +16,97 @@ require_once 'class-multipart.php';
 class Http_Client
 {
     /**
-     * Default request arguments.
-     *
-     * @var array $args_defaults Default request arguments.
-     */
-    private const args_defaults = [
-        'params' => [],
-        'data' => [],
-        'headers' => [
-            'Connection' => 'keep-alive',
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        ],
-        'files' => [],
-    ];
-
-    /**
      * Fills request arguments with defaults.
      *
      * @param array $args Request arguments.
      *
      * @return array Request arguments with defaults.
      */
-    public static function req_args($args = [])
+    private static function default_args($args = [])
     {
-        $args = array_merge(Http_Client::args_defaults, (array) $args);
-        $args['headers'] = Http_Client::req_headers($args['headers']);
+        foreach ($args as $arg => $value) {
+            switch ($arg) {
+                case 'data':
+                    if (!(is_string($value) || is_array($value))) {
+                        $args[$arg] = [];
+                    }
+                    break;
+                case 'params':
+                case 'headers':
+                case 'files':
+                    $args[$arg] = (array) $value;
+            }
+        }
+
+        $args = array_merge(
+            [
+                'params' => [],
+                'data' => [],
+                'headers' => [],
+                'files' => [],
+            ],
+            (array) $args
+        );
+
+        $args['headers'] = static::default_headers($args['headers']);
 
         return $args;
+    }
+
+    /**
+     * Add default headers to the request headers.
+     *
+     * @param array $headers Associative array with HTTP headers.
+     *
+     * @return array $headers Associative array with HTTP headers.
+     */
+    private static function default_headers($headers)
+    {
+        $headers = array_merge(
+            [
+                'Origin' => $_SERVER['HTTP_HOST'],
+                'Referer' => $_SERVER['HTTP_REFERER'],
+                'Accept-Language' => static::get_locale(),
+                'Connection' => 'keep-alive',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ],
+            self::normalize_headers($headers)
+        );
+
+        foreach ($headers as $name => $value) {
+            if (empty($value)) {
+                unset($headers[$name]);
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Normalize HTTP header names to avoid duplications.
+     *
+     * @param array $headers HTTP headers.
+     *
+     * @return array Normalized HTTP headers.
+     */
+    private static function normalize_headers($headers)
+    {
+        $normalized = [];
+        foreach ((array) $headers as $name => $value) {
+            if (empty($name)) {
+                continue;
+            }
+            $name = str_replace('_', '-', $name);
+            $name = implode(
+                '-',
+                array_map(function ($chunk) {
+                    return ucfirst($chunk);
+                }, explode('-', trim($name)))
+            );
+            $normalized[$name] = $value;
+        }
+        return $normalized;
     }
 
     /**
@@ -63,71 +126,200 @@ class Http_Client
             $url = preg_replace('/?.*$/', '', $url);
         }
 
-        return $url . '?' . http_build_query($params);
+        if (!empty($params)) {
+            $url .= '?' . http_build_query($params);
+        }
+
+        return $url;
     }
 
     /**
      * Performs a GET request.
      *
-     * @param string $url Target url.
-     * @param array $params Associative array with query params.
-     * @param array $headers Associative array with HTTP headers.
-     *
-     * @return array|WP_Error Response data or error.
-     */
-    public static function get($url, $params = [], $headers = [])
-    {
-        $url = Http_Client::add_query_str($url, $params);
-        $args = [
-            'method' => 'GET',
-            'headers' => Http_Client::req_headers($headers, 'GET', $url),
-        ];
-        return Http_Client::do_request($url, $args);
-    }
-
-    /**
-     * Performs a POST request. Default content type is application/json, any other
-     * mimetype should be encoded before and passed in as string.
-     * If $files is defined and is array, content type switches to multipart/form-data.
-     *
      * @param string $url Target URL.
-     * @param array $data Associative array with the request payload.
-     * @param array $headers Associative array with HTTP headers.
-     * @param array $files Associative array with filename and paths.
+     * @param array $args WP_Http::request arguments.
      *
      * @return array|WP_Error Response data or error.
      */
-    public static function post($url, $data, $headers, $files = null)
+    public static function get($url, $args = [])
     {
-        if (is_array($files) && !empty($files)) {
-            return Http_Client::post_multipart($url, $data, $files, $headers);
+        if (!is_array($args)) {
+            return new WP_Error(
+                'invalid_http_args',
+                __('Http_Client::get $args should be an array', 'http-bridge'),
+                ['args' => $args]
+            );
         }
 
-        $body = is_string($data) ? $data : json_encode($data);
-
-        return Http_Client::do_request($url, [
-            'method' => 'POST',
-            'headers' => $headers,
-            'body' => $body,
-        ]);
+        return static::do_request(
+            $url,
+            array_merge($args, [
+                'method' => 'GET',
+            ])
+        );
     }
 
     /**
-     * Performs a POST request with multipart/form-data content type payload.
+     * Performs a POST request.
+     * If files were defined in args, content type is forced to multipart/form-data.
      *
      * @param string $url Target URL.
-     * @param array $data Associative array with the request payload.
-     * @param array $files Associative array with filename and paths.
-     * @param array $headers Associative array with HTTP headers.
+     * @param array $params Associative array with query params.
      *
      * @return array|WP_Error Response data or error.
      */
-    public static function post_multipart($url, $data, $files, $headers)
+    public static function post($url, $args = [])
     {
+        if (!is_array($args)) {
+            return new WP_Error(
+                'invalid_http_args',
+                __('Http_Client::post $args should be an array', 'http-bridge'),
+                ['args' => $args]
+            );
+        }
+
+        if (!empty($args['files']) && is_array($args['files'])) {
+            return static::do_multipart(
+                $url,
+                array_merge($args, ['method' => 'POST'])
+            );
+        }
+
+        return static::do_request(
+            $url,
+            array_merge($args, [
+                'method' => 'POST',
+            ])
+        );
+    }
+
+    /**
+     * Performs a PUT request.
+     * If files were defined in args, content type is forced to multipart/form-data.
+     *
+     * @param string $url Target URL.
+     * @param array $params Associative array with query params.
+     *
+     * @return array|WP_Error Response data or error.
+     */
+    public static function put($url, $args)
+    {
+        if (!is_array($args)) {
+            return new WP_Error(
+                'invalid_http_args',
+                __('Http_Client::put $args should be an array', 'http-bridge'),
+                ['args' => $args]
+            );
+        }
+
+        if (!empty($args['files']) && is_array($args['files'])) {
+            return static::do_multipart(
+                $url,
+                array_merge($args, ['method' => 'PUT'])
+            );
+        }
+
+        return static::do_request(
+            $url,
+            array_merge($args, [
+                'method' => 'PUT',
+            ])
+        );
+    }
+
+    /**
+     * Performs a DETELE request.
+     *
+     * @param string $url Target URL.
+     * @param array $params Associative array with query params.
+     *
+     * @return array|WP_Error Response data or error.
+     */
+    public static function delete($url, $args)
+    {
+        if (!is_array($args)) {
+            return new WP_Error(
+                'invalid_http_args',
+                __(
+                    'Http_Client::delete $args should be an array',
+                    'http-bridge'
+                ),
+                ['args' => $args]
+            );
+        }
+
+        return static::do_request(
+            $url,
+            array_merge($args, [
+                'method' => 'DELETE',
+            ])
+        );
+    }
+
+    /**
+     * Proxy to do_request with body encoded as multipart/form-data with binary
+     * files as fields.
+     *
+     * @param string $url Target URL.
+     * @param array $args Request arguments.
+     *
+     * @return array|WP_Error Request response.
+     */
+    private static function do_multipart($url, $args)
+    {
+        $args = static::default_args($args);
+
         $multipart = new Multipart();
-        $multipart->add_array($data);
-        foreach ($files as $name => $path) {
-            if (empty($path)) {
+
+        // Add body to the multipart data
+        if (isset($args['data'])) {
+            // If body is encoded, then try to decode before set to the multipart payload
+            if (is_string($args['data'])) {
+                $content_type = static::get_content_type($args['headers']);
+                if ($content_type === 'application/json') {
+                    $data = json_decode($args['data'], JSON_UNESCAPED_UNICODE);
+                    $multipart->add_array($data);
+                } elseif (
+                    $content_type === 'application/x-www-form-urlencoded'
+                ) {
+                    parse_str($args['data'], $data);
+                    $multipart->add_array($data);
+                } elseif ($content_type === 'multipart/form-data') {
+                    $fields = Multipart::from($args['data'])->decode();
+                    foreach ($fields as $field) {
+                        if ($field['filename']) {
+                            $multipart->add_file(
+                                $field['name'],
+                                $field['filename'],
+                                $field['content-type'],
+                                $field['value']
+                            );
+                        } else {
+                            $multipart->add_part(
+                                $field['name'],
+                                $field['value']
+                            );
+                        }
+                    }
+                } else {
+                    return new WP_Error(
+                        'unkown_content_type',
+                        __(
+                            'Can\' decode data due to unkown Content-Type header',
+                            'http-bridge'
+                        ),
+                        ['data' => $args['data'], 'headers' => $args['headers']]
+                    );
+                }
+            } else {
+                // Treat body as array
+                $multipart->add_array((array) $args['data']);
+            }
+        }
+
+        // Add files to the request payload data.
+        foreach ($args['files'] as $name => $path) {
+            if (!is_file($path)) {
                 continue;
             }
             $filename = basename($path);
@@ -139,94 +331,15 @@ class Http_Client
             $multipart->add_file($name, $path, $filetype['type']);
         }
 
-        $headers = Http_Client::req_headers($headers, 'POST', $url);
-        $headers['Content-Type'] = $multipart->content_type();
-
-        return Http_Client::do_request($url, [
-            'method' => 'POST',
-            'headers' => $headers,
-            'body' => $multipart->data(),
-        ]);
-    }
-
-    /**
-     * Performs a PUT request. Default content type is application/json, any other
-     * mimetype should be encoded before and passed in as string.
-     * If $files is defined and is array, content type switches to multipart/form-data.
-     *
-     * @param string $url Target URL.
-     * @param array $data Associative array with the request payload.
-     * @param array $headers Associative array with HTTP headers.
-     * @param array $files Associative array with filename and paths.
-     *
-     * @return array|WP_Error Response data or error.
-     */
-    public static function put($url, $data, $headers, $files = null)
-    {
-        if (is_array($files) && !empty($files)) {
-            return Http_Client::put_multipart($url, $data, $files, $headers);
-        }
-
-        $payload = is_string($data) ? $data : json_encode($data);
-        $headers = Http_Client::req_headers($headers, 'PUT', $url);
-
-        return Http_Client::do_request($url, [
-            'method' => 'PUT',
-            'headers' => $headers,
-            'body' => $payload,
-        ]);
-    }
-
-    /**
-     * Performs a PUT request with multipart/form-data content type payload.
-     *
-     * @param string $url Target URL.
-     * @param array $data Associative array with the request payload.
-     * @param array $files Associative array with filename and paths.
-     * @param array $headers Associative array with HTTP headers.
-     *
-     * @return array|WP_Error Response data or error.
-     */
-    private static function put_multipart($url, $data, $files, $headers)
-    {
-        $multipart = new Multipart();
-        $multipart->add_array($data);
-        foreach ($files as $name => $path) {
-            $filename = basename($path);
-            $filetype = wp_check_filetype($filename);
-            if (!$filetype['type']) {
-                $filetype['type'] = mime_content_type($path);
-            }
-
-            $multipart->add_file($name, $path, $filetype['type']);
-        }
-
-        $headers = Http_Client::req_headers($headers, 'PUT', $url);
-        $headers['Content-Type'] = $multipart->content_type();
-
-        return Http_Client::do_request($url, [
-            'method' => 'PUT',
-            'headers' => $headers,
-            'body' => $multipart->data(),
-        ]);
-    }
-
-    /**
-     * Performs a DETELE request.
-     *
-     * @param string $url Target url.
-     * @param array $params Associative array with query params.
-     * @param array $headers Associative array with HTTP headers.
-     *
-     * @return array|WP_Error Response data or error.
-     */
-    public static function delete($url, $params, $headers)
-    {
-        $url = Http_Client::add_query_str($url, $params);
-        return Http_Client::do_request($url, [
-            'method' => 'DELETE',
-            'headers' => Http_Client::req_headers($headers, 'DELETE', $url),
-        ]);
+        return static::do_request(
+            $url,
+            array_merge($args, [
+                'headers' => array_merge($args['headers'], [
+                    'Content-Type' => $multipart->content_type(),
+                ]),
+                'data' => $multipart->data(),
+            ])
+        );
     }
 
     /**
@@ -239,39 +352,81 @@ class Http_Client
      */
     private static function do_request($url, $args)
     {
-        global $wp_version;
-        $args = array_merge(
-            [
-                'method' => 'POST',
-                'timeout' => 5,
-                'redirection' => 5,
-                'httpversion' => '1.0',
-                'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url(),
-                'blocking' => true,
-                'headers' => [],
-                'cookies' => [],
-                'body' => null,
-                'compress' => false,
-                'decompress' => true,
-                'sslverify' => true,
-                'stream' => false,
-                'filename' => null,
-            ],
-            $args
-        );
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return new WP_Error(
+                'invalid_url',
+                printf(__('%s is not a valid URL', 'http-bridge'), $url),
+                [
+                    'url' => $url,
+                ]
+            );
+        }
 
-        $request = apply_filters('http_bridge_request_args', [
-            'url' => $url,
-            'args' => $args,
-        ]);
-        $response = wp_remote_request($request['url'], $request['args']);
+        $args = static::default_args($args);
+        $url = static::add_query_str($url, $args['params']);
+        unset($args['params']);
+
+        $content_type = static::get_content_type($args['headers']);
+
+        if (!in_array($args['method'], ['GET', 'DELETE'])) {
+            if (!is_string($args['data'])) {
+                $data = $args['data'];
+                if (!empty($data)) {
+                    $mime_type = $content_type;
+
+                    if (strstr($mime_type, 'application/json')) {
+                        $args['body'] = json_encode(
+                            $data,
+                            JSON_UNESCAPED_UNICODE
+                        );
+                    } elseif (
+                        strstr($mime_type, 'application/x-www-form-urlencoded')
+                    ) {
+                        $args['body'] = http_build_query($data);
+                    } elseif (strstr($mime_type, 'multipart/form-data')) {
+                        $multipart = new Multipart();
+                        $multipart->add_array($data);
+                        $args['body'] = $multipart->data();
+                        $args['headers'][
+                            'Content-Type'
+                        ] = $multipart->content_type();
+                    } else {
+                        return new WP_Error(
+                            'posts_bridge_unkown_content_type',
+                            printf(
+                                __(
+                                    'Content type %s is unkown. Please, encode request data as string before submit if working with custom content types',
+                                    'http-bridge'
+                                ),
+                                $content_type
+                            ),
+                            [
+                                'Content-Type' => $content_type,
+                                'data' => $args['data'],
+                            ]
+                        );
+                    }
+                }
+            } else {
+                $args['body'] = $args['data'];
+            }
+        }
+
+        unset($args['data']);
+        unset($args['files']);
+
+        $request = ['url' => $url, 'args' => $args];
+        do_action('http_bridge_before_request', $request);
+        $response = wp_remote_request($url, $args);
+
         if (is_wp_error($response)) {
-            $response->add_data(['request' => $request]);
-            return $response;
+            $response->add_data([
+                'request' => ['url' => $url, 'args' => $args],
+            ]);
         }
 
         if ($response['response']['code'] !== 200) {
-            return new WP_Error(
+            $response = new WP_Error(
                 'http_bridge_error',
                 printf(
                     __(
@@ -282,32 +437,47 @@ class Http_Client
                     $args['method']
                 ),
                 [
-                    'request' => $request,
+                    'request' => ['url' => $url, 'args' => $args],
                     'response' => $response,
                 ]
             );
         }
 
+        do_action('http_bridge_response', $response, $request);
+        $response['data'] = function () use ($response) {
+            $content_type = $this->get_content_type($response['headers']);
+            if ($content_type === 'application/json') {
+                return json_decode($response['body'], true);
+            } elseif ($content_type === 'application/x-www-form-urlencoded') {
+                parse_str($response['body'], $data);
+                return $data;
+            } else {
+                return $response['body'];
+            }
+        };
+
         return $response;
     }
 
     /**
-     * Add default headers to an array.
+     * Gets mime type from HTTP Content-Type header.
      *
-     * @param array $headers Associative array with HTTP headers.
-     * @return array $headers Associative array with HTTP headers.
+     * @param array $headers HTTP headers.
+     *
+     * @return string|null Mime type value of the header.
      */
-    private static function req_headers($headers)
+    private static function get_content_type($headers = [])
     {
-        return array_merge(
-            [
-                'Origin' => $_SERVER['HTTP_HOST'],
-                'Referer' => $_SERVER['HTTP_REFERER'],
-                'Accept-Language' => Http_Client::get_locale(),
-                'Content-Type' => 'application/json',
-            ],
-            (array) $headers
-        );
+        $content_type = isset($headers['Content-Type'])
+            ? $headers['Content-Type']
+            : (isset($headers['content-type'])
+                ? $headers['content-type']
+                : null);
+
+        if ($content_type) {
+            $content_type = preg_replace('/;.*$/', '', $content_type);
+            return trim(strtolower($content_type));
+        }
     }
 
     /**
@@ -324,122 +494,4 @@ class Http_Client
 
         return get_locale();
     }
-
-    /**
-     * Splits query params from URLs.
-     *
-     * @param string $url Target URL.
-     *
-     * @return array Tuple with URL and query params as array.
-     */
-    public static function sanitize_url($url)
-    {
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return [
-                new WP_Error('invalid_url', "{$url} is not a valid URL", [
-                    'url' => $url,
-                ]),
-                null,
-            ];
-        }
-
-        $params = [];
-        $url_data = parse_url($url);
-        if (isset($url_data['query'])) {
-            parse_str($url_data['query'], $params);
-            $url = preg_replace('/\?' . $url_data['query'] . '/', '', $url);
-        }
-
-        return [$url, $params];
-    }
-}
-
-/**
- * Public function to perform a GET requests.
- *
- * @param string $url Target URL.
- * @param array $args Associative array with request arguments.
- *
- * @return array|WP_Error Response data or error.
- */
-function http_bridge_get($url, $args = [])
-{
-    [$url, $query] = Http_Client::sanitize_url($url);
-    if (is_wp_error($url)) {
-        return $url;
-    }
-
-    ['params' => $params, 'headers' => $headers] = Http_Client::req_args($args);
-    $params = array_merge($query, $params);
-
-    return Http_Client::get($url, $params, $headers);
-}
-
-/**
- * Public function to perform a POST requests.
- *
- * @param string $url Target URL.
- * @param array $args Associative array with request arguments.
- *
- * @return array|WP_Error Response data or error.
- */
-function http_bridge_post($url, $args = [])
-{
-    [$url] = Http_Client::sanitize_url($url);
-    if (is_wp_error($url)) {
-        return $url;
-    }
-
-    [
-        'data' => $data,
-        'headers' => $headers,
-        'files' => $files,
-    ] = Http_Client::req_args($args);
-
-    return Http_Client::post($url, $data, $headers, $files);
-}
-
-/**
- * Public function to perform a PUT requests.
- *
- * @param string $url Target URL.
- * @param array $args Associative array with request arguments.
- *
- * @return array|WP_Error Response data or error.
- */
-function http_bridge_put($url, $arguments = [])
-{
-    [$url] = Http_Client::sanitize_url($url);
-    if (is_wp_error($url)) {
-        return $url;
-    }
-
-    [
-        'data' => $data,
-        'headers' => $headers,
-        'files' => $files,
-    ] = Http_Client::req_args($arguments);
-
-    return Http_Client::put($url, $data, $headers, $files);
-}
-
-/**
- * Public function to perform a DELETE requests.
- *
- * @param string $url Target URL.
- * @param array $args Associative array with request arguments.
- *
- * @return array|WP_Error Response data or error.
- */
-function http_bridge_delete($url, $args = [])
-{
-    [$url, $query] = Http_Client::sanitize_url($url);
-    if (is_wp_error($url)) {
-        return $url;
-    }
-
-    ['params' => $params, 'headers' => $headers] = Http_Client::req_args($args);
-    $params = array_merge($query, $params);
-
-    return Http_Client::delete($url, $params, $headers);
 }

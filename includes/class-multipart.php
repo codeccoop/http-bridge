@@ -2,8 +2,10 @@
 
 namespace HTTP_BRIDGE;
 
+use Exception;
+
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**
@@ -17,6 +19,8 @@ class Multipart
      * @var string EOL end of line chars.
      */
     public const EOL = "\r\n";
+
+    private const EOL_RE = "(?:\n|\r|\t)";
 
     /**
      * Encoded data handler.
@@ -32,21 +36,70 @@ class Multipart
      */
     private $_mime_boundary;
 
+    public static function from($data, $boundary = null)
+    {
+        try {
+            return new Multipart($data, $boundary);
+        } catch (Exception) {
+            return null;
+        }
+    }
+
     /**
      * Creates a random mime boundary.
      */
-    public function __construct()
+    public function __construct($data = null, $boundary = null)
     {
-        $this->_mime_boundary = md5(microtime(true));
+        if (is_string($data)) {
+            $this->set_data($data, $boundary);
+        } else {
+            $this->_mime_boundary = 'HttpBridge' . md5(microtime(true));
+        }
     }
-
 
     /**
      * Add part header boundary
      */
     private function _add_part_header()
     {
-        $this->_data .= '--' . $this->_mime_boundary . self::EOL;
+        $this->_data .= '--------' . $this->_mime_boundary . self::EOL;
+    }
+
+    private function set_data($data, $boundary = null)
+    {
+        $this->_data .= $data . self::EOL;
+        if ($boundary) {
+            if (
+                preg_match(
+                    '/^' .
+                        self::EOL_RE .
+                        '*--+' .
+                        $boundary .
+                        '' .
+                        self::EOL_RE .
+                        '+/',
+                    $data
+                )
+            ) {
+                $this->_mime_boundary = $boundary;
+            } else {
+                throw new Exception('Invalid multipart/form-data boundary');
+            }
+        } else {
+            if (
+                preg_match(
+                    '/^' . self::EOL_RE . '*--+(.*)' . self::EOL_RE . '+/',
+                    $data,
+                    $match
+                )
+            ) {
+                $this->_mime_boundary = $match[1];
+            } else {
+                throw new Exception('Invalid multipart/form-data payload');
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -66,7 +119,10 @@ class Multipart
                 }
             } else {
                 if ($prefix) {
-                    $this->add_part($prefix . '[' . (is_numeric($key) ? '' : $key) . ']', $value);
+                    $this->add_part(
+                        $prefix . '[' . (is_numeric($key) ? '' : $key) . ']',
+                        $value
+                    );
                 } else {
                     $this->add_part($key, $value);
                 }
@@ -83,7 +139,8 @@ class Multipart
     public function add_part($key, $value)
     {
         $this->_add_part_header();
-        $this->_data .= 'Content-Disposition: form-data; name="' . $key . '"' . self::EOL;
+        $this->_data .=
+            'Content-Disposition: form-data; name="' . $key . '"' . self::EOL;
         $this->_data .= self::EOL;
         $this->_data .= $value . self::EOL;
     }
@@ -99,7 +156,13 @@ class Multipart
     public function add_file($key, $filename, $type, $content = null)
     {
         $this->_add_part_header();
-        $this->_data .= 'Content-Disposition: form-data; name="' . $key . '"; filename="' . basename($filename) . '"' . self::EOL;
+        $this->_data .=
+            'Content-Disposition: form-data; name="' .
+            $key .
+            '"; filename="' .
+            basename($filename) .
+            '"' .
+            self::EOL;
         $this->_data .= 'Content-Type: ' . $type . self::EOL;
         $this->_data .= 'Content-Transfer-Encoding: binary' . self::EOL;
         $this->_data .= self::EOL;
@@ -128,6 +191,85 @@ class Multipart
     public function data()
     {
         // add the final content boundary
-        return $this->_data .= '--' . $this->_mime_boundary . '--' . self::EOL . self::EOL;
+        return $this->_data .=
+            '--------' . $this->_mime_boundary . '--' . self::EOL . self::EOL;
+    }
+
+    /**
+     * Decodes multipart/form-data payloads and returns array of field descriptiors.
+     *
+     * @return array Field descriptors.
+     */
+    public function decode()
+    {
+        $fields = [];
+
+        $lines = preg_split('/' . self::EOL_RE . '/', $this->_data);
+        $name = null;
+        $filename = null;
+        $content_type = null;
+        $value = '';
+        $buffering = false;
+        foreach ($lines as $line) {
+            if (empty(trim($line))) {
+                if ($name !== null) {
+                    echo 'bufferring' . self::EOL;
+                    $buffering = true;
+                }
+                continue;
+            }
+
+            if (
+                preg_match(
+                    '/^--+' .
+                        $this->_mime_boundary .
+                        '-*' .
+                        self::EOL_RE .
+                        '?/',
+                    $line
+                )
+            ) {
+                if ($name) {
+                    if ($filename && $content_type === null) {
+                        $content_type = 'application/octet-stream';
+                    }
+                    $fields[] = [
+                        'name' => $name,
+                        'filename' => $filename,
+                        'content-type' => $content_type,
+                        'value' => $value,
+                    ];
+                    $name = null;
+                    $filename = null;
+                    $content_type = null;
+                    $value = '';
+                    $buffering = false;
+                }
+                continue;
+            }
+
+            if ($buffering) {
+                $value .= $line . self::EOL;
+            }
+
+            if (
+                $name === null &&
+                preg_match('/name="((?:.(?!"))+.)"/', $line, $match)
+            ) {
+                $name = $match[1];
+
+                if (preg_match('/filename="((?:.(?!"))+.)"/', $line, $match)) {
+                    $filename = $match[1];
+                }
+            }
+
+            if ($filename) {
+                if (preg_match('/Content-Type\s*\:([^;]+)/i', $line, $match)) {
+                    $content_type = trim($match[1]);
+                }
+            }
+        }
+
+        return $fields;
     }
 }

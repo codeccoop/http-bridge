@@ -8,7 +8,7 @@
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.0.4
+ * Version:         1.1.0
  */
 
 namespace HTTP_BRIDGE;
@@ -19,22 +19,27 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
-    if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
-        define(
-            'HTTP_BRIDGE_AUTH_SECRET',
-            getenv('HTTP_BRIDGE_AUTH_SECRET')
-                ? getenv('HTTP_BRIDGE_AUTH_SECRET')
-                : '123456789'
-        );
-    }
-
+if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
     /**
      * Handle plugin version.
      *
      * @var string HTTP_BRIDGE_VERSION Current plugin version.
      */
-    define('HTTP_BRIDGE_VERSION', '1.0.4');
+    define('HTTP_BRIDGE_VERSION', '1.1.0');
+
+    if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
+        /**
+         * Handle plugin encryption secret.
+         *
+         * @var string HTTP_BRIDGE_AUTH_SECRET Token encryption secret.
+         */
+        define(
+            'HTTP_BRIDGE_AUTH_SECRET',
+            getenv('HTTP_BRIDGE_AUTH_SECRET')
+                ? getenv('HTTP_BRIDGE_AUTH_SECRET')
+                : '@#%5&mjx44yQRs@MW4pp'
+        );
+    }
 
     require_once 'abstracts/class-plugin.php';
 
@@ -47,6 +52,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
     require_once 'includes/class-jwt.php';
     require_once 'includes/class-rest-settings-controller.php';
     require_once 'includes/class-rest-auth-controller.php';
+    require_once 'includes/http-requests.php';
 
     /**
      * HTTP Bridge plugin.
@@ -77,12 +83,13 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
         /**
          * Setup the rest controller and bind wp hooks.
          */
-        public function __construct()
+        public function construct(...$args)
         {
-            parent::__construct();
+            parent::construct(...$args);
             REST_Auth_Controller::setup();
 
             $this->wp_hooks();
+            $this->custom_hooks();
         }
 
         /**
@@ -90,27 +97,35 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
          */
         private function wp_hooks()
         {
-            add_filter(
-                'plugin_action_links',
-                function ($links, $file) {
-                    if ($file !== plugin_basename(__FILE__)) {
-                        return $links;
-                    }
-
-                    $url = admin_url('options-general.php?page=http-bridge');
-                    $label = __('Settings', 'http-bridge');
-                    $link = "<a href='{$url}'>{$label}</a>";
-                    array_unshift($links, $link);
-                    return $links;
-                },
-                5,
-                2
-            );
-
             // Enqueue plugin admin client scripts
             add_action('admin_enqueue_scripts', function ($admin_page) {
                 $this->admin_enqueue_scripts($admin_page);
             });
+        }
+
+        /**
+         * Adds plugin custom filters.
+         */
+        private function custom_hooks()
+        {
+            // Gets a new backend instance.
+            add_filter(
+                'http_bridge_backend',
+                function ($default, $name) {
+                    return new Http_Backend($name);
+                },
+                10,
+                2
+            );
+
+            // Gets all configured backend instances.
+            add_filter(
+                'http_bridge_backends',
+                function () {
+                    return Http_Backend::get_backends();
+                },
+                10
+            );
         }
 
         /**
@@ -125,7 +140,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
             }
 
             wp_enqueue_script(
-                $this->get_textdomain(),
+                $this->textdomain(),
                 plugins_url('assets/plugin.bundle.js', __FILE__),
                 [
                     'react',
@@ -142,49 +157,14 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')):
             );
 
             wp_set_script_translations(
-                $this->get_textdomain(),
-                $this->get_textdomain(),
+                $this->textdomain(),
+                $this->textdomain(),
                 plugin_dir_path(__FILE__) . 'languages'
             );
 
             wp_enqueue_style('wp-components');
         }
-
-        /**
-         * Plugin activation callback.
-         */
-        public static function activate()
-        {
-        }
-
-        /**
-         * Plugin deactivation callback.
-         */
-        public static function deactivate()
-        {
-        }
-
-        /**
-         * Plugin initialization.
-         */
-        public function init()
-        {
-        }
     }
+}
 
-    register_deactivation_hook(__FILE__, function () {
-        HTTP_Bridge::deactivate();
-    });
-
-    register_activation_hook(__FILE__, function () {
-        HTTP_Bridge::activate();
-    });
-
-    add_action(
-        'plugins_loaded',
-        function () {
-            $plugin = HTTP_Bridge::get_instance();
-        },
-        10
-    );
-endif;
+HTTP_Bridge::setup();
