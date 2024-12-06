@@ -27,6 +27,8 @@ export default function Backends({ backends, setBackends }) {
       .slice(0, index)
       .concat([data])
       .concat(backends.slice(index + 1, backends.length));
+
+    newBackends.forEach((backend) => delete backend.title);
     setBackends(newBackends);
   };
 
