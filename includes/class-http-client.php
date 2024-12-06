@@ -424,39 +424,39 @@ class Http_Client
                 'request' => ['url' => $url, 'args' => $args],
             ]);
         } else {
-            $content_type = static::get_content_type($response['headers']);
-            if ($content_type === 'application/json') {
-                $data = json_decode($response['body'], true);
-            } elseif ($content_type === 'application/x-www-form-urlencoded') {
-                parse_str($response['body'], $data);
-            } elseif ($content_type === 'multipart/form-data') {
-                $data = Multipart::from($response['body'])->decode();
-            } else {
-                $data = null;
-            }
-            $response['data'] = $data;
-        }
-
-        if ($response['response']['code'] !== 200) {
-            $response = new WP_Error(
-                'http_bridge_error',
-                sprintf(
-                    __(
-                        'HTTP error response status code: Request to %s with %s method',
-                        'http-bridge'
+            if ($response['response']['code'] !== 200) {
+                $response = new WP_Error(
+                    'http_bridge_error',
+                    sprintf(
+                        __(
+                            'HTTP error response status code: Request to %s with %s method',
+                            'http-bridge'
+                        ),
+                        $url,
+                        $args['method']
                     ),
-                    $url,
-                    $args['method']
-                ),
-                [
-                    'request' => ['url' => $url, 'args' => $args],
-                    'response' => $response,
-                ]
-            );
+                    [
+                        'request' => ['url' => $url, 'args' => $args],
+                        'response' => $response,
+                    ]
+                );
+            } else {
+                $content_type = static::get_content_type($response['headers']);
+                if ($content_type === 'application/json') {
+                    $data = json_decode($response['body'], true);
+                } elseif ($content_type === 'application/x-www-form-urlencoded') {
+                    parse_str($response['body'], $data);
+                } elseif ($content_type === 'multipart/form-data') {
+                    $data = Multipart::from($response['body'])->decode();
+                } else {
+                    $data = null;
+                }
+
+                $response['data'] = $data;
+            }
         }
 
         do_action('http_bridge_response', $response, $request);
-
         return $response;
     }
 
