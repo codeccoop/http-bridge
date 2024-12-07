@@ -1,19 +1,127 @@
 # API
 
+## Table of Contents
+
+1. [Methods](#Methods)
+2. [Getters](#getters)
+3. [Filters](#filters)
+4. [Actions](#actions)
+
+## Methods
+
+All plugin public methods can be proxies with actions like
+
+```php
+do_action(`{method_name}`, ...$args);
+```
+
+This API prevent errors on theme functions when the plugin is not installed.
+
+### `http_bridge_get`
+
+Performs GET requests.
+
+#### Arguments
+
+1. `string $url`: Target URL.
+2. `array $params`: URL query params, empty array as default.
+3. `array $headers`: HTTP headers, empty array as default.
+
+#### Returns
+
+1. `array|WP_Error`: Request response.
+
+#### Example
+
+```php
+$response = http_bridge_get('https://example.coop/api/echo', ['foo' => 'bar']);
+```
+
+### `http_bridge_post`
+
+Performs POST requests.
+
+#### Arguments
+
+1. `string $url`: Target URL.
+2. `array $data`: Request payload.
+3. `array $headers`: HTTP headers, empty array as default.
+4. `array $files`: Array with files, empty array as default.
+
+#### Returns
+
+1. `array|WP_Error`: Request response.
+
+#### Example
+
+```php
+$response = http_bridge_post(
+	'https://example.coop/api/echo',
+	['foo' => 'bar'],
+	['Content-Type' => 'application/x-www-form-urlencoded']
+);
+```
+
+### `http_bridge_put`
+
+Performs PUT requests.
+
+#### Arguments
+
+1. `string $url`: Target URL.
+2. `array $data`: Request payload.
+3. `array $headers`: HTTP headers, empty array as default.
+4. `array $files`: Array with files, empty array as default.
+
+#### Returns
+
+1. `array|WP_Error`: Request response.
+
+#### Example
+
+```php
+$response = http_bridge_put(
+	'https://example.coop/api/echo',
+	['foo' => 'bar'],
+	['Authorization' => 'Bearer 53CR37-70K3N'],
+	['image' => '/path/to/file.img'],
+]);
+```
+
+### `http_bridge_delete`
+
+Performs DELETE requests.
+
+#### Arguments
+
+1. `string $url`: Target URL.
+2. `array $params`: URL query params, empty array as default.
+3. `array $headers`: HTTP headers, empty array as default.
+
+#### Returns
+
+1. `array|WP_Error`: Request response.
+
+#### Example
+
+```php
+$response = http_bridge_delete('https://example.coop/api/echo');
+```
+
 ## Getters
 
 ### `http_bridge_backend`
 
-Get backend configuration by name.
+Get a backend instance by name.
 
 #### Arguments
 
-1. `any $default`: Default value.
+1. `mixed $default`: Fallback value.
 2. `string $name`: Backend name.
 
 #### Returns
 
-1. `array|null $backend`: Backend data.
+1. `array|null $backend`: Backend instance.
 
 #### Example
 
@@ -26,15 +134,15 @@ if (!empty($backend)) {
 
 ### `http_bridge_backends`
 
-Get configured backends list.
+Get configured backends instances.
 
 #### Arguments
 
-1. `any $default`: Default value.
+1. `mixed $default`: Fallback value.
 
 #### Returns
 
-1. `array $backends`: List of available backends.
+1. `array $backends`: List of available backend instances.
 
 #### Example
 
@@ -45,134 +153,40 @@ foreach ($backends as $backend) {
 }
 ```
 
-## Methods
-
-### `http_bridge_get`
-
-Performs GET requests.
-
-#### Arguments
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-#### Returns
-
-1. `array|WP_Error`: Request response.
-
-#### Example
-
-```php
-$response = http_bridge_get('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'params' => [
-		'foo' => 'bar',
-	],
-]);
-```
-
-### `http_bridge_post`
-
-Performs POST requests.
-
-#### Arguments
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-#### Returns
-
-1. `array|WP_Error`: Request response.
-
-#### Example
-
-```php
-$response = http_bridge_post('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'data' => [
-		'foo' => 'bar',
-	],
-	'files' => [
-		'file-name' => '/path/to/file.ext',
-	],
-]);
-```
-
-### `http_bridge_put`
-
-Performs PUT requests.
-
-#### Arguments
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-#### Returns
-
-1. `array|WP_Error`: Request response.
-
-#### Example
-
-```php
-$response = http_bridge_put('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'data' => [
-		'foo' => 'bar',
-	],
-	'files' => [
-		'file-name' => '/path/to/file.ext',
-	],
-]);
-```
-
-### `http_bridge_delete`
-
-Performs DELETE requests.
-
-#### Arguments
-
-1. `string $url`: Target URL.
-2. `array $args`: Request arguments.
-
-#### Returns
-
-1. `array|WP_Error`: Request response.
-
-#### Example
-
-```php
-$response = http_bridge_delete('https://example.coop/api/echo', [
-	'headers' => [
-		'Accept': 'application/json'
-	],
-	'params' => [
-		'foo' => 'bar',
-	],
-]);
-```
-
 ## Filters
 
-### `http_bridge_request_args`
+### `http_bridge_backend_url`
 
 Filter the HTTP request arguments before is sent.
 
 #### Arguments
 
-1. `array $args`: Array with `url`, `method`, `headers`, `files`, `params` and `data` keys.
+1. `string $url`: Array with `url`, `method`, `headers`, `files`, `params` and `data` keys.
+2. `Http_Backend $backend`: Instance of the current backend object.
 
 #### Example
 
 ```php
-add_filter('http_bridge_req_args', function ($args) {
-	return $args;
-}, 10, 3);
+add_filter('http_bridge_backend_url', function ($url, $backend) {
+	return $url;
+}, 10, 2);
+```
+
+### `http_bridge_backend_headers`
+
+Filters the HTTP headers the backend will be set to its HTTP connexions.
+
+#### Arguments
+
+1. `array $headers`: Default backend's HTTP headers.
+2. `Http_Backend $backend`: Instance of the current backend object.
+
+#### Example
+
+```php
+add_filter('http_bridge_backend_headers', function ($headers, $backend) {
+	return $headers;
+}, 10, 2);
 ```
 
 ### `http_bridge_validate_response`
@@ -241,5 +255,42 @@ Filters the `nbf` claim value of generated JWTs. Default value is `time()`.
 ```php
 add_filter('http_bridge_auth_not_before', function ($nbf, $issuedAt) {
 	return $nbf;
+}, 10, 2);
+```
+
+## Actions
+
+### `http_bridge_before_request`
+
+Fired before each time Http Bridge opens a new HTTP request.
+
+#### Arguments
+
+1. `array $request`: Request data.
+
+#### Example
+
+```php
+add_action('http_bridge_before_request', function ($request) {
+	if ($request['url'] === 'https://example.coop') {
+		// do something
+	}
+});
+```
+
+### `http_bridge_after_request`
+
+#### Arguments
+
+1. `array|WP_Error $response`: HTTP request response, or error.
+2. `array $request`: Request data.
+
+#### Example
+
+```php
+add_action('http_bridge_after_request', function ($response, $request) {
+	if ($response['headers']['x-wp-totalpages'] > 1) {
+		 // do something
+	}
 }, 10, 2);
 ```
