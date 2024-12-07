@@ -26,14 +26,6 @@ against the remote server over the HTTP protocol.
 > security about this login mechanism, you can create custom roles to assign to your
 > backend user to limit its capabilities.
 
-## Wordpress REST API
-
-The WordPress REST API provides an interface for applications to interact with
-your WordPress site by sending and receiving data as JSON (JavaScript Object
-Notation) objects. In other words, the REST API allow the same actions user's
-can perform from WordPress administartion page, but automatized. For more information
-about Wordpress REST API see the [official documentation](https://developer.wordpress.org/rest-api/).
-
 ## Installation
 
 Download the [latest release](https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge/-/releases/permalink/latest/downloads/plugins/bridges/http-bridge.zip)
@@ -62,6 +54,23 @@ page has two main sections:
    - **Backends**: List of configured backend connections. Each backend needs a unique
      name, a base URL, and, optional, a map of HTTP headers.
 
+## Backends
+
+Http Bridge can be configured with many backend connexions to reuse on each HTTP request.
+
+Each backend connexion needs a unique name that identifies it and a base URL. The base URL
+will be prepended to your form hook endpoints to build the URLs from the backend HTTP API.
+
+To each backend you can set a collection of HTTP headers to be sent on each request. In addition,
+Http Bridge will add some default headers to the request.
+
+> With the `Content-Type` header you can modify how Forms Bridge encode your submission data
+> before is sent. Supported content types are: `application/json`, `application/x-www-form-urlencoded`
+> and `multipart/form-data`.
+
+For each configured backend connexion, Http Bridge will create Http_Backend instance with
+methods to perform HTTP request with its configuration as default request arguments.
+
 ## Auth secret
 
 To be able to cryptographicaly sign the JWT, HTTP Bridge needs a secret. This secret
@@ -88,8 +97,3 @@ run `npm run dev` for development, or `npm run build` for production builts.
 
 > We work WordPress with docker. See our [development setup](https://github.com/codeccoop/wp-development/)
 > if you are interested.
-
-## Roadmap
-
-1. [ ] Add test coverage with phpunit.
-2. [ ] Improve admin client UX.
