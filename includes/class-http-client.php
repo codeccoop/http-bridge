@@ -423,7 +423,8 @@ class Http_Client
                     ]
                 );
             } else {
-                $content_type = static::get_content_type($response['headers']);
+                $headers = $response['headers']->getAll();
+                $content_type = static::get_content_type($headers);
                 if ($content_type === 'application/json') {
                     $data = json_decode($response['body'], true);
                 } elseif (
