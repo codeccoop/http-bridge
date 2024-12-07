@@ -405,7 +405,8 @@ class Http_Client
                 'request' => ['url' => $url, 'args' => $args],
             ]);
         } else {
-            if ($response['response']['code'] !== 200) {
+            $status = (int) $response['response']['code'];
+            if ($status >= 300) {
                 $response = new WP_Error(
                     'http_bridge_error',
                     sprintf(
