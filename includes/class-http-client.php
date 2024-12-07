@@ -286,7 +286,7 @@ class Http_Client
                     return new WP_Error(
                         'unkown_content_type',
                         __(
-                            'Can\' decode data due to unkown Content-Type header',
+                            'Can\' append files to your payload due to an unkown Content-Type header',
                             'http-bridge'
                         ),
                         ['data' => $args['data'], 'headers' => $args['headers']]

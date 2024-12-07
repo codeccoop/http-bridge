@@ -45,37 +45,62 @@ wp plugin install https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bri
 ## Getting started
 
 See [install](#install) section to learn how to install the plugin. Once installed,
-go to `Settings > HTTP Bridge` to configure your backend connections. The settings
+go to `Settings > Http Bridge` to configure your backend connections. The settings
 page has two main sections:
 
 1. General
    - **Whitelist backends**: Controls if HTTP Bridge should block incomming connections
-     from other sources than the listed on de _backends_ setting.
+     to the `wp-bridges` REST API namespace from other sources than the listed on de
+     _backends_ setting.
    - **Backends**: List of configured backend connections. Each backend needs a unique
      name, a base URL, and, optional, a map of HTTP headers.
 
+## HTTP requests
+
+Http Bridge offers a high level API to perform HTTP requests from WordPress with four
+methods: `http_bridge_get`, `http_bridge_post`, `http_bridge_put` and `http_bridge_delete`.
+
+See the [documentation](./docs/API.md#methods) for more information about the API.
+
+### Content types
+
+When using some HTTP method that supports **body** on the request (POST and PUT), Http
+Bridge will try to encode its content for you. You can control how Http Bridge encode
+your data on the body with the header `Content-Type`. If this header isn't present,
+Http Bridge will encode your data as JSON string. Supported content types are
+`application/json`, `application/x-www-form-urlencoded` and `multipart/form-data`.
+
+> If your requests needs to transfer files, Http Bridge will switch to the `multipart/form-data`
+> encoding schema, the only that supports binary data transfers.
+
+If you want to use some other encoding schema, you should encode your data and transform
+it to string before pass it to Http Bridge. When the data comes in form of a string,
+Http Bridge skips the encoding step and pass them away as the body of the request.
+
+> GET and DELETE methods doesn't support request body, so your data will be encoded as
+`application/x-www-form-urlencoded` and appended to your URL as query params.
+
 ## Backends
 
-Http Bridge can be configured with many backend connexions to reuse on each HTTP request.
+Http Bridge can be configured with many backend connexions to handle HTTP requests.
 
 Each backend connexion needs a unique name that identifies it and a base URL. The base URL
 will be prepended to your form hook endpoints to build the URLs from the backend HTTP API.
-
 To each backend you can set a collection of HTTP headers to be sent on each request. In addition,
 Http Bridge will add some default headers to the request.
 
-> With the `Content-Type` header you can modify how Forms Bridge encode your submission data
-> before is sent. Supported content types are: `application/json`, `application/x-www-form-urlencoded`
-> and `multipart/form-data`.
+Using backends objects as agents to perform HTTP requests it's an easey way to reuse code
+and configuration across your multiple connexions.
 
-For each configured backend connexion, Http Bridge will create Http_Backend instance with
-methods to perform HTTP request with its configuration as default request arguments.
+> Backend's content type HTTP header will drive how Http Bridge works in the same way as it
+> do with the plain HTTP methods explained before.
 
 ## Auth secret
 
 To be able to cryptographicaly sign the JWT, HTTP Bridge needs a secret. This secret
-should be defined as a const on your code as `HTTP_BRIDGE_AUTH_SECRET`. Default value
-is `123456789`.
+should be defined as a const on your code as `HTTP_BRIDGE_AUTH_SECRET`. If you don't
+define it, Http Bridge will work with its default value, but you are exposed to
+security issues. **Please, don't do this on production environments!!**.
 
 ## Developers
 

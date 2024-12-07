@@ -9,14 +9,6 @@
 
 ## Methods
 
-All plugin public methods can be proxies with actions like
-
-```php
-do_action(`{method_name}`, ...$args);
-```
-
-This API prevent errors on theme functions when the plugin is not installed.
-
 ### `http_bridge_get`
 
 Performs GET requests.
