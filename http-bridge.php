@@ -8,7 +8,7 @@
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.1.0
+ * Version:         1.2.0
  */
 
 namespace HTTP_BRIDGE;
@@ -25,7 +25,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
      *
      * @var string HTTP_BRIDGE_VERSION Current plugin version.
      */
-    define('HTTP_BRIDGE_VERSION', '1.1.0');
+    define('HTTP_BRIDGE_VERSION', '1.2.0');
 
     if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
         /**
