@@ -19,9 +19,6 @@ function http_bridge_get($url, $params = [], $headers = [])
     return Http_Client::get($url, ['params' => $params, 'headers' => $headers]);
 }
 
-// binds get requests to custom wp action
-add_action('http_bridge_get', 'http_bridge_get', 10, 3);
-
 /**
  * Public function to perform a POST requests.
  *
@@ -38,9 +35,6 @@ function http_bridge_post($url, $data = [], $headers = [], $files = [])
         'files' => (array) $files,
     ]);
 }
-
-// binds post requests to custom wp action
-add_action('http_bridge_post', 'http_bridge_post', 10, 4);
 
 /**
  * Public function to perform a PUT requests.
@@ -59,9 +53,6 @@ function http_bridge_put($url, $data = [], $headers = [], $files = [])
     ]);
 }
 
-// binds put requests to custom wp action
-add_action('http_bridge_put', 'http_bridge_put', 10, 4);
-
 /**
  * Public function to perform a DELETE requests.
  *
@@ -77,6 +68,3 @@ function http_bridge_delete($url, $params = [], $headers = [])
         'headers' => $headers,
     ]);
 }
-
-// binds delete requests to custom wp action
-add_action('http_bridge_delete', 'http_bridge_delete', 10, 3);

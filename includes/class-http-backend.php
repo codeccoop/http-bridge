@@ -118,6 +118,17 @@ class Http_Backend
     }
 
     /**
+     * Gets backend default request body content type encoding schema.
+     *
+     * @return string|null Encoding schema.
+     */
+    public function content_type()
+    {
+        $headers = $this->headers();
+        return Http_Client::get_content_type($headers);
+    }
+
+    /**
      * Performs a GET HTTP request to the backend.
      *
      * @param string $endpoint Target backend endpoint as relative path.

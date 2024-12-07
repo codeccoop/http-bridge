@@ -144,11 +144,7 @@ class Http_Client
     public static function get($url, $args = [])
     {
         if (!is_array($args)) {
-            return new WP_Error(
-                'invalid_http_args',
-                __('Http_Client::get $args should be an array', 'http-bridge'),
-                ['args' => $args]
-            );
+            $args = [];
         }
 
         return static::do_request(
@@ -171,11 +167,7 @@ class Http_Client
     public static function post($url, $args = [])
     {
         if (!is_array($args)) {
-            return new WP_Error(
-                'invalid_http_args',
-                __('Http_Client::post $args should be an array', 'http-bridge'),
-                ['args' => $args]
-            );
+            $args = [];
         }
 
         if (!empty($args['files']) && is_array($args['files'])) {
@@ -205,11 +197,7 @@ class Http_Client
     public static function put($url, $args)
     {
         if (!is_array($args)) {
-            return new WP_Error(
-                'invalid_http_args',
-                __('Http_Client::put $args should be an array', 'http-bridge'),
-                ['args' => $args]
-            );
+            $args = [];
         }
 
         if (!empty($args['files']) && is_array($args['files'])) {
@@ -238,14 +226,7 @@ class Http_Client
     public static function delete($url, $args)
     {
         if (!is_array($args)) {
-            return new WP_Error(
-                'invalid_http_args',
-                __(
-                    'Http_Client::delete $args should be an array',
-                    'http-bridge'
-                ),
-                ['args' => $args]
-            );
+            $args = [];
         }
 
         return static::do_request(
@@ -319,7 +300,7 @@ class Http_Client
 
         // Add files to the request payload data.
         foreach ($args['files'] as $name => $path) {
-            if (!is_file($path)) {
+            if (!(is_file($path) && is_readable($path))) {
                 continue;
             }
             $filename = basename($path);
@@ -444,7 +425,9 @@ class Http_Client
                 $content_type = static::get_content_type($response['headers']);
                 if ($content_type === 'application/json') {
                     $data = json_decode($response['body'], true);
-                } elseif ($content_type === 'application/x-www-form-urlencoded') {
+                } elseif (
+                    $content_type === 'application/x-www-form-urlencoded'
+                ) {
                     parse_str($response['body'], $data);
                 } elseif ($content_type === 'multipart/form-data') {
                     $data = Multipart::from($response['body'])->decode();
@@ -467,13 +450,12 @@ class Http_Client
      *
      * @return string|null Mime type value of the header.
      */
-    private static function get_content_type($headers = [])
+    public static function get_content_type($headers = [])
     {
+        $headers = self::normalize_headers($headers);
         $content_type = isset($headers['Content-Type'])
             ? $headers['Content-Type']
-            : (isset($headers['content-type'])
-                ? $headers['content-type']
-                : null);
+            : null;
 
         if ($content_type) {
             $content_type = preg_replace('/;.*$/', '', $content_type);
