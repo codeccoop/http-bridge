@@ -1,4 +1,4 @@
-# HTTP bridge
+# HTTP Bridge
 
 ![HTTP Bridge]()
 
@@ -95,7 +95,15 @@ and configuration across your multiple connexions.
 > Backend's content type HTTP header will drive how Http Bridge works in the same way as it
 > do with the plain HTTP methods explained before.
 
-## Auth secret
+## Authorization
+
+Write operations over the WP REST API are protected with authentication. At the same time,
+there is not a standard method to authenticate clients over the standard REST API. To fill
+this gap, Http Bridge exposes a couple of endpoints to gain access to the WP via REST API
+on top of JWT and the Bearer Authentication schema. Go to the [documentation](./docs/REST-API.md)
+for more information.
+
+### Auth secret
 
 To be able to cryptographicaly sign the JWT, HTTP Bridge needs a secret. This secret
 should be defined as a const on your code as `HTTP_BRIDGE_AUTH_SECRET`. If you don't
