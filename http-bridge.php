@@ -73,6 +73,8 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          */
         public static $textdomain = 'http-bridge';
 
+        protected static $settings_class = '\HTTP_BRIDGE\Settings';
+
         /**
          * Plugin menu class name handle.
          *

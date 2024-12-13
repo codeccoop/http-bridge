@@ -441,7 +441,9 @@ class Http_Client
             }
         }
 
+        $response = apply_filters('http_bridge_response', $response, $request);
         do_action('http_bridge_response', $response, $request);
+
         return $response;
     }
 

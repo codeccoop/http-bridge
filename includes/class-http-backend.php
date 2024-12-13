@@ -71,11 +71,42 @@ class Http_Backend
      */
     public function __get($attr)
     {
-        if (isset($this->data[$attr])) {
-            return $this->data[$attr];
+        switch ($attr) {
+            case 'headers':
+                return $this->headers();
+            case 'content_type':
+                return $this->content_type();
+            default:
+                if (isset($this->data[$attr])) {
+                    return $this->data[$attr];
+                }
+        }
+    }
+
+    /**
+     * Gets backend default headers.
+     *
+     * @return array $headers Backend headers.
+     */
+    private function headers()
+    {
+        $headers = [];
+        foreach ($this->headers as $header) {
+            $headers[trim($header['name'])] = trim($header['value']);
         }
 
-        return null;
+        return apply_filters('http_bridge_backend_headers', $headers, $this);
+    }
+
+    /**
+     * Gets backend default request body content type encoding schema.
+     *
+     * @return string|null Encoding schema.
+     */
+    private function content_type()
+    {
+        $headers = $this->headers();
+        return Http_Client::get_content_type($headers);
     }
 
     /**
@@ -100,32 +131,6 @@ class Http_Backend
             preg_replace('/^\/+/', '', $path);
 
         return apply_filters('http_bridge_backend_url', $url, $this);
-    }
-
-    /**
-     * Gets backend default headers.
-     *
-     * @return array $headers Backend headers.
-     */
-    public function headers()
-    {
-        $headers = [];
-        foreach ($this->headers as $header) {
-            $headers[trim($header['name'])] = trim($header['value']);
-        }
-
-        return apply_filters('http_bridge_backend_headers', $headers, $this);
-    }
-
-    /**
-     * Gets backend default request body content type encoding schema.
-     *
-     * @return string|null Encoding schema.
-     */
-    public function content_type()
-    {
-        $headers = $this->headers();
-        return Http_Client::get_content_type($headers);
     }
 
     /**
