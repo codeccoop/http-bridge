@@ -91,7 +91,7 @@ class Http_Backend
     private function headers()
     {
         $headers = [];
-        foreach ($this->headers as $header) {
+        foreach ($this->data['headers'] as $header) {
             $headers[trim($header['name'])] = trim($header['value']);
         }
 
