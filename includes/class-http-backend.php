@@ -118,7 +118,7 @@ class Http_Backend
      */
     public function url($path = '')
     {
-        $parsed = parse_url($path);
+        $parsed = parse_url((string) $path);
         if (!isset($parsed['path'])) {
             return $this->base_url;
         } else {
