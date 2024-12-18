@@ -29,7 +29,7 @@ class Http_Backend
     {
         return array_map(function ($backend_data) {
             return new HTTP_Backend($backend_data['name']);
-        }, Settings::get_setting('http-bridge', 'general')->backends);
+        }, Settings::get_setting(Http_Bridge::slug(), 'general')->backends);
     }
 
     /**
@@ -52,7 +52,8 @@ class Http_Backend
      */
     private function load_data($name)
     {
-        $backends = Settings::get_setting('http-bridge', 'general')->backends;
+        $backends = Settings::get_setting(Http_Bridge::slug(), 'general')
+            ->backends;
         foreach ($backends as $backend) {
             if ($backend['name'] === $name) {
                 return $backend;

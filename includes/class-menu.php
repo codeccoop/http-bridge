@@ -26,7 +26,8 @@ class Menu extends BaseMenu
     protected function render_page($echo = true)
     {
         printf(
-            '<div class="wrap" id="http-bridge">%s</div>',
+            '<div class="wrap" id="%s">%s</div>',
+            Http_Bridge::slug(),
             esc_html__('Loading', 'http-bridge')
         );
     }

@@ -35,7 +35,7 @@ class Settings extends BaseSettings
     }
 
     /**
-     * Register plugin settings.
+     * Registers plugin settings.
      */
     public function register()
     {
@@ -87,6 +87,15 @@ class Settings extends BaseSettings
         );
     }
 
+    /**
+     * Callback to the `wpct_sanitize_setting` filter. Sanitizes and validates
+     * plugin setting data before database updates.
+     *
+     * @param array $value Setting data.
+     * @param Setting $setting Setting object instance.
+     *
+     * @return array Sanitized and validated data.
+     */
     private function sanitize_setting($value, $setting)
     {
         if ($setting->group() !== $this->group()) {
@@ -103,6 +112,13 @@ class Settings extends BaseSettings
         return $value;
     }
 
+    /**
+     * Validates plugin's general setting data.
+     *
+     * @param array $value Setting data.
+     *
+     * @return array Validated data.
+     */
     public static function validate_general($value)
     {
         $value['whitelist'] = (bool) $value['whitelist'];
@@ -110,6 +126,13 @@ class Settings extends BaseSettings
         return $value;
     }
 
+    /**
+     * Validate plugin's backend settings.
+     *
+     * @param array $backends List with backend settings.
+     *
+     * @return array Filtered by validity backend settings list.
+     */
     public static function validate_backends($backends)
     {
         $unique_names = [];

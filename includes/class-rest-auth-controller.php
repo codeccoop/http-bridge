@@ -117,11 +117,15 @@ class REST_Auth_Controller extends Singleton
         });
     }
 
+    /**
+     * Callback to the `rest_api_init` hook. Registers custom REST API endpoint routes
+     * to handle JWT authorization and validation.
+     */
     private function init()
     {
         register_rest_route(
             "{$this->namespace}/v{$this->version}",
-            '/http-bridge/auth',
+            '/' . implode('/', [Http_Bridge::slug(), 'auth']),
             [
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => function () {
@@ -135,7 +139,7 @@ class REST_Auth_Controller extends Singleton
 
         register_rest_route(
             "{$this->namespace}/v{$this->version}",
-            '/http-bridge/validate-token',
+            '/' . implode('/', [Http_Bridge::slug(), 'validate-token']),
             [
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => function () {
@@ -393,8 +397,10 @@ class REST_Auth_Controller extends Singleton
      */
     private function cors_allowed()
     {
-        $whitelist = (bool) Settings::get_setting('http-bridge', 'general')
-            ->whitelist;
+        $whitelist = (bool) Settings::get_setting(
+            Http_Bridge::slug(),
+            'general'
+        )->whitelist;
 
         if (!$whitelist) {
             return;

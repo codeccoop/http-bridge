@@ -64,15 +64,20 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          *
          * @var string $name Plugin name.
          */
-        public static $name = 'HTTP Bridge';
+        protected static $name = 'HTTP Bridge';
 
         /**
          * Plugin textdomain handle.
          *
          * @var string $textdomain Plugin textdomain.
          */
-        public static $textdomain = 'http-bridge';
+        protected static $textdomain = 'http-bridge';
 
+        /**
+         * Handles plugin's settings store class name.
+         *
+         * @var string $settings_class Plugins settings class name.
+         */
         protected static $settings_class = '\HTTP_BRIDGE\Settings';
 
         /**
@@ -137,12 +142,12 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          */
         private function admin_enqueue_scripts($admin_page)
         {
-            if ('settings_page_http-bridge' !== $admin_page) {
+            if ('settings_page_' . self::slug() !== $admin_page) {
                 return;
             }
 
             wp_enqueue_script(
-                $this->textdomain(),
+                self::slug(),
                 plugins_url('assets/plugin.bundle.js', __FILE__),
                 [
                     'react',
@@ -159,8 +164,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
             );
 
             wp_set_script_translations(
-                $this->textdomain(),
-                $this->textdomain(),
+                self::slug(),
                 plugin_dir_path(__FILE__) . 'languages'
             );
 
