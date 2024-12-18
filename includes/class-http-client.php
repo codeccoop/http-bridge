@@ -65,7 +65,9 @@ class Http_Client
         $headers = array_merge(
             [
                 'Origin' => $_SERVER['HTTP_HOST'],
-                'Referer' => $_SERVER['HTTP_REFERER'],
+                'Referer' => isset($_SERVER['HTTP_REFERER'])
+                    ? $_SERVER['HTTP_REFERER']
+                    : null,
                 'Accept-Language' => static::get_locale(),
                 'Connection' => 'keep-alive',
                 'Accept' => 'application/json',
@@ -94,7 +96,7 @@ class Http_Client
     {
         $normalized = [];
         foreach ((array) $headers as $name => $value) {
-            if (empty($name)) {
+            if (empty($name) || empty($value)) {
                 continue;
             }
             $name = str_replace('_', '-', $name);
