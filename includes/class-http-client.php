@@ -125,7 +125,7 @@ class Http_Client
         if (isset($parsed['query'])) {
             parse_str($parsed['query'], $query);
             $params = array_merge($query, $params);
-            $url = preg_replace('/?.*$/', '', $url);
+            $url = preg_replace('/\?.*$/', '', $url);
         }
 
         if (!empty($params)) {
