@@ -8,7 +8,7 @@
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.3.0
+ * Version:         1.3.2
  */
 
 namespace HTTP_BRIDGE;
@@ -20,13 +20,6 @@ if (!defined('ABSPATH')) {
 }
 
 if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
-    /**
-     * Handle plugin version.
-     *
-     * @var string HTTP_BRIDGE_VERSION Current plugin version.
-     */
-    define('HTTP_BRIDGE_VERSION', '1.3.0');
-
     if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
         /**
          * Handle plugin encryption secret.
@@ -59,20 +52,6 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
      */
     class HTTP_Bridge extends Plugin
     {
-        /**
-         * Plugin name handle.
-         *
-         * @var string $name Plugin name.
-         */
-        protected static $name = 'HTTP Bridge';
-
-        /**
-         * Plugin textdomain handle.
-         *
-         * @var string $textdomain Plugin textdomain.
-         */
-        protected static $textdomain = 'http-bridge';
-
         /**
          * Handles plugin's settings store class name.
          *
@@ -142,12 +121,12 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          */
         private function admin_enqueue_scripts($admin_page)
         {
-            if ('settings_page_' . self::slug() !== $admin_page) {
+            if ('settings_page_' . $this->slug() !== $admin_page) {
                 return;
             }
 
             wp_enqueue_script(
-                self::slug(),
+                $this->slug(),
                 plugins_url('assets/plugin.bundle.js', __FILE__),
                 [
                     'react',
@@ -159,12 +138,12 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
                     'wp-i18n',
                     'wp-api',
                 ],
-                HTTP_BRIDGE_VERSION,
+                $this->version(),
                 ['in_footer' => true]
             );
 
             wp_set_script_translations(
-                self::slug(),
+                $this->slug(),
                 plugin_dir_path(__FILE__) . 'languages'
             );
 
