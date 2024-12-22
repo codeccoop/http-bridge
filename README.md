@@ -1,6 +1,4 @@
-# HTTP Bridge
-
-![HTTP Bridge]()
+![HTTP Bridge](./assets/icon-256x256.png)
 
 Connect WP with backends over HTTP.
 
