@@ -40,3 +40,24 @@ node_modules
 *.sql
 *.tar.gz
 *.zip
+# custom
+CODE_OF_CONDUCT.md
+*node_modules*
+*bin/*
+*tests/*
+*.git*
+*.php-cs-fixer.cache
+*phpunit.xml.dist
+*phpcs.xml.dist
+*package.json
+*package-lock.json
+*.editorconfig
+*.distignore
+src/*
+deps/*/src/*
+*.husky*
+*.lintstagedrc.js
+*.prettier*
+*eslint.config.js
+*.nvimrc*
+*.store
