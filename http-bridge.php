@@ -34,9 +34,13 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         );
     }
 
-    include_once 'abstracts/class-plugin.php';
+    if (is_file('abstracts/class-plugin.php')) {
+        include_once 'abstracts/class-plugin.php';
+    }
 
-    include_once 'deps/i18n/wpct-i18n.php';
+    if (is_file('deps/i18n/wpct-i18n.php')) {
+        include_once 'deps/i18n/wpct-i18n.php';
+    }
 
     require_once 'includes/class-menu.php';
     require_once 'includes/class-settings.php';
