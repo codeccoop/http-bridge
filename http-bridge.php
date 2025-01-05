@@ -8,7 +8,7 @@
  * Author URI:      https://www.codeccoop.org
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.3.4
+ * Version:         1.3.5
  */
 
 namespace HTTP_BRIDGE;
@@ -34,9 +34,9 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         );
     }
 
-    require_once 'abstracts/class-plugin.php';
+    include_once 'abstracts/class-plugin.php';
 
-    require_once 'deps/i18n/wpct-i18n.php';
+    include_once 'deps/i18n/wpct-i18n.php';
 
     require_once 'includes/class-menu.php';
     require_once 'includes/class-settings.php';
