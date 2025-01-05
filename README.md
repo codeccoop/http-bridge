@@ -120,7 +120,8 @@ In order to work local, you have to clone this repository and initialize its sub
 command:
 
 ```bash
-git submodule update --init --recursive
+git submodule sync
+git submodule update --init
 ```
 
 Once done, you will need to install frontend dependencies with `npm install`. To build the admin's react client,
