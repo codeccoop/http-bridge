@@ -64,7 +64,7 @@ class Http_Client
     {
         $headers = array_merge(
             [
-                'Origin' => $_SERVER['HTTP_HOST'],
+                'Origin' => isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '',
                 'Referer' => isset($_SERVER['HTTP_REFERER'])
                     ? $_SERVER['HTTP_REFERER']
                     : null,
@@ -121,7 +121,7 @@ class Http_Client
      */
     private static function add_query_str($url, $params)
     {
-        $parsed = parse_url($url);
+        $parsed = wp_parse_url($url);
         if (isset($parsed['query'])) {
             parse_str($parsed['query'], $query);
             $params = array_merge($query, $params);
@@ -358,7 +358,7 @@ class Http_Client
                     $mime_type = $content_type;
 
                     if (strstr($mime_type, 'application/json')) {
-                        $args['body'] = json_encode(
+                        $args['body'] = wp_json_encode(
                             $data,
                             JSON_UNESCAPED_UNICODE
                         );

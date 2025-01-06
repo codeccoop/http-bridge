@@ -407,10 +407,10 @@ class REST_Auth_Controller extends Singleton
         }
 
         try {
-            $self = parse_url(get_option('siteurl'));
+            $self = wp_parse_url(get_option('siteurl'));
             $backends = apply_filters('http_bridge_backends', []);
             $sources = array_map(function ($backend) {
-                return parse_url($backend->base_url);
+                return wp_parse_url($backend->base_url);
             }, $backends);
             $sources[] = array_merge($self, ['scheme' => 'http']);
             $sources[] = array_merge($self, ['scheme' => 'https']);
@@ -429,7 +429,7 @@ class REST_Auth_Controller extends Singleton
                 );
             }
 
-            $origin = parse_url($origin);
+            $origin = wp_parse_url($origin);
             foreach ($sources as $source) {
                 if (
                     $origin['host'] === $source['host'] &&

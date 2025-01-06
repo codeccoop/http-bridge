@@ -213,7 +213,6 @@ class Multipart
         foreach ($lines as $line) {
             if (empty(trim($line))) {
                 if ($name !== null) {
-                    echo 'bufferring' . self::EOL;
                     $buffering = true;
                 }
                 continue;

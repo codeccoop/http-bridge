@@ -119,7 +119,7 @@ class Http_Backend
      */
     public function url($path = '')
     {
-        $parsed = parse_url((string) $path);
+        $parsed = wp_parse_url((string) $path);
         if (!isset($parsed['path'])) {
             return $this->base_url;
         } else {

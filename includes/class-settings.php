@@ -39,7 +39,7 @@ class Settings extends BaseSettings
      */
     public function register()
     {
-        $url = parse_url(get_site_url());
+        $url = wp_parse_url(get_site_url());
 
         // Register general settings
         $this->register_setting(

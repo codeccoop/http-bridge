@@ -27,13 +27,13 @@ class JWT
      */
     public function encode($payload)
     {
-        $header = json_encode([
+        $header = wp_json_encode([
             'alg' => 'HS256',
             'typ' => 'JWT'
         ]);
 
         $header = $this->base64URLEncode($header);
-        $payload = json_encode($payload);
+        $payload = wp_json_encode($payload);
         $payload = $this->base64URLEncode($payload);
 
         $signature = hash_hmac('sha256', $header . '.' . $payload, self::$key, true);
