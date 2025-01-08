@@ -338,7 +338,7 @@ class Http_Client
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return new WP_Error(
                 'invalid_url',
-                sprintf(__('%s is not a valid URL', 'http-bridge'), $url),
+                __('Invalid request URL', 'http-bridge'),
                 [
                     'url' => $url,
                 ]
@@ -376,12 +376,9 @@ class Http_Client
                     } else {
                         return new WP_Error(
                             'posts_bridge_unkown_content_type',
-                            sprintf(
-                                __(
-                                    'Content type %s is unkown. Please, encode request data as string before submit if working with custom content types',
-                                    'http-bridge'
-                                ),
-                                $content_type
+                            __(
+                                'Content type is unkown. Please, encode request data as string before submit if working with custom content types',
+                                'http-bridge'
                             ),
                             [
                                 'Content-Type' => $content_type,
@@ -411,13 +408,9 @@ class Http_Client
             if ($status >= 300) {
                 $response = new WP_Error(
                     'http_bridge_error',
-                    sprintf(
-                        __(
-                            'HTTP error response status code: Request to %s with %s method',
-                            'http-bridge'
-                        ),
-                        $url,
-                        $args['method']
+                    __(
+                        'HTTP error response status code',
+                        'http-bridge'
                     ),
                     [
                         'request' => ['url' => $url, 'args' => $args],

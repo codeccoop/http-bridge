@@ -89,7 +89,7 @@ class REST_Auth_Controller extends Singleton
      */
     private static function error($code, $message, $status)
     {
-        return new WP_Error($code, __($message, 'http-bridge'), [
+        return new WP_Error($code, $message, [
             'status' => $status,
         ]);
     }
@@ -223,20 +223,20 @@ class REST_Auth_Controller extends Singleton
     {
         $data = (array) json_decode(file_get_contents('php://input'), true);
         if ($data === null) {
-            return self::error('rest_bad_request', 'Invalid JSON data', 400);
+            return self::error('rest_bad_request', __('Invalid JSON data', 'http-bridge'), 400);
         }
 
         if (!(isset($data['username']) && isset($data['password']))) {
             return self::error(
                 'rest_bad_request',
-                'Missing login credentials',
+                __('Missing login credentials', 'http-bridge'),
                 400
             );
         }
 
         $user = wp_authenticate($data['username'], $data['password']);
         if (is_wp_error($user)) {
-            return self::error('rest_unauthorized', 'Invalid credentials', 403);
+            return self::error('rest_unauthorized', __('Invalid credentials', 'http-bridge'), 403);
         }
 
         $this->user = $user;
@@ -265,13 +265,13 @@ class REST_Auth_Controller extends Singleton
         } catch (Exception) {
             return self::error(
                 'rest_unauthorized',
-                'Invalid authorization token',
+                __('Invalid authorization token', 'http-bridge'),
                 403
             );
         } catch (Error) {
             return self::error(
                 'rest_internal_error',
-                'Internal Server Error',
+                __('Internal Server Error', 'http-bridge'),
                 500
             );
         }
@@ -279,7 +279,7 @@ class REST_Auth_Controller extends Singleton
         if ($payload['iss'] !== get_bloginfo('url')) {
             return self::error(
                 'rest_unauthorized',
-                'The iss do not match with this server',
+                __('The iss do not match with this server', 'http-bridge'),
                 403
             );
         }
@@ -288,7 +288,7 @@ class REST_Auth_Controller extends Singleton
         if ($payload['exp'] <= $now) {
             return self::error(
                 'rest_unauthorized',
-                'The token is expired',
+                __('The token is expired', 'http-bridge'),
                 403
             );
         }
@@ -296,7 +296,7 @@ class REST_Auth_Controller extends Singleton
         if ($payload['nbf'] >= $now) {
             return self::error(
                 'rest_unauthorized',
-                'The token is not valid yet',
+                __('The token is not valid yet', 'http-bridge'),
                 403
             );
         }
@@ -304,7 +304,7 @@ class REST_Auth_Controller extends Singleton
         if (!isset($payload['data']['user_id'])) {
             return self::error(
                 'rest_unauthorized',
-                'User ID not found in the token',
+                __('User ID not found in the token', 'http-bridge'),
                 403
             );
         }
@@ -424,7 +424,7 @@ class REST_Auth_Controller extends Singleton
             if (!$origin) {
                 return self::error(
                     'rest_bad_request',
-                    'HTTP Origin is required',
+                    __('HTTP Origin is required', 'http-bridge'),
                     400
                 );
             }
@@ -439,11 +439,11 @@ class REST_Auth_Controller extends Singleton
                 }
             }
 
-            return self::error('rest_unauthorized', 'HTTP Origin blacklisted', [
+            return self::error('rest_unauthorized', __('HTTP Origin blacklisted', 'http-bridge'), [
                 'status' => '403',
             ]);
         } catch (Exception $e) {
-            return self::error('rest_internal_error', 'Internal Server Error', [
+            return self::error('rest_internal_error', __('Internal Server Error', 'http-bridge'), [
                 'status' => '500',
             ]);
         }
