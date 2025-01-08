@@ -223,7 +223,7 @@ class REST_Auth_Controller extends Singleton
      */
     private function auth_permission_callback()
     {
-        $data = (array) json_decode(file_get_contents('php://input'), true);
+        $data = (array) json_decode(sanitize_text_field(file_get_contents('php://input')), true);
         if ($data === null) {
             return self::error(
                 'rest_bad_request',
