@@ -4,8 +4,10 @@
  * Plugin Name:     HTTP Bridge
  * Plugin URI:      https://git.coopdevs.org/codeccoop/wp/plugins/bridges/http-bridge
  * Description:     Connect WP with backends over HTTP
- * Author:          Còdec
+ * Author:          codeccoop
  * Author URI:      https://www.codeccoop.org
+ * License:         GPLv2 or later
+ * License URI:     http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:     http-bridge
  * Domain Path:     /languages
  * Version:         1.3.6
@@ -34,12 +36,12 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         );
     }
 
-    if (is_file('abstracts/class-plugin.php')) {
-        include_once 'abstracts/class-plugin.php';
+    if (is_file(plugin_dir_path(__FILE__) . 'abstracts/class-plugin.php')) {
+        include_once plugin_dir_path(__FILE__) . 'abstracts/class-plugin.php';
     }
 
-    if (is_file('deps/i18n/wpct-i18n.php')) {
-        include_once 'deps/i18n/wpct-i18n.php';
+    if (is_file(plugin_dir_path(__FILE__) . 'deps/i18n/wpct-i18n.php')) {
+        include_once plugin_dir_path(__FILE__) . 'deps/i18n/wpct-i18n.php';
     }
 
     require_once 'includes/class-menu.php';
