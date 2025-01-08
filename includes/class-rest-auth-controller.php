@@ -53,9 +53,9 @@ class REST_Auth_Controller extends Singleton
     private static function get_auth()
     {
         $auth_header = isset($_SERVER['HTTP_AUTHORIZATION'])
-            ? sanitize_text_field($_SERVER['HTTP_AUTHORIZATION'])
+            ? sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION']))
             : (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
-                ? sanitize_text_field($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
+                ? sanitize_text_field(wp_unslash($_SERVER['REDIRECT_HTTP_AUTHORIZATION']))
                 : null);
 
         if ($auth_header === null) {
@@ -323,7 +323,7 @@ class REST_Auth_Controller extends Singleton
     private function determine_current_user($user_id)
     {
         $rest_api_slug = rest_get_url_prefix();
-        $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
+        $requested_url = sanitize_url(wp_unslash($_SERVER['REQUEST_URI']));
         $is_rest_request =
             (defined('REST_REQUEST') && REST_REQUEST) ||
             strpos($requested_url, $rest_api_slug);
@@ -416,9 +416,9 @@ class REST_Auth_Controller extends Singleton
             $sources[] = array_merge($self, ['scheme' => 'https']);
 
             $origin = isset($_SERVER['HTTP_ORIGIN'])
-                ? $_SERVER['HTTP_ORIGIN']
+                ? sanitize_text_field(wp_unslash($_SERVER['HTTP_ORIGIN']))
                 : (isset($_SERVER['HTTP_REFERER'])
-                    ? $_SERVER['HTTP_REFERER']
+                    ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER']))
                     : null);
 
             if (!$origin) {

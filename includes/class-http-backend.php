@@ -40,7 +40,7 @@ class Http_Backend
         $this->data = $this->load_data($name);
         if (!$this->data) {
             throw new Exception(
-                "Http backend error: Unkown backend with name {$name}"
+                "Http backend error: Unkown backend with name " . esc_attr($name)
             );
         }
     }

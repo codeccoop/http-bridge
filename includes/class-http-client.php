@@ -64,9 +64,9 @@ class Http_Client
     {
         $headers = array_merge(
             [
-                'Origin' => isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '',
+                'Origin' => isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '',
                 'Referer' => isset($_SERVER['HTTP_REFERER'])
-                    ? $_SERVER['HTTP_REFERER']
+                    ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER']))
                     : null,
                 'Accept-Language' => static::get_locale(),
                 'Connection' => 'keep-alive',
