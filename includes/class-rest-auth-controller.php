@@ -55,7 +55,9 @@ class REST_Auth_Controller extends Singleton
         $auth_header = isset($_SERVER['HTTP_AUTHORIZATION'])
             ? sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION']))
             : (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
-                ? sanitize_text_field(wp_unslash($_SERVER['REDIRECT_HTTP_AUTHORIZATION']))
+                ? sanitize_text_field(
+                    wp_unslash($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])
+                )
                 : null);
 
         if ($auth_header === null) {
@@ -223,7 +225,11 @@ class REST_Auth_Controller extends Singleton
     {
         $data = (array) json_decode(file_get_contents('php://input'), true);
         if ($data === null) {
-            return self::error('rest_bad_request', __('Invalid JSON data', 'http-bridge'), 400);
+            return self::error(
+                'rest_bad_request',
+                __('Invalid JSON data', 'http-bridge'),
+                400
+            );
         }
 
         if (!(isset($data['username']) && isset($data['password']))) {
@@ -236,7 +242,11 @@ class REST_Auth_Controller extends Singleton
 
         $user = wp_authenticate($data['username'], $data['password']);
         if (is_wp_error($user)) {
-            return self::error('rest_unauthorized', __('Invalid credentials', 'http-bridge'), 403);
+            return self::error(
+                'rest_unauthorized',
+                __('Invalid credentials', 'http-bridge'),
+                403
+            );
         }
 
         $this->user = $user;
@@ -323,7 +333,9 @@ class REST_Auth_Controller extends Singleton
     private function determine_current_user($user_id)
     {
         $rest_api_slug = rest_get_url_prefix();
-        $requested_url = sanitize_url(wp_unslash($_SERVER['REQUEST_URI']));
+        $requested_url = isset($_SERVER['REQUEST_URI'])
+            ? sanitize_url(wp_unslash($_SERVER['REQUEST_URI']))
+            : '';
         $is_rest_request =
             (defined('REST_REQUEST') && REST_REQUEST) ||
             strpos($requested_url, $rest_api_slug);
@@ -439,13 +451,21 @@ class REST_Auth_Controller extends Singleton
                 }
             }
 
-            return self::error('rest_unauthorized', __('HTTP Origin blacklisted', 'http-bridge'), [
-                'status' => '403',
-            ]);
+            return self::error(
+                'rest_unauthorized',
+                __('HTTP Origin blacklisted', 'http-bridge'),
+                [
+                    'status' => '403',
+                ]
+            );
         } catch (Exception $e) {
-            return self::error('rest_internal_error', __('Internal Server Error', 'http-bridge'), [
-                'status' => '500',
-            ]);
+            return self::error(
+                'rest_internal_error',
+                __('Internal Server Error', 'http-bridge'),
+                [
+                    'status' => '500',
+                ]
+            );
         }
     }
 }
