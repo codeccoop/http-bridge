@@ -10,7 +10,7 @@
  * License URI:     http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.3.6
+ * Version:         1.3.7
  */
 
 namespace HTTP_BRIDGE;
