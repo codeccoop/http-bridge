@@ -133,8 +133,8 @@ class REST_Auth_Controller extends Singleton
                 'callback' => function () {
                     return $this->auth();
                 },
-                'permission_callback' => function () {
-                    return $this->auth_permission_callback();
+                'permission_callback' => function ($request) {
+                    return $this->auth_permission_callback($request);
                 },
             ]
         );
@@ -221,9 +221,9 @@ class REST_Auth_Controller extends Singleton
      *
      * @return boolean $success Request has permisisons.
      */
-    private function auth_permission_callback()
+    private function auth_permission_callback($request)
     {
-        $data = (array) json_decode(sanitize_text_field(file_get_contents('php://input')), true);
+        $data = $request->json_params();
         if ($data === null) {
             return self::error(
                 'rest_bad_request',
