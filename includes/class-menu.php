@@ -27,7 +27,7 @@ class Menu extends BaseMenu
     {
         printf(
             '<div class="wrap" id="http-bridge">%s</div>',
-            esc_html__('Loading')
+            esc_html__('Loading', 'http-bridge')
         );
     }
 }
