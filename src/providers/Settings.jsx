@@ -9,6 +9,8 @@ import {
   useRef,
 } from "@wordpress/element";
 
+import useDiff from "../hooks/useDiff";
+
 const defaultSettings = {
   general: {
     whitelist: false,
@@ -19,9 +21,10 @@ const defaultSettings = {
 const SettingsContext = createContext([defaultSettings, () => {}]);
 
 export default function SettingsProvider({ children, setLoading }) {
-  const persisted = useRef(true);
-
+  const initialState = useRef(null);
+  const currentState = useRef(defaultSettings.general);
   const [general, setGeneral] = useState({ ...defaultSettings.general });
+  currentState.current = general;
 
   const fetchSettings = () => {
     setLoading(true);
@@ -33,17 +36,16 @@ export default function SettingsProvider({ children, setLoading }) {
     })
       .then((settings) => {
         setGeneral(settings.general);
+        initialState.current = settings.general;
       })
       .finally(() => {
         setLoading(false);
-        setTimeout(() => {
-          persisted.current = true;
-        }, 500);
       });
   };
 
   const beforeUnload = useRef((ev) => {
-    if (!persisted.current) {
+    const state = currentState.current;
+    if (useDiff(state, initialState.current)) {
       ev.preventDefault();
       ev.returnValue = true;
     }
@@ -53,10 +55,6 @@ export default function SettingsProvider({ children, setLoading }) {
     fetchSettings();
     window.addEventListener("beforeunload", (ev) => beforeUnload(ev));
   }, []);
-
-  useEffect(() => {
-    persisted.current = false;
-  }, [general]);
 
   const saveSettings = () => {
     setLoading(true);

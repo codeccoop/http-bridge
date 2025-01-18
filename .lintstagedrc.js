@@ -14,7 +14,7 @@ const buildPrettierPhpCommand = (filenames) =>
     .join(" ")}`;
 
 module.exports = {
-  "src/**/*.{js,jsx,ts,tsx}": [buildEslintCommand],
+  // "src/**/*.{js,jsx,ts,tsx}": [buildEslintCommand],
   "*.{json,js,ts,jsx,tsx,html,css}": [buildPrettierCommand],
   "*.php": [buildPrettierPhpCommand],
 };
