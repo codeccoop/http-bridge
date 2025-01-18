@@ -65,7 +65,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          *
          * @var string $settings_class Plugins settings class name.
          */
-        protected static $settings_class = '\HTTP_BRIDGE\SettingsStore';
+        protected static $settings_class = '\HTTP_BRIDGE\Settings_Store';
 
         /**
          * Plugin menu class name handle.

@@ -375,7 +375,7 @@ class REST_Settings_Controller extends Base_Controller
      */
     private static function cors_allowed()
     {
-        $whitelist = SettingsStore::setting('general')->whitelist;
+        $whitelist = Settings_Store::setting('general')->whitelist;
 
         if (!$whitelist) {
             return;

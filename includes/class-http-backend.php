@@ -29,7 +29,7 @@ class Http_Backend
     {
         return array_map(function ($backend_data) {
             return new HTTP_Backend($backend_data['name']);
-        }, SettingsStore::setting('general')->backends);
+        }, Settings_Store::setting('general')->backends);
     }
 
     /**
@@ -53,7 +53,7 @@ class Http_Backend
      */
     private function load_data($name)
     {
-        $backends = SettingsStore::setting('general')->backends;
+        $backends = Settings_Store::setting('general')->backends;
         foreach ($backends as $backend) {
             if ($backend['name'] === $name) {
                 return $backend;
