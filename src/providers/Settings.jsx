@@ -26,7 +26,7 @@ export default function SettingsProvider({ children, setLoading }) {
   const fetchSettings = () => {
     setLoading(true);
     return apiFetch({
-      path: `${window.wpApiSettings.root}wp-bridges/v1/http-bridge/settings`,
+      path: `${window.wpApiSettings.root}http-bridge/v1/settings`,
       headers: {
         "X-WP-Nonce": wpApiSettings.nonce,
       },
@@ -61,7 +61,7 @@ export default function SettingsProvider({ children, setLoading }) {
   const saveSettings = () => {
     setLoading(true);
     return apiFetch({
-      path: `${window.wpApiSettings.root}wp-bridges/v1/http-bridge/settings`,
+      path: `${window.wpApiSettings.root}http-bridge/v1/settings`,
       method: "POST",
       headers: {
         "X-WP-Nonce": wpApiSettings.nonce,

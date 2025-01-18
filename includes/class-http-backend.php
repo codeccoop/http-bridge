@@ -29,7 +29,7 @@ class Http_Backend
     {
         return array_map(function ($backend_data) {
             return new HTTP_Backend($backend_data['name']);
-        }, Settings::get_setting(Http_Bridge::slug(), 'general')->backends);
+        }, SettingsStore::setting('general')->backends);
     }
 
     /**
@@ -40,7 +40,8 @@ class Http_Backend
         $this->data = $this->load_data($name);
         if (!$this->data) {
             throw new Exception(
-                "Http backend error: Unkown backend with name " . esc_attr($name)
+                'Http backend error: Unkown backend with name ' .
+                    esc_attr($name)
             );
         }
     }
@@ -52,8 +53,7 @@ class Http_Backend
      */
     private function load_data($name)
     {
-        $backends = Settings::get_setting(Http_Bridge::slug(), 'general')
-            ->backends;
+        $backends = SettingsStore::setting('general')->backends;
         foreach ($backends as $backend) {
             if ($backend['name'] === $name) {
                 return $backend;
@@ -78,9 +78,7 @@ class Http_Backend
             case 'content_type':
                 return $this->content_type();
             default:
-                if (isset($this->data[$attr])) {
-                    return $this->data[$attr];
-                }
+                return $this->data[$attr] ?? null;
         }
     }
 

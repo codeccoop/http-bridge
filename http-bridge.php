@@ -10,12 +10,15 @@
  * License URI:     http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.3.7
+ * Version:         1.3.8
  */
 
 namespace HTTP_BRIDGE;
 
+use Exception;
 use WPCT_ABSTRACT\Plugin;
+
+use function WPCT_ABSTRACT\is_list;
 
 if (!defined('ABSPATH')) {
     exit();
@@ -45,12 +48,11 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
     }
 
     require_once 'includes/class-menu.php';
-    require_once 'includes/class-settings.php';
+    require_once 'includes/class-settings-store.php';
     require_once 'includes/class-http-client.php';
     require_once 'includes/class-http-backend.php';
     require_once 'includes/class-jwt.php';
     require_once 'includes/class-rest-settings-controller.php';
-    require_once 'includes/class-rest-auth-controller.php';
     require_once 'includes/http-requests.php';
 
     /**
@@ -63,7 +65,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          *
          * @var string $settings_class Plugins settings class name.
          */
-        protected static $settings_class = '\HTTP_BRIDGE\Settings';
+        protected static $settings_class = '\HTTP_BRIDGE\SettingsStore';
 
         /**
          * Plugin menu class name handle.
@@ -78,33 +80,37 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         public function construct(...$args)
         {
             parent::construct(...$args);
-            REST_Auth_Controller::setup();
+            // REST_Auth_Controller::setup();
 
-            $this->wp_hooks();
-            $this->custom_hooks();
+            self::wp_hooks();
+            self::custom_hooks();
         }
 
         /**
          * Bind plugin to wp hooks.
          */
-        private function wp_hooks()
+        private static function wp_hooks()
         {
             // Enqueue plugin admin client scripts
-            add_action('admin_enqueue_scripts', function ($admin_page) {
-                $this->admin_enqueue_scripts($admin_page);
+            add_action('admin_enqueue_scripts', static function ($admin_page) {
+                self::admin_enqueue_scripts($admin_page);
             });
         }
 
         /**
          * Adds plugin custom filters.
          */
-        private function custom_hooks()
+        private static function custom_hooks()
         {
             // Gets a new backend instance.
             add_filter(
                 'http_bridge_backend',
-                function ($default, $name) {
-                    return new Http_Backend($name);
+                static function ($default, $name) {
+                    try {
+                        return new Http_Backend($name);
+                    } catch (Exception) {
+                        return null;
+                    }
                 },
                 10,
                 2
@@ -113,10 +119,15 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
             // Gets all configured backend instances.
             add_filter(
                 'http_bridge_backends',
-                function () {
-                    return Http_Backend::get_backends();
+                static function ($backends) {
+                    if (!is_list($backends)) {
+                        $backends = [];
+                    }
+
+                    return array_merge($backends, Http_Backend::get_backends());
                 },
-                10
+                10,
+                1
             );
         }
 
@@ -125,14 +136,16 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          *
          * @param string $admin_page Current admin page.
          */
-        private function admin_enqueue_scripts($admin_page)
+        private static function admin_enqueue_scripts($admin_page)
         {
-            if ('settings_page_' . $this->slug() !== $admin_page) {
+            $slug = self::slug();
+            $version = self::version();
+            if ('settings_page_' . $slug !== $admin_page) {
                 return;
             }
 
             wp_enqueue_script(
-                $this->slug(),
+                $slug . '-admin',
                 plugins_url('assets/plugin.bundle.js', __FILE__),
                 [
                     'react',
@@ -144,12 +157,12 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
                     'wp-i18n',
                     'wp-api',
                 ],
-                $this->version(),
+                $version,
                 ['in_footer' => true]
             );
 
             wp_set_script_translations(
-                $this->slug(),
+                $slug . '-admin',
                 plugin_dir_path(__FILE__) . 'languages'
             );
 
