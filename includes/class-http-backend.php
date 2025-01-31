@@ -121,7 +121,17 @@ class Http_Backend
         if (!isset($parsed['path'])) {
             return $this->base_url;
         } else {
-            $path = $parsed['path'];
+            $path = preg_replace('/^\/+/', '', $parsed['path']);
+        }
+
+        $parsed = wp_parse_url($this->base_url);
+        if (isset($parsed['path'])) {
+            $base_path = preg_replace('/^\/+/', '', $parsed['path']);
+            $path = preg_replace(
+                '/^' . preg_quote($base_path, '/') . '/',
+                '',
+                $path
+            );
         }
 
         $url =
