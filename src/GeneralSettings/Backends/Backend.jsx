@@ -55,19 +55,26 @@ function NewBackend({ add }) {
           value={name}
           onChange={handleSetName}
           __nextHasNoMarginBottom
+          __next40pxDefaultSize
         />
         <TextControl
-          style={{ minWidth: "250px" }}
+          style={{ minWidth: "300px" }}
           label={__("Backend base URL", "http-bridge")}
           value={baseUrl}
           onChange={setBaseUrl}
           __nextHasNoMarginBottom
+          __next40pxDefaultSize
         />
         <Button
           variant="primary"
           onClick={() => onClick()}
-          style={{ marginTop: "auto", height: "32px" }}
+          style={{
+            marginTop: "auto",
+            width: "150px",
+            justifyContent: "center",
+          }}
           disabled={disabled}
+          __next40pxDefaultSize
         >
           {__("Add", "http-bridge")}
         </Button>
@@ -138,14 +145,16 @@ export default function Backend({ update, remove, ...data }) {
           onChange={handleSetName}
           onFocus={() => (focus = true)}
           onBlur={() => (focus = false)}
-          __nextHasNoMarginBottom={true}
+          __nextHasNoMarginBottom
+          __next40pxDefaultSize
         />
         <TextControl
-          style={{ minWidth: "250px" }}
+          style={{ minWidth: "300px" }}
           label={__("Backend base URL", "http-bridge")}
           value={data.base_url}
           onChange={(base_url) => update({ ...data, base_url })}
-          __nextHasNoMarginBottom={true}
+          __nextHasNoMarginBottom
+          __next40pxDefaultSize
         />
         <div>
           <label
@@ -163,7 +172,8 @@ export default function Backend({ update, remove, ...data }) {
             isDestructive
             variant="primary"
             onClick={() => remove(data)}
-            style={{ width: "150px", justifyContent: "center", height: "32px" }}
+            style={{ width: "150px", justifyContent: "center" }}
+            __next40pxDefaultSize
           >
             {__("Remove", "http-bridge")}
           </Button>
