@@ -39,8 +39,6 @@ class Settings_Store extends Base_Settings_Store
      */
     public static function config()
     {
-        $url = wp_parse_url(get_site_url());
-
         return [
             [
                 'general',
@@ -71,18 +69,7 @@ class Settings_Store extends Base_Settings_Store
                 ],
                 [
                     'whitelist' => false,
-                    'backends' => [
-                        [
-                            'name' => 'ERP',
-                            'base_url' => 'https://erp.' . $url['host'],
-                            'headers' => [
-                                [
-                                    'name' => 'Authorization',
-                                    'value' => 'Bearer <backend-api-token>',
-                                ],
-                            ],
-                        ],
-                    ],
+                    'backends' => [],
                 ],
             ],
         ];
@@ -137,7 +124,8 @@ class Settings_Store extends Base_Settings_Store
     {
         $backends = array_filter((array) $backends, static function ($backend) {
             return filter_var($backend['base_url'], FILTER_VALIDATE_URL) &&
-                is_array($backend['headers']);
+                is_array($backend['headers']) &&
+                !empty($backend['name']);
         });
 
         $names = array_unique(
