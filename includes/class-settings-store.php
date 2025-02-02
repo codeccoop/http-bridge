@@ -20,20 +20,6 @@ class Settings_Store extends Base_Settings_Store
      */
     protected static $rest_controller_class = '\HTTP_BRIDGE\REST_Settings_Controller';
 
-    public function construct(...$args)
-    {
-        parent::construct(...$args);
-
-        add_filter(
-            'wpct_validate_setting',
-            static function ($value, $setting) {
-                return self::validate_setting($value, $setting);
-            },
-            10,
-            2
-        );
-    }
-
     /**
      * Registers plugin settings.
      */
@@ -76,20 +62,15 @@ class Settings_Store extends Base_Settings_Store
     }
 
     /**
-     * Callback to the `wpct_sanitize_setting` filter. Sanitizes and validates
-     * plugin setting data before database updates.
+     * Validates setting data before database inserts.
      *
      * @param array $data Setting data.
-     * @param Setting $setting Setting object instance.
+     * @param Setting $setting Setting instance.
      *
-     * @return array Sanitized and validated data.
+     * @return array Validated setting data.
      */
-    private static function validate_setting($data, $setting)
+    protected static function validate_setting($data, $setting)
     {
-        if ($setting->group() !== self::group()) {
-            return $data;
-        }
-
         $name = $setting->name();
         switch ($name) {
             case 'general':
