@@ -1,8 +1,7 @@
-// vendor
-import { useMemo } from "@wordpress/element";
-
 // source
 import { useGeneral } from "../providers/Settings";
+
+const { useMemo } = wp.element;
 
 export default function useBackendNames() {
   const [{ backends }] = useGeneral();

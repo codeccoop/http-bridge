@@ -1,15 +1,7 @@
-// vendor
-import React from "react";
-import apiFetch from "@wordpress/api-fetch";
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-} from "@wordpress/element";
-
 import useDiff from "../hooks/useDiff";
+
+const apiFetch = wp.apiFetch;
+const { createContext, useContext, useState, useEffect, useRef } = wp.element;
 
 const defaultSettings = {
   general: {
@@ -29,10 +21,7 @@ export default function SettingsProvider({ children, setLoading }) {
   const fetchSettings = () => {
     setLoading(true);
     return apiFetch({
-      path: `${window.wpApiSettings.root}http-bridge/v1/settings`,
-      headers: {
-        "X-WP-Nonce": wpApiSettings.nonce,
-      },
+      path: "http-bridge/v1/settings",
     })
       .then((settings) => {
         setGeneral(settings.general);
@@ -59,12 +48,8 @@ export default function SettingsProvider({ children, setLoading }) {
   const saveSettings = () => {
     setLoading(true);
     return apiFetch({
-      path: `${window.wpApiSettings.root}http-bridge/v1/settings`,
+      path: "http-bridge/v1/settings",
       method: "POST",
-      headers: {
-        "X-WP-Nonce": wpApiSettings.nonce,
-      },
-      mode: "same-origin",
       data: { general },
     }).then(fetchSettings);
   };

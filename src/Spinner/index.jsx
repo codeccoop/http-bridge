@@ -1,6 +1,3 @@
-// vendor
-import React from "react";
-
 export default function Spinner({ show }) {
   if (!show) return;
 

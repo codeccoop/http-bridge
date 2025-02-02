@@ -1,17 +1,16 @@
-// vendor
-import React from "react";
-import {
-  TabPanel,
-  __experimentalHeading as Heading,
-  Button,
-  __experimentalSpacer as Spacer,
-} from "@wordpress/components";
-import { useState } from "@wordpress/element";
-
 // source
 import SettingsProvider, { useSubmitSettings } from "../providers/Settings";
 import GeneralSettings from "../GeneralSettings";
 import Spinner from "../Spinner";
+
+const {
+  TabPanel,
+  __experimentalHeading: Heading,
+  Button,
+  __experimentalSpacer: Spacer,
+} = wp.components;
+const { useState } = wp.element;
+const { __ } = wp.i18n;
 
 const tabs = [
   {
@@ -21,7 +20,6 @@ const tabs = [
 ];
 
 function SaveButton({ loading, setLoading }) {
-  const __ = wp.i18n.__;
   const submit = useSubmitSettings();
 
   const [error, setError] = useState(false);
@@ -50,8 +48,6 @@ function SaveButton({ loading, setLoading }) {
 }
 
 export default function SettingsPage() {
-  const __ = wp.i18n.__;
-
   const [loaders, setLoaders] = useState([]);
 
   const loading = loaders.length > 0;

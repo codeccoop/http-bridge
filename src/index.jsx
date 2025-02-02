@@ -1,11 +1,9 @@
-// vendor
-import React from "react";
-import domReady from "@wordpress/dom-ready";
-import { createRoot } from "@wordpress/element";
-
 // source
 import SettingsPage from "./SettingsPage/index.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
+
+const domReady = wp.domReady;
+const { createRoot } = wp.element;
 
 domReady(() => {
   const root = createRoot(document.getElementById("http-bridge"));

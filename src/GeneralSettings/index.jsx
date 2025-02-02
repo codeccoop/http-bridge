@@ -1,21 +1,19 @@
-// vendor
-import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  __experimentalHeading as Heading,
-  PanelRow,
-  ToggleControl,
-  __experimentalSpacer as Spacer,
-} from "@wordpress/components";
-
 // source
 import { useGeneral } from "../providers/Settings";
 import Backends from "./Backends";
 
+const {
+  Card,
+  CardHeader,
+  CardBody,
+  __experimentalHeading: Heading,
+  PanelRow,
+  ToggleControl,
+  __experimentalSpacer: Spacer,
+} = wp.components;
+const { __ } = wp.i18n;
+
 export default function GeneralSettings() {
-  const __ = wp.i18n.__;
   const [{ whitelist, backends }, save] = useGeneral();
 
   const update = (field) => save({ whitelist, backends, ...field });

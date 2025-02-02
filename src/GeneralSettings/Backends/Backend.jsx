@@ -1,18 +1,12 @@
-// vendor
-import React from "react";
-import {
-  TextControl,
-  Button,
-  __experimentalSpacer as Spacer,
-} from "@wordpress/components";
-import { useState, useRef, useEffect } from "@wordpress/element";
-
 // source
 import BackendHeaders from "./Headers";
 import useBackendNames from "../../hooks/useBackendNames";
 
+const { TextControl, Button, __experimentalSpacer: Spacer } = wp.components;
+const { useState, useRef, useEffect } = wp.element;
+const { __ } = wp.i18n;
+
 function NewBackend({ add }) {
-  const __ = wp.i18n.__;
   const backendNames = useBackendNames();
 
   const [name, setName] = useState("");
@@ -87,7 +81,6 @@ let focus = false;
 export default function Backend({ update, remove, ...data }) {
   if (data.name === "add") return <NewBackend add={update} />;
 
-  const __ = wp.i18n.__;
   const [name, setName] = useState(data.name);
   const initialName = useRef(data.name);
   const nameInput = useRef();
@@ -156,28 +149,15 @@ export default function Backend({ update, remove, ...data }) {
           __nextHasNoMarginBottom
           __next40pxDefaultSize
         />
-        <div>
-          <label
-            style={{
-              display: "block",
-              fontWeight: 500,
-              textTransform: "uppercase",
-              fontSize: "11px",
-              marginBottom: "calc(4px)",
-            }}
-          >
-            {__("Remove backend", "http-bridge")}
-          </label>
-          <Button
-            isDestructive
-            variant="primary"
-            onClick={() => remove(data)}
-            style={{ width: "150px", justifyContent: "center" }}
-            __next40pxDefaultSize
-          >
-            {__("Remove", "http-bridge")}
-          </Button>
-        </div>
+        <Button
+          isDestructive
+          variant="primary"
+          onClick={() => remove(data)}
+          style={{ width: "150px", justifyContent: "center" }}
+          __next40pxDefaultSize
+        >
+          {__("Remove", "http-bridge")}
+        </Button>
       </div>
       <Spacer paddingY="calc(8px)" />
       <BackendHeaders headers={data.headers} setHeaders={setHeaders} />
