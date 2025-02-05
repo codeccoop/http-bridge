@@ -118,6 +118,7 @@ class Http_Backend
     public function url($path = '')
     {
         $parsed = wp_parse_url((string) $path);
+        $query = $parsed['query'] ?? null;
         if (!isset($parsed['path'])) {
             return $this->base_url;
         } else {
@@ -138,6 +139,10 @@ class Http_Backend
             preg_replace('/\/+$/', '', $this->base_url) .
             '/' .
             preg_replace('/^\/+/', '', $path);
+
+        if ($query) {
+            $url .= '?' . $query;
+        }
 
         return apply_filters('http_bridge_backend_url', $url, $this);
     }
