@@ -42,13 +42,19 @@ class Settings_Store extends Base_Settings_Store
                                     'type' => 'array',
                                     'items' => [
                                         'type' => 'object',
-                                        'additionalProperties' => false,
                                         'properties' => [
                                             'name' => ['type' => 'string'],
                                             'value' => ['type' => 'string'],
                                         ],
+                                        'required' => ['name', 'value'],
+                                        'additionalProperties' => false,
                                     ],
                                 ],
+                            ],
+                            'required' => [
+                                'name',
+                                'base_url',
+                                'headers'
                             ],
                         ],
                     ],
