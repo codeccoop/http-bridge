@@ -18,8 +18,6 @@ namespace HTTP_BRIDGE;
 use Exception;
 use WPCT_ABSTRACT\Plugin;
 
-use function WPCT_ABSTRACT\is_list;
-
 if (!defined('ABSPATH')) {
     exit();
 }
@@ -120,7 +118,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
             add_filter(
                 'http_bridge_backends',
                 static function ($backends) {
-                    if (!is_list($backends)) {
+                    if (!wp_is_numeric_array($backends)) {
                         $backends = [];
                     }
 
