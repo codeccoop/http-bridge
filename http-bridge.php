@@ -103,11 +103,16 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
             // Gets a new backend instance.
             add_filter(
                 'http_bridge_backend',
-                static function ($default, $name) {
-                    try {
-                        return new Http_Backend($name);
-                    } catch (Exception) {
-                        return null;
+                static function ($backend, $name) {
+                    if ($backend instanceof Http_Backend) {
+                        return $backend;
+                    }
+
+                    $backends = apply_filters('http_bridge_backends', []);
+                    foreach ($backends as $backend) {
+                        if ($backend->name === $name) {
+                            return $backend;
+                        }
                     }
                 },
                 10,

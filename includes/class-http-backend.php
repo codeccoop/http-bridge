@@ -28,39 +28,16 @@ class Http_Backend
     public static function get_backends()
     {
         return array_map(function ($backend_data) {
-            return new HTTP_Backend($backend_data['name']);
+            return new HTTP_Backend($backend_data);
         }, Settings_Store::setting('general')->backends);
     }
 
     /**
      * Store backend data
      */
-    public function __construct($name)
+    public function __construct($data)
     {
-        $this->data = $this->load_data($name);
-        if (!$this->data) {
-            throw new Exception(
-                'Http backend error: Unkown backend with name ' .
-                    esc_attr($name)
-            );
-        }
-    }
-
-    /**
-     * Backend data getter.
-     *
-     * @return array|null Backen data.
-     */
-    private function load_data($name)
-    {
-        $backends = Settings_Store::setting('general')->backends;
-        foreach ($backends as $backend) {
-            if ($backend['name'] === $name) {
-                return $backend;
-            }
-        }
-
-        return null;
+        $this->data = $data;
     }
 
     /**
