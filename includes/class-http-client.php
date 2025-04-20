@@ -395,9 +395,10 @@ class Http_Client
         unset($args['data']);
         unset($args['files']);
 
-        $request = ['url' => $url, 'args' => $args];
+        $request = apply_filters('http_bridge_request', ['url' => $url, 'args' => $args]);
+
         do_action('http_bridge_before_request', $request);
-        $response = wp_remote_request($url, $args);
+        $response = wp_remote_request($request['url'], $request['args']);
 
         if (is_wp_error($response)) {
             $response->add_data([
