@@ -2,7 +2,7 @@
 
 namespace HTTP_BRIDGE;
 
-use WPCT_ABSTRACT\Settings_Store as Base_Settings_Store;
+use WPCT_PLUGIN\Settings_Store as Base_Settings_Store;
 
 if (!defined('ABSPATH')) {
     exit();

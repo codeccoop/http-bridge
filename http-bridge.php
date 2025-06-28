@@ -15,8 +15,7 @@
 
 namespace HTTP_BRIDGE;
 
-use Exception;
-use WPCT_ABSTRACT\Plugin;
+use WPCT_PLUGIN\Plugin;
 
 if (!defined('ABSPATH')) {
     exit();
@@ -37,8 +36,8 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         );
     }
 
-    if (is_file(plugin_dir_path(__FILE__) . 'abstracts/class-plugin.php')) {
-        include_once plugin_dir_path(__FILE__) . 'abstracts/class-plugin.php';
+    if (is_file(plugin_dir_path(__FILE__) . 'common/class-plugin.php')) {
+        include_once plugin_dir_path(__FILE__) . 'common/class-plugin.php';
     }
 
     if (is_file(plugin_dir_path(__FILE__) . 'deps/i18n/wpct-i18n.php')) {
@@ -63,7 +62,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          *
          * @var string $settings_class Plugins settings class name.
          */
-        protected static $settings_class = '\HTTP_BRIDGE\Settings_Store';
+        protected static $store_class = '\HTTP_BRIDGE\Settings_Store';
 
         /**
          * Plugin menu class name handle.

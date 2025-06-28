@@ -6,7 +6,7 @@ use Exception;
 use Error;
 use WP_Error;
 use WP_REST_Server;
-use WPCT_ABSTRACT\REST_Settings_Controller as Base_Controller;
+use WPCT_PLUGIN\REST_Settings_Controller as Base_Controller;
 
 if (!defined('ABSPATH')) {
     exit();
