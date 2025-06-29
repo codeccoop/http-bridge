@@ -402,7 +402,7 @@ class Http_Client
 
         if (is_wp_error($response)) {
             $response->add_data([
-                'request' => ['url' => $url, 'args' => $args],
+                'request' => $request
             ]);
         } else {
             $status = (int) $response['response']['code'];
@@ -414,7 +414,7 @@ class Http_Client
                         'http-bridge'
                     ),
                     [
-                        'request' => ['url' => $url, 'args' => $args],
+                        'request' => $request,
                         'response' => $response,
                     ]
                 );
