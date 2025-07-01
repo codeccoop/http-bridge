@@ -72,64 +72,38 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         protected static $menu_class = '\HTTP_BRIDGE\Menu';
 
         /**
+         * Backends data getter.
+         *
+         * @return array $backends Backends data.
+         */
+        public static function backends()
+        {
+        }
+
+        /**
          * Setup the rest controller and bind wp hooks.
          */
         public function construct(...$args)
         {
             parent::construct(...$args);
-            // REST_Auth_Controller::setup();
 
-            self::wp_hooks();
-            self::custom_hooks();
-        }
-
-        /**
-         * Bind plugin to wp hooks.
-         */
-        private static function wp_hooks()
-        {
-            // Enqueue plugin admin client scripts
             add_action('admin_enqueue_scripts', static function ($admin_page) {
                 self::admin_enqueue_scripts($admin_page);
             });
-        }
 
-        /**
-         * Adds plugin custom filters.
-         */
-        private static function custom_hooks()
-        {
-            // Gets a new backend instance.
-            add_filter(
-                'http_bridge_backend',
-                static function ($backend, $name) {
-                    if ($backend instanceof Http_Backend) {
-                        return $backend;
-                    }
+            add_action(
+                'wpct_plugin_registered_settings',
+                static function ($settings, $group) {
+                    if ($group === 'http-bridge') {
+                        $backends = Settings_Store::setting('general')->backends ?: [];
 
-                    $backends = apply_filters('http_bridge_backends', []);
-                    foreach ($backends as $backend) {
-                        if ($backend->name === $name) {
-                            return $backend;
-                        }
+                        return array_map(function ($backend_data) {
+                            new Http_Backend($backend_data);
+                        }, (array) $backends);
                     }
                 },
                 10,
                 2
-            );
-
-            // Gets all configured backend instances.
-            add_filter(
-                'http_bridge_backends',
-                static function ($backends) {
-                    if (!wp_is_numeric_array($backends)) {
-                        $backends = [];
-                    }
-
-                    return array_merge($backends, Http_Backend::get_backends());
-                },
-                10,
-                1
             );
         }
 

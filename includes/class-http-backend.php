@@ -2,7 +2,7 @@
 
 namespace HTTP_BRIDGE;
 
-use Exception;
+use WP_Error;
 
 if (!defined('ABSPATH')) {
     exit();
@@ -13,31 +13,85 @@ if (!defined('ABSPATH')) {
  */
 class Http_Backend
 {
+    public static function schema()
+    {
+        return [
+            '$schema' => 'http://json-schema.org/draft-04/schema#',
+            'title' => 'http-backend-schema',
+            'type' => 'object',
+            'properties' => [
+                'name' => [
+                    'type' => 'string',
+                    'minLength' => 1,
+                ],
+                'base_url' => [
+                    'type' => 'string',
+                    'pattern' => '^https?\:\/\/',
+                ],
+                'headers' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'name' => ['type' => 'string'],
+                            'value' => ['type' => 'string'],
+                        ],
+                        'required' => ['name', 'value'],
+                        'additionalProperties' => false,
+                    ],
+                    'default' => [],
+                ],
+            ],
+            'required' => ['name', 'base_url', 'headers'],
+            'additionalProperties' => false,
+        ];
+    }
     /**
      * Handle backend data.
      *
      * @var array|null $data Backend data.
      */
-    private $data = null;
-
-    /**
-     * Backends data getter.
-     *
-     * @return array $backends Backends data.
-     */
-    public static function get_backends()
-    {
-        return array_map(function ($backend_data) {
-            return new HTTP_Backend($backend_data);
-        }, Settings_Store::setting('general')->backends);
-    }
+    private $data;
 
     /**
      * Store backend data
      */
     public function __construct($data)
     {
-        $this->data = $data;
+        $this->data = wpct_plugin_validate_with_schema($data, static::schema());
+
+        if ($this->is_valid) {
+            add_filter(
+                'http_bridge_backend',
+                function ($backend, $name) {
+                    if ($backend instanceof Http_Backend) {
+                        return $backend;
+                    }
+
+                    if ($name !== $this->name) {
+                        return $backend;
+                    }
+
+                    return $this;
+                },
+                10,
+                2
+            );
+
+            add_filter(
+                'http_bridge_backends',
+                function ($backends) {
+                    if (!wp_is_numeric_array($backends)) {
+                        $backends = [];
+                    }
+
+                    $backends[] = $this;
+                    return $backends;
+                },
+                10,
+                1
+            );
+        }
     }
 
     /**
@@ -50,11 +104,17 @@ class Http_Backend
     public function __get($attr)
     {
         switch ($attr) {
+            case 'is_valid':
+                return !is_wp_error($this->data);
             case 'headers':
                 return $this->headers();
             case 'content_type':
                 return $this->content_type();
             default:
+                if (!$this->is_valid) {
+                    return;
+                }
+
                 return $this->data[$attr] ?? null;
         }
     }
@@ -66,6 +126,10 @@ class Http_Backend
      */
     private function headers()
     {
+        if (!$this->is_valid) {
+            return [];
+        }
+
         $headers = [];
         foreach ($this->data['headers'] as $header) {
             $headers[trim($header['name'])] = trim($header['value']);
@@ -81,6 +145,10 @@ class Http_Backend
      */
     private function content_type()
     {
+        if (!$this->is_valid) {
+            return;
+        }
+
         $headers = $this->headers();
         return Http_Client::get_content_type($headers);
     }
@@ -94,15 +162,19 @@ class Http_Backend
      */
     public function url($path = '')
     {
-        $parsed = wp_parse_url((string) $path);
-        $query = $parsed['query'] ?? null;
-        if (!isset($parsed['path'])) {
-            return $this->base_url;
-        } else {
-            $path = preg_replace('/^\/+/', '', $parsed['path']);
+        if (!$this->is_valid) {
+            return;
         }
 
-        $parsed = wp_parse_url($this->base_url);
+        $parsed = wp_parse_url((string) $path);
+        $query = $parsed['query'] ?? null;
+        if (isset($parsed['path'])) {
+            $path = preg_replace('/^\/+/', '', $parsed['path']);
+        } else {
+            $path = '';
+        }
+
+        $parsed = wp_parse_url($this->base_url ?? '');
         if (isset($parsed['path'])) {
             $base_path = preg_replace('/^\/+/', '', $parsed['path']);
             $path = preg_replace(
@@ -114,8 +186,7 @@ class Http_Backend
 
         $url =
             preg_replace('/\/+$/', '', $this->base_url) .
-            '/' .
-            preg_replace('/^\/+/', '', $path);
+            '/' . $path;
 
         if ($query) {
             $url .= '?' . $query;
@@ -135,6 +206,10 @@ class Http_Backend
      */
     public function get($endpoint, $params = [], $headers = [])
     {
+        if (!$this->is_valid) {
+            return new WP_Error('invalid_backend');
+        }
+
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
         return http_bridge_get($url, $params, $headers);
@@ -151,6 +226,10 @@ class Http_Backend
      */
     public function post($endpoint, $data = [], $headers = [], $files = [])
     {
+        if (!$this->is_valid) {
+            return new WP_Error('invalid_backend');
+        }
+
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
         return http_bridge_post($url, $data, $headers, $files);
@@ -167,6 +246,10 @@ class Http_Backend
      */
     public function put($endpoint, $data = [], $headers = [], $files = [])
     {
+        if (!$this->is_valid) {
+            return new WP_Error('invalid_backend');
+        }
+
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
         return http_bridge_put($url, $data, $headers, $files);
@@ -183,6 +266,10 @@ class Http_Backend
      */
     public function delete($endpoint, $params = [], $headers = [])
     {
+        if (!$this->is_valid) {
+            return new WP_Error('invalid_backend');
+        }
+
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
         return http_bridge_delete($url, $params, $headers);

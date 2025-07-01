@@ -2,6 +2,7 @@
 
 namespace HTTP_BRIDGE;
 
+use WP_Http;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -28,7 +29,7 @@ class Http_Client
             switch ($arg) {
                 case 'data':
                     if (!(is_string($value) || is_array($value))) {
-                        $args[$arg] = [];
+                        $args['data'] = [];
                     }
                     break;
                 case 'params':
@@ -48,41 +49,15 @@ class Http_Client
             (array) $args
         );
 
-        $args['headers'] = static::default_headers($args['headers']);
-
-        return $args;
-    }
-
-    /**
-     * Add default headers to the request headers.
-     *
-     * @param array $headers Associative array with HTTP headers.
-     *
-     * @return array $headers Associative array with HTTP headers.
-     */
-    private static function default_headers($headers)
-    {
-        $headers = array_merge(
-            [
-                'Origin' => isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '',
-                'Referer' => isset($_SERVER['HTTP_REFERER'])
-                    ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER']))
-                    : null,
-                'Accept-Language' => static::get_locale(),
-                'Connection' => 'keep-alive',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ],
-            self::normalize_headers($headers)
-        );
-
-        foreach ($headers as $name => $value) {
-            if (empty($value)) {
-                unset($headers[$name]);
-            }
+        if (is_string($args['headers'])) {
+            $args['headers'] = WP_Http::processHeaders($args['headers']);
+        } elseif (!is_array($args['headers'])) {
+            $args['headers'] = [];
+        } else {
+            $args['headers'] = self::normalize_headers($args['headers']);
         }
 
-        return $headers;
+        return $args;
     }
 
     /**
@@ -108,6 +83,7 @@ class Http_Client
             );
             $normalized[$name] = $value;
         }
+
         return $normalized;
     }
 
@@ -122,6 +98,7 @@ class Http_Client
     private static function add_query_str($url, $params)
     {
         $parsed = wp_parse_url($url);
+
         if (isset($parsed['query'])) {
             parse_str($parsed['query'], $query);
             $params = array_merge($query, $params);
@@ -149,12 +126,8 @@ class Http_Client
             $args = [];
         }
 
-        return static::do_request(
-            $url,
-            array_merge($args, [
-                'method' => 'GET',
-            ])
-        );
+        $args['method'] = 'GET';
+        return static::do_request($url, $args);
     }
 
     /**
@@ -172,19 +145,13 @@ class Http_Client
             $args = [];
         }
 
-        if (!empty($args['files']) && is_array($args['files'])) {
-            return static::do_multipart(
-                $url,
-                array_merge($args, ['method' => 'POST'])
-            );
+        $args['method'] = 'POST';
+
+        if (is_array($args['files']) && !empty($args['files'])) {
+            return static::do_multipart($url, $args);
         }
 
-        return static::do_request(
-            $url,
-            array_merge($args, [
-                'method' => 'POST',
-            ])
-        );
+        return static::do_request($url, $args);
     }
 
     /**
@@ -196,25 +163,19 @@ class Http_Client
      *
      * @return array|WP_Error Response data or error.
      */
-    public static function put($url, $args)
+    public static function put($url, $args = [])
     {
         if (!is_array($args)) {
             $args = [];
         }
 
-        if (!empty($args['files']) && is_array($args['files'])) {
-            return static::do_multipart(
-                $url,
-                array_merge($args, ['method' => 'PUT'])
-            );
+        $args['method'] = 'PUT';
+
+        if (is_array($args['files']) && !empty($args['files'])) {
+            return static::do_multipart($url, $args);
         }
 
-        return static::do_request(
-            $url,
-            array_merge($args, [
-                'method' => 'PUT',
-            ])
-        );
+        return static::do_request($url, $args);
     }
 
     /**
@@ -225,18 +186,14 @@ class Http_Client
      *
      * @return array|WP_Error Response data or error.
      */
-    public static function delete($url, $args)
+    public static function delete($url, $args = [])
     {
         if (!is_array($args)) {
             $args = [];
         }
 
-        return static::do_request(
-            $url,
-            array_merge($args, [
-                'method' => 'DELETE',
-            ])
-        );
+        $args['method'] = 'DELETE';
+        return static::do_request($url, $args);
     }
 
     /**
@@ -255,7 +212,7 @@ class Http_Client
         $multipart = new Multipart();
 
         // Add body to the multipart data
-        if (isset($args['data'])) {
+        if (!empty($args['data'])) {
             // If body is encoded, then try to decode before set to the multipart payload
             if (is_string($args['data'])) {
                 $content_type = static::get_content_type($args['headers']);
@@ -314,15 +271,10 @@ class Http_Client
             $multipart->add_file($name, $path, $filetype['type']);
         }
 
-        return static::do_request(
-            $url,
-            array_merge($args, [
-                'headers' => array_merge($args['headers'], [
-                    'Content-Type' => $multipart->content_type(),
-                ]),
-                'data' => $multipart->data(),
-            ])
-        );
+        $args['headers']['Content-Type'] = $multipart->content_type();
+        $args['data'] = $multipart->data();
+
+        return static::do_request($url, $args);
     }
 
     /**
@@ -381,7 +333,7 @@ class Http_Client
                                 'http-bridge'
                             ),
                             [
-                                'Content-Type' => $content_type,
+                                'content-type' => $content_type,
                                 'data' => $args['data'],
                             ]
                         );
@@ -390,6 +342,8 @@ class Http_Client
             } else {
                 $args['body'] = $args['data'];
             }
+        } else {
+            unset($args['headers']['Content-Type']);
         }
 
         unset($args['data']);
@@ -452,28 +406,11 @@ class Http_Client
     public static function get_content_type($headers = [])
     {
         $headers = self::normalize_headers($headers);
-        $content_type = isset($headers['Content-Type'])
-            ? $headers['Content-Type']
-            : null;
+        $content_type = $headers['Content-Type'] ?? null;
 
         if ($content_type) {
             $content_type = preg_replace('/;.*$/', '', $content_type);
             return trim(strtolower($content_type));
         }
-    }
-
-    /**
-     * Use wpct-i18n to get the current language locale.
-     *
-     * @return string ISO-2 locale representation.
-     */
-    private static function get_locale()
-    {
-        $locale = apply_filters('wpct_i18n_current_language', null, 'locale');
-        if ($locale) {
-            return $locale;
-        }
-
-        return get_locale();
     }
 }
