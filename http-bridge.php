@@ -62,23 +62,14 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          *
          * @var string $settings_class Plugins settings class name.
          */
-        protected static $store_class = '\HTTP_BRIDGE\Settings_Store';
+        protected const store_class = '\HTTP_BRIDGE\Settings_Store';
 
         /**
          * Plugin menu class name handle.
          *
          * @var string $menu_class Menu class name.
          */
-        protected static $menu_class = '\HTTP_BRIDGE\Menu';
-
-        /**
-         * Backends data getter.
-         *
-         * @return array $backends Backends data.
-         */
-        public static function backends()
-        {
-        }
+        protected const menu_class = '\HTTP_BRIDGE\Menu';
 
         /**
          * Setup the rest controller and bind wp hooks.
@@ -91,19 +82,26 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
                 self::admin_enqueue_scripts($admin_page);
             });
 
-            add_action(
-                'wpct_plugin_registered_settings',
-                static function ($settings, $group) {
-                    if ($group === 'http-bridge') {
-                        $backends = Settings_Store::setting('general')->backends ?: [];
-
-                        return array_map(function ($backend_data) {
-                            new Http_Backend($backend_data);
-                        }, (array) $backends);
+            add_filter(
+                'http_bridge_backends',
+                function ($backends) {
+                    if (!wp_is_numeric_array($backends)) {
+                        $backends = [];
                     }
+
+                    $setting = self::setting('general');
+                    if (!$setting) {
+                        return $backends;
+                    }
+
+                    foreach ($setting->backends ?: [] as $data) {
+                        $backends[] = new Http_Backend($data);
+                    }
+
+                    return $backends;
                 },
                 10,
-                2
+                1
             );
         }
 
@@ -114,14 +112,13 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
          */
         private static function admin_enqueue_scripts($admin_page)
         {
-            $slug = self::slug();
             $version = self::version();
-            if ('settings_page_' . $slug !== $admin_page) {
+            if ('settings_page_http-bridge' !== $admin_page) {
                 return;
             }
 
             wp_enqueue_script(
-                $slug . '-admin',
+                'http-bridge-admin',
                 plugins_url('assets/plugin.bundle.js', __FILE__),
                 [
                     'react',
@@ -138,7 +135,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
             );
 
             wp_set_script_translations(
-                $slug . '-admin',
+                'http-bridge-admin',
                 plugin_dir_path(__FILE__) . 'languages'
             );
 

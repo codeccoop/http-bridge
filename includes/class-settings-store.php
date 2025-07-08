@@ -23,68 +23,39 @@ class Settings_Store extends Base_Settings_Store
     /**
      * Registers plugin settings.
      */
-    public static function config()
+    protected function construct(...$args)
     {
-        return [
-            [
-                'general',
-                [
-                    'whitelist' => ['type' => 'boolean'],
+        parent::construct(...$args);
+
+        self::enqueue(static function ($settings) {
+            $settings[] = [
+                'name' => 'general',
+                'properties' => [
+                    'whitelist' => [
+                        'type' => 'boolean',
+                        'default' => false,
+                    ],
                     'backends' => [
                         'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'additionalProperties' => false,
-                            'properties' => [
-                                'name' => ['type' => 'string'],
-                                'base_url' => ['type' => 'string'],
-                                'headers' => [
-                                    'type' => 'array',
-                                    'items' => [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'name' => ['type' => 'string'],
-                                            'value' => ['type' => 'string'],
-                                        ],
-                                        'required' => ['name', 'value'],
-                                        'additionalProperties' => false,
-                                    ],
-                                ],
-                            ],
-                            'required' => [
-                                'name',
-                                'base_url',
-                                'headers'
-                            ],
-                        ],
+                        'items' => Http_Backend::schema(),
+                        'default' => [],
                     ],
                 ],
-                [
+                'required' => ['whitelist', 'backends'],
+                'default' => [
                     'whitelist' => false,
                     'backends' => [],
-                ],
-            ],
-        ];
-    }
+                ]
+            ];
 
-    /**
-     * Validates setting data before database inserts.
-     *
-     * @param array $data Setting data.
-     * @param Setting $setting Setting instance.
-     *
-     * @return array Validated setting data.
-     */
-    protected static function validate_setting($data, $setting)
-    {
-        $name = $setting->name();
-        switch ($name) {
-            case 'general':
-                $data = self::validate_general($data);
-                break;
-        }
+            return $settings;
+        });
 
-        return $data;
+        self::ready(static function ($store) {
+            $store::use_setter('general', static function ($data) {
+                return self::sanitize_general($data);
+            });
+        });
     }
 
     /**
@@ -94,9 +65,9 @@ class Settings_Store extends Base_Settings_Store
      *
      * @return array Validated data.
      */
-    public static function validate_general($data)
+    public static function sanitize_general($data)
     {
-        $data['backends'] = self::validate_backends($data['backends']);
+        $data['backends'] = self::sanitize_backends($data['backends']);
         return $data;
     }
 
@@ -107,29 +78,23 @@ class Settings_Store extends Base_Settings_Store
      *
      * @return array Filtered by validity backend settings list.
      */
-    public static function validate_backends($backends)
+    public static function sanitize_backends($backends)
     {
-        $backends = array_filter((array) $backends, static function ($backend) {
-            return filter_var($backend['base_url'], FILTER_VALIDATE_URL) &&
-                is_array($backend['headers']) &&
-                !empty($backend['name']);
-        });
-
-        $names = array_unique(
-            array_map(function ($backend) {
-                return $backend['name'];
-            }, $backends)
-        );
-
-        $uniques = [];
+        $sanitized = [];
+        $names = [];
         foreach ($backends as $backend) {
-            if (in_array($backend['name'], $names, true)) {
-                $uniques[] = $backend;
-                $index = array_search($backend['name'], $names);
-                unset($names[$index]);
+            if (empty($backend['name'])) {
+                continue;
             }
+
+            if (in_array($backend['name'], $names, true)) {
+                continue;
+            }
+
+            $backend['base_url'] = filter_var($backend['base_url'], FILTER_VALIDATE_URL);
+            $sanitized[] = $backend;
         }
 
-        return $uniques;
+        return $sanitized;
     }
 }

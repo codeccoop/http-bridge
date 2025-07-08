@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 /**
@@ -58,40 +58,7 @@ class Http_Backend
      */
     public function __construct($data)
     {
-        $this->data = wpct_plugin_validate_with_schema($data, static::schema());
-
-        if ($this->is_valid) {
-            add_filter(
-                'http_bridge_backend',
-                function ($backend, $name) {
-                    if ($backend instanceof Http_Backend) {
-                        return $backend;
-                    }
-
-                    if ($name !== $this->name) {
-                        return $backend;
-                    }
-
-                    return $this;
-                },
-                10,
-                2
-            );
-
-            add_filter(
-                'http_bridge_backends',
-                function ($backends) {
-                    if (!wp_is_numeric_array($backends)) {
-                        $backends = [];
-                    }
-
-                    $backends[] = $this;
-                    return $backends;
-                },
-                10,
-                1
-            );
-        }
+        $this->data = wpct_plugin_sanitize_with_schema($data, static::schema());
     }
 
     /**
@@ -273,5 +240,71 @@ class Http_Backend
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
         return http_bridge_delete($url, $params, $headers);
+    }
+
+    public function data()
+    {
+        if (!$this->is_valid) {
+            return;
+        }
+
+        return $this->data;
+    }
+
+    public function save()
+    {
+        if (!$this->is_valid) {
+            return false;
+        }
+
+        $setting = HTTP_Bridge::setting('general');
+        if (!$setting) {
+            return false;
+        }
+
+        $backends = $setting->backends ?: [];
+
+        $index = array_search(
+            $this->name,
+            array_column($backends, 'name'),
+        );
+
+        if ($index === false) {
+            $backends[] = $this->data;
+        } else {
+            $backends[$index] = $this->data;
+        }
+
+        $setting->backends = $backends;
+
+        return true;
+    }
+
+    public function remove()
+    {
+        if (!$this->is_valid) {
+            return false;
+        }
+
+        $setting = HTTP_Bridge::setting('general');
+        if (!$setting) {
+            return false;
+        }
+
+        $backends = $setting->backends ?: [];
+
+        $index = array_search(
+            $this->name,
+            array_column($backends, 'name'),
+        );
+
+        if (!$index === false) {
+            return false;
+        }
+
+        array_splice($backends, $index, 1);
+        $setting->backends = $backends;
+
+        return true;
     }
 }
