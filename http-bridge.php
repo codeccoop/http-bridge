@@ -10,7 +10,7 @@
  * License URI:     http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:     http-bridge
  * Domain Path:     /languages
- * Version:         1.3.14
+ * Version:         1.3.15
  */
 
 namespace HTTP_BRIDGE;
@@ -18,7 +18,7 @@ namespace HTTP_BRIDGE;
 use WPCT_PLUGIN\Plugin;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
