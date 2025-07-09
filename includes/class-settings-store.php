@@ -27,29 +27,25 @@ class Settings_Store extends Base_Settings_Store
     {
         parent::construct(...$args);
 
-        self::enqueue(static function ($settings) {
-            $settings[] = [
-                'name' => 'general',
-                'properties' => [
-                    'whitelist' => [
-                        'type' => 'boolean',
-                        'default' => false,
-                    ],
-                    'backends' => [
-                        'type' => 'array',
-                        'items' => Http_Backend::schema(),
-                        'default' => [],
-                    ],
+        self::register_setting([
+            'name' => 'general',
+            'properties' => [
+                'whitelist' => [
+                    'type' => 'boolean',
+                    'default' => false,
                 ],
-                'required' => ['whitelist', 'backends'],
-                'default' => [
-                    'whitelist' => false,
-                    'backends' => [],
-                ]
-            ];
-
-            return $settings;
-        });
+                'backends' => [
+                    'type' => 'array',
+                    'items' => Http_Backend::schema(),
+                    'default' => [],
+                ],
+            ],
+            'required' => ['whitelist', 'backends'],
+            'default' => [
+                'whitelist' => false,
+                'backends' => [],
+            ]
+        ]);
 
         self::ready(static function ($store) {
             $store::use_setter('general', static function ($data) {
