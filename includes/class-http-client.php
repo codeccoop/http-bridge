@@ -6,7 +6,7 @@ use WP_Http;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 require_once 'class-multipart.php';

@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use Exception;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 /**

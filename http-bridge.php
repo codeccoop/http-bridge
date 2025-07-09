@@ -18,7 +18,7 @@ namespace HTTP_BRIDGE;
 use WPCT_PLUGIN\Plugin;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {

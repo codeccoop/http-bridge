@@ -9,7 +9,7 @@ use WP_REST_Server;
 use WPCT_PLUGIN\REST_Settings_Controller as Base_Controller;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 /**

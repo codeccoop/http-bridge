@@ -3,7 +3,7 @@
 use HTTP_BRIDGE\Http_Client;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 if (!function_exists('http_bridge_get')) {

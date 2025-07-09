@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use WPCT_PLUGIN\Settings_Store as Base_Settings_Store;
 
 if (!defined('ABSPATH')) {
-    exit();
+    exit;
 }
 
 /**
@@ -18,7 +18,7 @@ class Settings_Store extends Base_Settings_Store
      *
      * @var string $rest_controller_class Settings REST Controller class name.
      */
-    protected static $rest_controller_class = '\HTTP_BRIDGE\REST_Settings_Controller';
+    protected const rest_controller_class = '\HTTP_BRIDGE\REST_Settings_Controller';
 
     /**
      * Registers plugin settings.
