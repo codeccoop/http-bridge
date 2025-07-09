@@ -46,8 +46,12 @@ package:
   image: codeccoop/wp-cli:latest
   stage: package
   script:
-    - find abstracts -name '*.php' -exec sed -i "s/'wpct-plugin-abstracts'/'http-bridge'/g" {} \;
+    - find abstracts -name '*.php' -exec sed -i "s/'wpct-plugin'/'http-bridge'/g" {} \;
+    - find abstracts -name '*.php' -exec sed -i "s/wpct_plugin_/http_bridge_/g" {} \;
+    - find deps/i18n -name '*.php' -exec sed -i "s/WPCT_PLUGIN/HTTP_BRIDGE\\Common/g" {} \;
     - find deps/i18n -name '*.php' -exec sed -i "s/'wpct-i18n'/'http-bridge'/g" {} \;
+    - find deps/i18n -name '*.php' -exec sed -i "s/wpct_i18n_/http_bridge_/g" {} \;
+    - find deps/i18n -name '*.php' -exec sed -i "s/WPCT_I18N/HTTP_BRIDGE\\I18n/g" {} \;
     - wp dist-archive . ./$ZIP
   artifacts:
     paths:
