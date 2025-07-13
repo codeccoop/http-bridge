@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**
@@ -26,7 +26,7 @@ class Http_Backend
                 ],
                 'base_url' => [
                     'type' => 'string',
-                    'pattern' => '^https?\:\/\/',
+                    'format' => 'uri',
                 ],
                 'headers' => [
                     'type' => 'array',
@@ -40,6 +40,29 @@ class Http_Backend
                         'additionalProperties' => false,
                     ],
                     'default' => [],
+                ],
+                'authentication' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'type' => [
+                            'type' => 'string',
+                            'enum' => [
+                                'Basic',
+                                'Token',
+                                'Bearer',
+                            ],
+                            'default' => 'Basic',
+                        ],
+                        'client_id' => [
+                            'type' => 'string',
+                            'default' => '',
+                        ],
+                        'client_secret' => [
+                            'type' => 'string',
+                            'minLength' => 1,
+                        ],
+                    ],
+                    'required' => ['type', 'client_id', 'client_secret'],
                 ],
             ],
             'required' => ['name', 'base_url', 'headers'],
@@ -77,6 +100,8 @@ class Http_Backend
                 return $this->headers();
             case 'content_type':
                 return $this->content_type();
+            case 'authorization':
+                return $this->authorization();
             default:
                 if (!$this->is_valid) {
                     return;
@@ -102,7 +127,34 @@ class Http_Backend
             $headers[trim($header['name'])] = trim($header['value']);
         }
 
+        if ($authorization = $this->authorization) {
+            $headers['Authorization'] = $authorization;
+        }
+
         return apply_filters('http_bridge_backend_headers', $headers, $this);
+    }
+
+    private function authorization()
+    {
+        if (!$this->is_valid) {
+            return;
+        }
+
+        if (!isset($this->data['authentication'])) {
+            return;
+        }
+
+        $type = $this->data['authentication']['type'];
+        $client_id = $this->data['authentication']['client_id'];
+        $client_secret = $this->data['authentication']['client_secret'];
+
+        if ($type === 'Basic') {
+            return 'Basic ' . base64_encode("{$client_id}:{$client_secret}");
+        } elseif ($type === 'Token') {
+            return "token {$client_id}:{$client_secret}";
+        } elseif ($type === 'Bearer') {
+            return "Bearer {$client_secret}";
+        }
     }
 
     /**

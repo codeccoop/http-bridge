@@ -49,48 +49,19 @@ class Settings_Store extends Base_Settings_Store
 
         self::ready(static function ($store) {
             $store::use_setter('general', static function ($data) {
-                return self::sanitize_general($data);
+                $uniques = [];
+                $backends = [];
+
+                foreach ($data['backends'] ?? [] as $backend) {
+                    if (!in_array($backend['name'], $uniques, true)) {
+                        $uniques[] = $backend['name'];
+                        $backends[] = $backend;
+                    }
+                }
+
+                $data['backends'] = $backends;
+                return $data;
             });
         });
-    }
-
-    /**
-     * Validates plugin's general setting data.
-     *
-     * @param array $data Setting data.
-     *
-     * @return array Validated data.
-     */
-    public static function sanitize_general($data)
-    {
-        $data['backends'] = self::sanitize_backends($data['backends']);
-        return $data;
-    }
-
-    /**
-     * Validate plugin's backend settings.
-     *
-     * @param array $backends List with backend settings.
-     *
-     * @return array Filtered by validity backend settings list.
-     */
-    public static function sanitize_backends($backends)
-    {
-        $sanitized = [];
-        $names = [];
-        foreach ($backends as $backend) {
-            if (empty($backend['name'])) {
-                continue;
-            }
-
-            if (in_array($backend['name'], $names, true)) {
-                continue;
-            }
-
-            $backend['base_url'] = filter_var($backend['base_url'], FILTER_VALIDATE_URL);
-            $sanitized[] = $backend;
-        }
-
-        return $sanitized;
     }
 }
