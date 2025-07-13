@@ -51,7 +51,6 @@ class Http_Backend
                                 'Token',
                                 'Bearer',
                             ],
-                            'default' => 'Basic',
                         ],
                         'client_id' => [
                             'type' => 'string',
