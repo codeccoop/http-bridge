@@ -6,7 +6,7 @@ use WP_Http;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 require_once 'class-multipart.php';
@@ -349,24 +349,24 @@ class Http_Client
         unset($args['data']);
         unset($args['files']);
 
-        $request = apply_filters('http_bridge_request', ['url' => $url, 'args' => $args]);
+        $request = apply_filters('http_bridge_request', [
+            'url' => $url,
+            'args' => $args,
+        ]);
 
         do_action('http_bridge_before_request', $request);
         $response = wp_remote_request($request['url'], $request['args']);
 
         if (is_wp_error($response)) {
             $response->add_data([
-                'request' => $request
+                'request' => $request,
             ]);
         } else {
             $status = (int) $response['response']['code'];
             if ($status >= 300) {
                 $response = new WP_Error(
                     'http_bridge_error',
-                    __(
-                        'HTTP error response status code',
-                        'http-bridge'
-                    ),
+                    __('HTTP error response status code', 'http-bridge'),
                     [
                         'request' => $request,
                         'response' => $response,

@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use WPCT_PLUGIN\Settings_Store as Base_Settings_Store;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**
@@ -44,7 +44,7 @@ class Settings_Store extends Base_Settings_Store
             'default' => [
                 'whitelist' => false,
                 'backends' => [],
-            ]
+            ],
         ]);
 
         self::ready(static function ($store) {

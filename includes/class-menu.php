@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use WPCT_PLUGIN\Menu as BaseMenu;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**

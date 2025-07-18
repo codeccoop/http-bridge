@@ -5,7 +5,7 @@ namespace HTTP_BRIDGE;
 use Exception;
 
 if (!defined('ABSPATH')) {
-    exit;
+    exit();
 }
 
 /**
@@ -22,21 +22,26 @@ class JWT
      * Get encoded payload token.
      *
      * @param array $payload Token payload.
-     * 
+     *
      * @return string JWT encoded token.
      */
     public function encode($payload)
     {
         $header = wp_json_encode([
             'alg' => 'HS256',
-            'typ' => 'JWT'
+            'typ' => 'JWT',
         ]);
 
         $header = $this->base64URLEncode($header);
         $payload = wp_json_encode($payload);
         $payload = $this->base64URLEncode($payload);
 
-        $signature = hash_hmac('sha256', $header . '.' . $payload, self::$key, true);
+        $signature = hash_hmac(
+            'sha256',
+            $header . '.' . $payload,
+            self::$key,
+            true
+        );
         $signature = $this->base64URLEncode($signature);
         return $header . '.' . $payload . '.' . $signature;
     }
@@ -45,7 +50,7 @@ class JWT
      * Get decoded token payload.
      *
      * @param string $token JWT encoded token.
-     * 
+     *
      * @return array Token payload.
      */
     public function decode($token)
@@ -73,7 +78,10 @@ class JWT
             throw new Exception('Signature doesn\'t match', 401);
         }
 
-        $payload = json_decode($this->base64URLDecode($matches['payload']), true);
+        $payload = json_decode(
+            $this->base64URLDecode($matches['payload']),
+            true
+        );
         return $payload;
     }
 
@@ -81,29 +89,27 @@ class JWT
      * URL conformant base64 encoder.
      *
      * @param string $text Source string.
-     * 
+     *
      * @return string Encoded string.
      */
     private function base64URLEncode($text)
     {
-        return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($text));
+        return str_replace(
+            ['+', '/', '='],
+            ['-', '_', ''],
+            base64_encode($text)
+        );
     }
 
     /**
      * URL conformant base64 decoder.
      *
      * @param string $base64 Encoded string.
-     * 
+     *
      * @return string Decoded string.
      */
     private function base64URLDecode($text)
     {
-        return base64_decode(
-            str_replace(
-                ['-', '_'],
-                ['+', '/'],
-                $text
-            )
-        );
+        return base64_decode(str_replace(['-', '_'], ['+', '/'], $text));
     }
 }

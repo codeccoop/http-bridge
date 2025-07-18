@@ -46,11 +46,7 @@ class Http_Backend
                     'properties' => [
                         'type' => [
                             'type' => 'string',
-                            'enum' => [
-                                'Basic',
-                                'Token',
-                                'Bearer',
-                            ],
+                            'enum' => ['Basic', 'Token', 'Bearer'],
                         ],
                         'client_id' => [
                             'type' => 'string',
@@ -202,9 +198,7 @@ class Http_Backend
             );
         }
 
-        $url =
-            preg_replace('/\/+$/', '', $this->base_url) .
-            '/' . $path;
+        $url = preg_replace('/\/+$/', '', $this->base_url) . '/' . $path;
 
         if ($query) {
             $url .= '?' . $query;
@@ -315,10 +309,7 @@ class Http_Backend
 
         $backends = $setting->backends ?: [];
 
-        $index = array_search(
-            $this->name,
-            array_column($backends, 'name'),
-        );
+        $index = array_search($this->name, array_column($backends, 'name'));
 
         if ($index === false) {
             $backends[] = $this->data;
@@ -344,10 +335,7 @@ class Http_Backend
 
         $backends = $setting->backends ?: [];
 
-        $index = array_search(
-            $this->name,
-            array_column($backends, 'name'),
-        );
+        $index = array_search($this->name, array_column($backends, 'name'));
 
         if (!$index === false) {
             return false;
