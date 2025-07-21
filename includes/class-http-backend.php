@@ -64,6 +64,44 @@ class Http_Backend
             'additionalProperties' => false,
         ];
     }
+
+    /**
+     * Ephemeral backend registration as an interceptor to allow
+     * the use of non registered backends.
+     *
+     * @param array $data Backend data.
+     */
+    public static function temp_registration($data)
+    {
+        if (empty($data) || !isset($data['name'])) {
+            return;
+        }
+
+        add_filter(
+            'http_bridge_backends',
+            static function ($backends) use ($data) {
+                foreach ($backends as $candidate) {
+                    if ($candidate->name === $data['name']) {
+                        $backend = $candidate;
+                        break;
+                    }
+                }
+
+                if (!isset($backend)) {
+                    $backend = new Http_Backend($data);
+
+                    if ($backend->is_valid) {
+                        $backends[] = $backend;
+                    }
+                }
+
+                return $backends;
+            },
+            99,
+            1
+        );
+    }
+
     /**
      * Handle backend data.
      *
@@ -219,7 +257,8 @@ class Http_Backend
                 return $this->clone([
                     'base_url' => $base_url,
                 ]);
-
+            default:
+                return $this;
         }
     }
 
