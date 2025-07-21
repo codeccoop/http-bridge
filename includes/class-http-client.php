@@ -113,6 +113,24 @@ class Http_Client
     }
 
     /**
+     * Performs a HEAD request.
+     *
+     * @param string $url Target URL.
+     * @param array $args WP_Http::request arguments.
+     *
+     * @return array|WP_Error Response data or error.
+     */
+    public static function head($url, $args = [])
+    {
+        if (!is_array($args)) {
+            $args = [];
+        }
+
+        $args['method'] = 'HEAD';
+        return static::do_request($url, $args);
+    }
+
+    /**
      * Performs a GET request.
      *
      * @param string $url Target URL.
@@ -135,7 +153,7 @@ class Http_Client
      * If files were defined in args, content type is forced to multipart/form-data.
      *
      * @param string $url Target URL.
-     * @param array $params Associative array with query params.
+     * @param array $args WP_Http::request arguments.
      *
      * @return array|WP_Error Response data or error.
      */
@@ -159,7 +177,7 @@ class Http_Client
      * If files were defined in args, content type is forced to multipart/form-data.
      *
      * @param string $url Target URL.
-     * @param array $params Associative array with query params.
+     * @param array $args WP_Http::request arguments.
      *
      * @return array|WP_Error Response data or error.
      */
@@ -179,10 +197,34 @@ class Http_Client
     }
 
     /**
+     * Performs a PATCH request.
+     * If files were defined in args, content type is forced to multipart/form-data.
+     *
+     * @param string $url Target URL.
+     * @param array $args WP_Http::request arguments.
+     *
+     * @return array|WP_Error Response data or error.
+     */
+    public static function patch($url, $args = [])
+    {
+        if (!is_array($args)) {
+            $args = [];
+        }
+
+        $args['method'] = 'PATCH';
+
+        if (is_array($args['files']) && !empty($args['files'])) {
+            return static::do_multipart($url, $args);
+        }
+
+        return static::do_request($url, $args);
+    }
+
+    /**
      * Performs a DETELE request.
      *
      * @param string $url Target URL.
-     * @param array $params Associative array with query params.
+     * @param array $args WP_Http::request arguments.
      *
      * @return array|WP_Error Response data or error.
      */
@@ -201,7 +243,7 @@ class Http_Client
      * files as fields.
      *
      * @param string $url Target URL.
-     * @param array $args Request arguments.
+     * @param array $args WP_Http::request arguments.
      *
      * @return array|WP_Error Request response.
      */
@@ -280,8 +322,8 @@ class Http_Client
     /**
      * Performs a request on top of WP_Http client
      *
-     * @param  string  $url Target URL.
-     * @param  array $args  WP_Http::request arguments.
+     * @param string $url Target URL.
+     * @param array $args WP_Http::request arguments.
      *
      * @return array|WP_Error Response data or error.
      */
@@ -303,7 +345,7 @@ class Http_Client
 
         $content_type = static::get_content_type($args['headers']);
 
-        if (!in_array($args['method'], ['GET', 'DELETE'])) {
+        if (!in_array($args['method'], ['HEAD', 'GET', 'DELETE'])) {
             if (!is_string($args['data'])) {
                 $data = $args['data'];
                 if (!empty($data)) {

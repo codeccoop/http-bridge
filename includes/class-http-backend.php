@@ -17,7 +17,7 @@ class Http_Backend
     {
         return [
             '$schema' => 'http://json-schema.org/draft-04/schema#',
-            'title' => 'http-backend-schema',
+            'title' => 'http-backend',
             'type' => 'object',
             'properties' => [
                 'name' => [
@@ -44,7 +44,7 @@ class Http_Backend
                 'authentication' => [
                     'type' => 'object',
                     'properties' => [
-                        'type' => [
+                        'schema' => [
                             'type' => 'string',
                             'enum' => ['Basic', 'Token', 'Bearer'],
                         ],
@@ -57,7 +57,7 @@ class Http_Backend
                             'minLength' => 1,
                         ],
                     ],
-                    'required' => ['type', 'client_id', 'client_secret'],
+                    'required' => ['schema', 'client_id', 'client_secret'],
                 ],
             ],
             'required' => ['name', 'base_url', 'headers'],
@@ -135,20 +135,91 @@ class Http_Backend
             return;
         }
 
-        if (!isset($this->data['authentication'])) {
+        if (!isset($this->data['authentication']['schema'])) {
             return;
         }
 
-        $type = $this->data['authentication']['type'];
+        $schema = $this->data['authentication']['schema'];
         $client_id = $this->data['authentication']['client_id'];
         $client_secret = $this->data['authentication']['client_secret'];
 
-        if ($type === 'Basic') {
+        if ($schema === 'Basic') {
             return 'Basic ' . base64_encode("{$client_id}:{$client_secret}");
-        } elseif ($type === 'Token') {
+        } elseif ($schema === 'Token') {
             return "token {$client_id}:{$client_secret}";
-        } elseif ($type === 'Bearer') {
+        } elseif ($schema === 'Bearer') {
             return "Bearer {$client_secret}";
+        }
+    }
+
+    public function authorized($schema, $client_id, $client_secret, $realm = null, $endpoint = '/')
+    {
+        if (!$this->is_valid) {
+            return $this;
+        }
+
+        switch ($schema) {
+            case 'Basic':
+                $authorization = 'Basic ' . base64_encode("{$client_id}:{$client_secret}");
+
+                return $this->clone([
+                    'headers' => array_merge($this->data['headers'], [
+                        ['name' => 'Authorization', 'value' => $authorization]
+                    ])
+                ]);
+            case 'Digest':
+                $response = $this->head($this->endpoint);
+                if (is_wp_error($response)) {
+                    return $response;
+                }
+
+                $header = $response['headers']['WWW-Authenticate'] ?? null;
+                if (!$header) {
+                    return new WP_Error('unauthorized');
+                }
+
+                $fields = ['realm' => null, 'nonce' => null, 'opaque' => null];
+                foreach (array_keys($fields) as $field) {
+                    if (!preg_match("/{$field}=\"([^\"]+)\"/", $header, $matches)) {
+                        return new WP_Error('unauthorized');
+                    }
+
+                    $fields[$field] = $matches[1];
+                }
+
+                if ($fields['realm'] !== $realm) {
+                    return new WP_Error('unauthorized');
+                }
+
+                $a1 = md5("{$client_id}:{$realm}:{$client_secret}");
+                $a2 = md5("{$this->method}:{$this->endpoint}");
+                $response = md5("{$a1}:{$fields['nonce']}:{$a2}");
+                $uri = $this->url($endpoint);
+
+                $authorization = "Digest username=\"{$client_id}\" realm=\"{$realm}\" nonce=\"{$fields['nonce']}\" opaque=\"{$fields['opaque']}\" uri=\"{$uri}\" response=\"{$response}\"";
+
+                return $this->clone([
+                    'headers' => array_merge($this->data['headers'], [
+                        ['name' => 'Authorization', 'value' => $authorization],
+                    ])
+                ]);
+            case 'Token':
+                $authorization = "token {$client_id}:{$client_secret}";
+                return $this->clone([
+                    'headers' => array_merge($this->data['headers'], [
+                        ['name' => 'Authorization', 'value' => $authorization]
+                    ]),
+                ]);
+            case 'URL':
+                $parsed = wp_parse_url($this->base_url);
+                $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+                $path = $parsed['path'] ?? '';
+                $base_url = "{$parsed['scheme']}://{$client_id}:{$client_secret}@{$parsed['host']}{$port}{$path}";
+
+                return $this->clone([
+                    'base_url' => $base_url,
+                ]);
+
         }
     }
 
@@ -207,16 +278,7 @@ class Http_Backend
         return apply_filters('http_bridge_backend_url', $url, $this);
     }
 
-    /**
-     * Performs a GET HTTP request to the backend.
-     *
-     * @param string $endpoint Target backend endpoint as relative path.
-     * @param array $params URL query params.
-     * @param array $headers Additional HTTP headers.
-     *
-     * @return array|WP_Error Request response.
-     */
-    public function get($endpoint, $params = [], $headers = [])
+    public function head($endpoint, $params = [], $headers = [])
     {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
@@ -224,7 +286,28 @@ class Http_Backend
 
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
-        return http_bridge_get($url, $params, $headers);
+        return http_bridge_head($url, $params, $headers);
+    }
+
+    /**
+     * Performs a GET HTTP request to the backend.
+     *
+     * @param string $endpoint Target backend endpoint as relative path.
+     * @param array $params URL query params.
+     * @param array $headers Additional HTTP headers.
+     * @param array $args Additional request args.
+     *
+     * @return array|WP_Error Request response.
+     */
+    public function get($endpoint, $params = [], $headers = [], $args = [])
+    {
+        if (!$this->is_valid) {
+            return new WP_Error('invalid_backend');
+        }
+
+        $url = $this->url($endpoint);
+        $headers = array_merge($this->headers(), (array) $headers);
+        return http_bridge_get($url, $params, $headers, $args);
     }
 
     /**
@@ -233,10 +316,12 @@ class Http_Backend
      * @param string $endpoint Target backend endpoint as relative path.
      * @param array $params URL query params.
      * @param array $headers Additional HTTP headers.
+     * @param array $files Map with names and filepaths.
+     * @param array $args Additional request args.
      *
      * @return array|WP_Error Request response.
      */
-    public function post($endpoint, $data = [], $headers = [], $files = [])
+    public function post($endpoint, $data = [], $headers = [], $files = [], $args = [])
     {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
@@ -244,7 +329,7 @@ class Http_Backend
 
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
-        return http_bridge_post($url, $data, $headers, $files);
+        return http_bridge_post($url, $data, $headers, $files, $args);
     }
 
     /**
@@ -253,10 +338,12 @@ class Http_Backend
      * @param string $endpoint Target backend endpoint as relative path.
      * @param array $params URL query params.
      * @param array $headers Additional HTTP headers.
+     * @param array $files Map with names and filepaths.
+     * @param array $args Additional request args.
      *
      * @return array|WP_Error Request response.
      */
-    public function put($endpoint, $data = [], $headers = [], $files = [])
+    public function put($endpoint, $data = [], $headers = [], $files = [], $args = [])
     {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
@@ -264,7 +351,29 @@ class Http_Backend
 
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
-        return http_bridge_put($url, $data, $headers, $files);
+        return http_bridge_put($url, $data, $headers, $files, $args);
+    }
+
+    /**
+     * Performs a PATCH HTTP request to the backend.
+     *
+     * @param string $endpoint Target backend endpoint as relative path.
+     * @param array $params URL query params.
+     * @param array $headers Additional HTTP headers.
+     * @param array $files Map with names and filepaths.
+     * @param array $args Additional request args.
+     *
+     * @return array|WP_Error Request response.
+     */
+    public function patch($endpoint, $data = [], $headers = [], $files = [], $args = [])
+    {
+        if (!$this->is_valid) {
+            return new WP_Error('invalid_backend');
+        }
+
+        $url = $this->url($endpoint);
+        $headers = array_merge($this->headers(), (array) $headers);
+        return http_bridge_patch($url, $data, $headers, $files, $args);
     }
 
     /**
@@ -273,10 +382,11 @@ class Http_Backend
      * @param string $endpoint Target backend endpoint as relative path.
      * @param array $params URL query params.
      * @param array $headers Additional HTTP headers.
+     * @param array $args Additional request args.
      *
      * @return array|WP_Error Request response.
      */
-    public function delete($endpoint, $params = [], $headers = [])
+    public function delete($endpoint, $params = [], $headers = [], $args = [])
     {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
@@ -284,7 +394,17 @@ class Http_Backend
 
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
-        return http_bridge_delete($url, $params, $headers);
+        return http_bridge_delete($url, $params, $headers, $args);
+    }
+
+    public function clone($partial = [])
+    {
+        if (!$this->is_valid) {
+            return $this;
+        }
+
+        $data = array_merge($this->data, $partial);
+        return new static($data);
     }
 
     public function data()

@@ -1,100 +1,14 @@
-const {
-  TextControl,
-  SelectControl,
-  Button,
-  __experimentalSpacer: Spacer,
-} = wp.components;
-const { useEffect } = wp.element;
+import {
+  WELL_KNOWN_TYPES,
+  HEADER_NAME as CONTENT_TYPE_NAME,
+  DEFAULT_VALUE as DEFAUTL_CONTENT_TYPE,
+} from "./ContentType";
+
+const { TextControl, Button } = wp.components;
+const { useEffect, useMemo } = wp.element;
 const { __ } = wp.i18n;
 
-const WELL_KNOWN_CONTENT_TYPES = {
-  "application/json": "JSON",
-  "application/x-www-form-urlencoded": "URL Encoded",
-  "multipart/form-data": "Binary files",
-};
-
-function ContentTypeHeader({ setValue, value }) {
-  return (
-    <div className="components-base-control__label">
-      <label
-        className="components-base-control__label"
-        style={{
-          fontSize: "11px",
-          textTransform: "uppercase",
-          fontWeight: 500,
-          marginBottom: "calc(8px)",
-        }}
-      >
-        {__("Content encoding", "http-bridge")}
-        <br />
-        <span
-          style={{
-            color: "#757575",
-            fontStyle: "normal",
-            fontSize: "12px",
-            marginTop: "calc(8px)",
-            textTransform: "none",
-            fontWeight: "400",
-          }}
-        >
-          {__(
-            "Select how Http Bridge should encode your the request body.",
-            "http-bridge"
-          )}
-        </span>
-        <br />
-        <span
-          style={{
-            color: "#757575",
-            fontStyle: "normal",
-            fontSize: "12px",
-            marginTop: "calc(8px)",
-            textTransform: "none",
-            fontWeight: "400",
-          }}
-        >
-          ⚠{" "}
-          {__(
-            "If your backend uses custom encoding, Http Bridge will need a string payload. Take care to encode your payloads as string before you pass them to the backend.",
-            "http-bridge"
-          )}
-        </span>
-      </label>
-      <div style={{ width: "250px", marginTop: "calc(8px)" }}>
-        <SelectControl
-          value={WELL_KNOWN_CONTENT_TYPES[value] ? value : ""}
-          onChange={setValue}
-          options={Object.keys(WELL_KNOWN_CONTENT_TYPES)
-            .map((type) => ({
-              label: WELL_KNOWN_CONTENT_TYPES[type],
-              value: type,
-            }))
-            .concat([
-              { label: __("Custom encoding", "http-bridge"), value: "" },
-            ])}
-          __next40pxDefaultSize
-          __nextHasNoMarginBottom
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function BackendHeaders({ headers, setHeaders }) {
-  const __ = wp.i18n.__;
-
-  const contentType =
-    headers.find((header) => header.name === "Content-Type")?.value || "";
-
-  const setContentType = (type) => {
-    const index = headers.findIndex((header) => header.name === "Content-Type");
-    if (index === -1) {
-      addHeader("Content-Type", type);
-    } else {
-      setHeader("value", index, type);
-    }
-  };
-
   const setHeader = (attr, index, value) => {
     const newHeaders = headers.map((header, i) => {
       if (index === i) header[attr] = value;
@@ -104,8 +18,12 @@ export default function BackendHeaders({ headers, setHeaders }) {
     setHeaders(newHeaders);
   };
 
-  const addHeader = (name = "Accept", value = "application/json") => {
-    const newHeaders = headers.concat([{ name, value }]);
+  const addHeader = (index, name = "Accept", value = DEFAUTL_CONTENT_TYPE) => {
+    const newHeaders = headers
+      .slice(0, index)
+      .concat([{ name, value }])
+      .concat(headers.slice(index, headers.length));
+
     setHeaders(newHeaders);
   };
 
@@ -115,14 +33,22 @@ export default function BackendHeaders({ headers, setHeaders }) {
   };
 
   useEffect(() => {
-    if (!(headers.length && headers.find((h) => h.name === "Content-Type")))
-      addHeader("Content-Type", "application/json");
+    if (!(headers.length && headers.find((h) => h.name === CONTENT_TYPE_NAME)))
+      addHeader(0, CONTENT_TYPE_NAME, DEFAUTL_CONTENT_TYPE);
   }, [headers]);
+
+  const sortedHeaders = useMemo(
+    () =>
+      headers.sort((h1, h2) => {
+        if (h1.name === CONTENT_TYPE_NAME) return -1;
+        if (h2.name === CONTENT_TYPE_NAME) return 1;
+        return 0;
+      }),
+    [headers]
+  );
 
   return (
     <>
-      <ContentTypeHeader value={contentType} setValue={setContentType} />
-      <Spacer paddingY="calc(8px)" />
       <div className="components-base-control__label">
         <label
           className="components-base-control__label"
@@ -133,22 +59,28 @@ export default function BackendHeaders({ headers, setHeaders }) {
             marginBottom: "calc(8px)",
           }}
         >
-          {__("Backend HTTP Headers", "http-bridge")}
+          {__("HTTP Headers", "forms-bridge")}
         </label>
         <table
           style={{
             width: "calc(100% + 10px)",
+            maxWidth: "900px",
             borderSpacing: "5px",
             margin: "0 -5px",
           }}
         >
+          <colgroup>
+            <col span="1" style={{ width: "clamp(150px, 15vw, 300px)" }} />
+            <col span="1" style={{ width: "auto" }} />
+            <col span="1" style={{ width: "85px" }} />
+          </colgroup>
           <tbody>
-            {headers.map(({ name, value }, i) => (
+            {sortedHeaders.map(({ name, value }, i) => (
               <tr key={i}>
                 <td>
                   <TextControl
-                    disabled={name === "Content-Type"}
-                    placeholder={__("Header-Name", "http-bridge")}
+                    disabled={name === "Content-Type" && i === 0}
+                    placeholder={__("Header-Name", "forms-bridge")}
                     value={name}
                     onChange={(value) => setHeader("name", i, value)}
                     __nextHasNoMarginBottom
@@ -158,9 +90,11 @@ export default function BackendHeaders({ headers, setHeaders }) {
                 <td>
                   <TextControl
                     disabled={
-                      name === "Content-Type" && WELL_KNOWN_CONTENT_TYPES[value]
+                      name === CONTENT_TYPE_NAME &&
+                      WELL_KNOWN_TYPES[value] &&
+                      i === 0
                     }
-                    placeholder={__("Value", "http-bridge")}
+                    placeholder={__("Value", "forms-bridge")}
                     value={value}
                     onChange={(value) => setHeader("value", i, value)}
                     __nextHasNoMarginBottom
@@ -168,30 +102,47 @@ export default function BackendHeaders({ headers, setHeaders }) {
                   />
                 </td>
                 <td>
-                  <Button
-                    disabled={name === "Content-Type"}
-                    isDestructive
-                    variant="secondary"
-                    onClick={() => dropHeader(i)}
-                    style={{ width: "150px", justifyContent: "center" }}
-                    __next40pxDefaultSize
+                  <div
+                    style={{
+                      display: "flex",
+                      marginLeft: "0.45em",
+                      gap: "0.45em",
+                    }}
                   >
-                    {__("Drop", "http-bridge")}
-                  </Button>
+                    <Button
+                      size="compact"
+                      variant="secondary"
+                      disabled={!name || !value}
+                      onClick={() => addHeader(i + 1)}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        justifyContent: "center",
+                      }}
+                      __next40pxDefaultSize
+                    >
+                      +
+                    </Button>
+                    <Button
+                      disabled={name === "Content-Type" && i === 0}
+                      variant="secondary"
+                      onClick={() => dropHeader(i)}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        justifyContent: "center",
+                      }}
+                      isDestructive
+                      __next40pxDefaultSize
+                    >
+                      -
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Spacer paddingY="calc(3px)" />
-        <Button
-          variant="secondary"
-          onClick={() => addHeader()}
-          style={{ width: "150px", justifyContent: "center" }}
-          __next40pxDefaultSize
-        >
-          {__("Add header", "http-bridge")}
-        </Button>
       </div>
     </>
   );
