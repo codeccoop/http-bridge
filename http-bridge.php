@@ -21,21 +21,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
-    if (!defined('HTTP_BRIDGE_AUTH_SECRET')) {
-        /**
-         * Handle plugin encryption secret.
-         *
-         * @var string HTTP_BRIDGE_AUTH_SECRET Token encryption secret.
-         */
-        define(
-            'HTTP_BRIDGE_AUTH_SECRET',
-            getenv('HTTP_BRIDGE_AUTH_SECRET')
-                ? getenv('HTTP_BRIDGE_AUTH_SECRET')
-                : '@#%5&mjx44yQRs@MW4pp'
-        );
-    }
-
+if (!class_exists('\HTTP_BRIDGE\Http_Bridge')) {
     if (is_file(plugin_dir_path(__FILE__) . 'common/class-plugin.php')) {
         include_once plugin_dir_path(__FILE__) . 'common/class-plugin.php';
     }
@@ -47,7 +33,8 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
     require_once 'includes/class-menu.php';
     require_once 'includes/class-settings-store.php';
     require_once 'includes/class-http-client.php';
-    require_once 'includes/class-http-backend.php';
+    require_once 'includes/class-backend.php';
+    require_once 'includes/class-credential.php';
     require_once 'includes/class-jwt.php';
     require_once 'includes/class-rest-settings-controller.php';
     require_once 'includes/http-requests.php';
@@ -55,7 +42,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
     /**
      * HTTP Bridge plugin.
      */
-    class HTTP_Bridge extends Plugin
+    class Http_Bridge extends Plugin
     {
         /**
          * Handles plugin's settings store class name.
@@ -78,13 +65,9 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
         {
             parent::construct(...$args);
 
-            add_action('admin_enqueue_scripts', static function ($admin_page) {
-                self::admin_enqueue_scripts($admin_page);
-            });
-
             add_filter(
                 'http_bridge_backends',
-                function ($backends) {
+                static function ($backends) {
                     if (!wp_is_numeric_array($backends)) {
                         $backends = [];
                     }
@@ -95,7 +78,7 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
                     }
 
                     foreach ($setting->backends ?: [] as $data) {
-                        $backends[] = new Http_Backend($data);
+                        $backends[] = new Backend($data);
                     }
 
                     return $backends;
@@ -103,45 +86,30 @@ if (!class_exists('\HTTP_BRIDGE\HTTP_Bridge')) {
                 10,
                 1
             );
-        }
 
-        /**
-         * Enqueue admin client scripts
-         *
-         * @param string $admin_page Current admin page.
-         */
-        private static function admin_enqueue_scripts($admin_page)
-        {
-            $version = self::version();
-            if ('settings_page_http-bridge' !== $admin_page) {
-                return;
-            }
+            add_filter(
+                'http_bridge_credentials',
+                static function ($credentials) {
+                    if (!wp_is_numeric_array($credentials)) {
+                        $credentials = [];
+                    }
 
-            wp_enqueue_script(
-                'http-bridge-admin',
-                plugins_url('assets/plugin.bundle.js', __FILE__),
-                [
-                    'react',
-                    'react-jsx-runtime',
-                    'wp-api-fetch',
-                    'wp-components',
-                    'wp-dom-ready',
-                    'wp-element',
-                    'wp-i18n',
-                    'wp-api',
-                ],
-                $version,
-                ['in_footer' => true]
+                    $setting = self::setting('general');
+                    if (!$setting) {
+                        return $credentials;
+                    }
+
+                    foreach ($setting->credentials ?: [] as $data) {
+                        $credentials[] = new Credential($data);
+                    }
+
+                    return $credentials;
+                },
+                10,
+                1
             );
-
-            wp_set_script_translations(
-                'http-bridge-admin',
-                plugin_dir_path(__FILE__) . 'languages'
-            );
-
-            wp_enqueue_style('wp-components');
         }
     }
 }
 
-HTTP_Bridge::setup();
+Http_Bridge::setup();

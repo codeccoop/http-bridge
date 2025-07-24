@@ -30,20 +30,21 @@ class Settings_Store extends Base_Settings_Store
         self::register_setting([
             'name' => 'general',
             'properties' => [
-                'whitelist' => [
-                    'type' => 'boolean',
-                    'default' => false,
-                ],
                 'backends' => [
                     'type' => 'array',
-                    'items' => Http_Backend::schema(),
+                    'items' => Backend::schema(),
                     'default' => [],
                 ],
+                'credentials' => [
+                    'type' => 'array',
+                    'items' => Credential::schema(),
+                    'default' => [],
+                ]
             ],
-            'required' => ['whitelist', 'backends'],
+            'required' => ['backends', 'credentials'],
             'default' => [
-                'whitelist' => false,
                 'backends' => [],
+                'credentials' => [],
             ],
         ]);
 
@@ -60,8 +61,21 @@ class Settings_Store extends Base_Settings_Store
                 }
 
                 $data['backends'] = $backends;
+
+                $uniques = [];
+                $credentials = [];
+
+                foreach ($data['credentials'] ?? [] as $credential) {
+                    if (!in_array($credential['name'], $uniques, true)) {
+                        $uniques[] = $credential['name'];
+                        $credentials[] = $credential;
+                    }
+                }
+
+                $data['credentials'] = $credentials;
+
                 return $data;
-            });
+            }, 9);
         });
     }
 }

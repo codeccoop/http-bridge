@@ -11,13 +11,13 @@ if (!defined('ABSPATH')) {
 /**
  * HTTP backend connexión.
  */
-class Http_Backend
+class Backend
 {
     public static function schema()
     {
         return [
             '$schema' => 'http://json-schema.org/draft-04/schema#',
-            'title' => 'http-backend',
+            'title' => 'backend',
             'type' => 'object',
             'properties' => [
                 'name' => [
@@ -41,24 +41,7 @@ class Http_Backend
                     ],
                     'default' => [],
                 ],
-                'authentication' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'schema' => [
-                            'type' => 'string',
-                            'enum' => ['Basic', 'Token', 'Bearer'],
-                        ],
-                        'client_id' => [
-                            'type' => 'string',
-                            'default' => '',
-                        ],
-                        'client_secret' => [
-                            'type' => 'string',
-                            'minLength' => 1,
-                        ],
-                    ],
-                    'required' => ['schema', 'client_id', 'client_secret'],
-                ],
+                'credential' => ['type' => 'string'],
             ],
             'required' => ['name', 'base_url', 'headers'],
             'additionalProperties' => false,
@@ -88,7 +71,7 @@ class Http_Backend
                 }
 
                 if (!isset($backend)) {
-                    $backend = new Http_Backend($data);
+                    $backend = new static($data);
 
                     if ($backend->is_valid) {
                         $backends[] = $backend;
@@ -133,8 +116,8 @@ class Http_Backend
                 return $this->headers();
             case 'content_type':
                 return $this->content_type();
-            case 'authorization':
-                return $this->authorization();
+            case 'credential':
+                return $this->credential();
             default:
                 if (!$this->is_valid) {
                     return;
@@ -160,106 +143,15 @@ class Http_Backend
             $headers[trim($header['name'])] = trim($header['value']);
         }
 
-        if ($authorization = $this->authorization) {
-            $headers['Authorization'] = $authorization;
+        if ($credential = $this->credential) {
+            $authorization = $credential->authorization();
+
+            if ($credential->schema !== 'URL' && $authorization && is_string($authorization)) {
+                $headers['Authorization'] = $authorization;
+            }
         }
 
         return apply_filters('http_bridge_backend_headers', $headers, $this);
-    }
-
-    private function authorization()
-    {
-        if (!$this->is_valid) {
-            return;
-        }
-
-        if (!isset($this->data['authentication']['schema'])) {
-            return;
-        }
-
-        $schema = $this->data['authentication']['schema'];
-        $client_id = $this->data['authentication']['client_id'];
-        $client_secret = $this->data['authentication']['client_secret'];
-
-        if ($schema === 'Basic') {
-            return 'Basic ' . base64_encode("{$client_id}:{$client_secret}");
-        } elseif ($schema === 'Token') {
-            return "token {$client_id}:{$client_secret}";
-        } elseif ($schema === 'Bearer') {
-            return "Bearer {$client_secret}";
-        }
-    }
-
-    public function authorized($schema, $client_id, $client_secret, $realm = null, $endpoint = '/')
-    {
-        if (!$this->is_valid) {
-            return $this;
-        }
-
-        switch ($schema) {
-            case 'Basic':
-                $authorization = 'Basic ' . base64_encode("{$client_id}:{$client_secret}");
-
-                return $this->clone([
-                    'headers' => array_merge($this->data['headers'], [
-                        ['name' => 'Authorization', 'value' => $authorization]
-                    ])
-                ]);
-            case 'Digest':
-                $response = $this->head($this->endpoint);
-                if (is_wp_error($response)) {
-                    return $response;
-                }
-
-                $header = $response['headers']['WWW-Authenticate'] ?? null;
-                if (!$header) {
-                    return new WP_Error('unauthorized');
-                }
-
-                $fields = ['realm' => null, 'nonce' => null, 'opaque' => null];
-                foreach (array_keys($fields) as $field) {
-                    if (!preg_match("/{$field}=\"([^\"]+)\"/", $header, $matches)) {
-                        return new WP_Error('unauthorized');
-                    }
-
-                    $fields[$field] = $matches[1];
-                }
-
-                if ($fields['realm'] !== $realm) {
-                    return new WP_Error('unauthorized');
-                }
-
-                $a1 = md5("{$client_id}:{$realm}:{$client_secret}");
-                $a2 = md5("{$this->method}:{$this->endpoint}");
-                $response = md5("{$a1}:{$fields['nonce']}:{$a2}");
-                $uri = $this->url($endpoint);
-
-                $authorization = "Digest username=\"{$client_id}\" realm=\"{$realm}\" nonce=\"{$fields['nonce']}\" opaque=\"{$fields['opaque']}\" uri=\"{$uri}\" response=\"{$response}\"";
-
-                return $this->clone([
-                    'headers' => array_merge($this->data['headers'], [
-                        ['name' => 'Authorization', 'value' => $authorization],
-                    ])
-                ]);
-            case 'Token':
-                $authorization = "token {$client_id}:{$client_secret}";
-                return $this->clone([
-                    'headers' => array_merge($this->data['headers'], [
-                        ['name' => 'Authorization', 'value' => $authorization]
-                    ]),
-                ]);
-            case 'URL':
-                $parsed = wp_parse_url($this->base_url);
-                $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
-                $path = $parsed['path'] ?? '';
-                $base_url = "{$parsed['scheme']}://{$client_id}:{$client_secret}@{$parsed['host']}{$port}{$path}";
-
-                return $this->clone([
-                    'base_url' => $base_url,
-                ]);
-            default:
-                return $this;
-        }
     }
 
     /**
@@ -277,6 +169,20 @@ class Http_Backend
         return Http_Client::get_content_type($headers);
     }
 
+    private function credential()
+    {
+        if (!$this->is_valid || empty($this->data['credential'])) {
+            return;
+        }
+
+        $credentials = apply_filters('http_bridge_credentials', []);
+        foreach ($credentials as $credential) {
+            if ($credential->name === $this->data['credential']) {
+                return $credential;
+            }
+        }
+    }
+
     /**
      * Gets backend absolute URL.
      *
@@ -290,31 +196,104 @@ class Http_Backend
             return;
         }
 
-        $parsed = wp_parse_url((string) $path);
-        $query = $parsed['query'] ?? null;
-        if (isset($parsed['path'])) {
-            $path = preg_replace('/^\/+/', '', $parsed['path']);
+        $base_url = preg_replace('/\/+$/', '', $this->base_url ?? '');
+
+        $url_parsed = wp_parse_url($base_url);
+
+        if (isset($url_parsed['path'])) {
+            $base_path = preg_replace('/^\/+/', '', $url_parsed['path']);
+            $path = preg_replace(
+                '/^\/*' . preg_quote($base_path, '/') . '/',
+                '',
+                $path
+            );
+        } else {
+            $url_parsed['path'] = '';
+        }
+
+        if ($credential = $this->credential) {
+            if ($credential->schema === 'URL') {
+                $authorization = $credential->authorization();
+                $base_url = "{$url_parsed['scheme']}://{$authorization}@{$url_parsed['host']}";
+
+                if (isset($url_parsed['port'])) {
+                    $base_url .= ':' . $url_parsed['port'];
+                }
+
+                if (isset($url_parsed['path'])) {
+                    $base_url .= $url_parsed['path'];
+                }
+            }
+        }
+
+        $path_parsed = wp_parse_url((string) $path);
+        $query = $path_parsed['query'] ?? null;
+
+        if (isset($path_parsed['path'])) {
+            $path = preg_replace('/^\/+/', '', $path_parsed['path']);
         } else {
             $path = '';
         }
 
-        $parsed = wp_parse_url($this->base_url ?? '');
-        if (isset($parsed['path'])) {
-            $base_path = preg_replace('/^\/+/', '', $parsed['path']);
-            $path = preg_replace(
-                '/^' . preg_quote($base_path, '/') . '/',
-                '',
-                $path
-            );
-        }
-
-        $url = preg_replace('/\/+$/', '', $this->base_url) . '/' . $path;
+        $url = $base_url . '/' . $path;
 
         if ($query) {
             $url .= '?' . $query;
         }
 
         return apply_filters('http_bridge_backend_url', $url, $this);
+    }
+
+    private function handle_response($response_or_error)
+    {
+        if (!is_wp_error($response_or_error)) {
+            return $response_or_error;
+        } else {
+            $error = $response_or_error;
+        }
+
+        $credential = $this->credential();
+        if (!$credential || $credential->schema !== 'Digest') {
+            return $error;
+        }
+
+        $error_data = $error->get_error_data();
+        $response = $error_data['response'];
+
+        if ($response['response']['code'] !== 401) {
+            return $error;
+        }
+
+        $digest_header = $response['headers']['WWW-Authenticate'] ?? null;
+        if (!$digest_header) {
+            return $error;
+        }
+
+        $fields = ['realm' => null, 'nonce' => null, 'opaque' => null];
+        foreach (array_keys($fields) as $field) {
+            if (!preg_match("/{$field}=\"([^\"]+)\"/", $digest_header, $matches)) {
+                return $error;
+            }
+
+            $fields[$field] = $matches[1];
+        }
+
+        if ($fields['realm'] !== $credential->realm) {
+            return $error;
+        }
+
+        $request = $error_data['request'];
+        $parsed_url = wp_parse_url($request['url']);
+        $uri = $parsed_url['path'] ?? '';
+
+        $a1 = md5("{$credential->client_id}:{$credential->realm}:{$credential->client_secret}");
+        $a2 = md5("{$this->method}:{$this->endpoint}");
+        $response = md5("{$a1}:{$fields['nonce']}:{$a2}");
+
+        $authorization = "Digest username=\"{$credential->client_id}\" realm=\"{$credential->realm}\" nonce=\"{$fields['nonce']}\" opaque=\"{$fields['opaque']}\" uri=\"{$uri}\" response=\"{$response}\"";
+
+        $request['args']['headers']['Authorization'] = $authorization;
+        return wp_remote_request($request['url'], $request['args']);
     }
 
     public function head($endpoint, $params = [], $headers = [])
@@ -325,7 +304,8 @@ class Http_Backend
 
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
-        return http_bridge_head($url, $params, $headers);
+        $response = http_bridge_head($url, $params, $headers);
+        return $this->handle_response($response);
     }
 
     /**
@@ -346,7 +326,9 @@ class Http_Backend
 
         $url = $this->url($endpoint);
         $headers = array_merge($this->headers(), (array) $headers);
-        return http_bridge_get($url, $params, $headers, $args);
+        $response = http_bridge_get($url, $params, $headers, $args);
+
+        return $this->handle_response($response);
     }
 
     /**
@@ -461,7 +443,7 @@ class Http_Backend
             return false;
         }
 
-        $setting = HTTP_Bridge::setting('general');
+        $setting = Settings_Store::setting('general');
         if (!$setting) {
             return false;
         }
@@ -487,7 +469,7 @@ class Http_Backend
             return false;
         }
 
-        $setting = HTTP_Bridge::setting('general');
+        $setting = Settings_Store::setting('general');
         if (!$setting) {
             return false;
         }

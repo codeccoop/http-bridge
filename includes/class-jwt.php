@@ -14,9 +14,31 @@ if (!defined('ABSPATH')) {
 class JWT
 {
     /**
-     * Handle auth secret.
+     * Auth secret getter.
+     *
+     * @return string
      */
-    private static $key = HTTP_BRIDGE_AUTH_SECRET;
+    private function secret()
+    {
+        if (defined('HTTP_BRIDGE_AUTH_SECRET')) {
+            return HTTP_BRIDGE_AUTH_SECRET;
+        }
+
+        $secret = get_option('http-bridge-jwt-secret');
+
+        if (!$secret) {
+            $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $len = strlen($chars);
+            $secret = '';
+            for ($i = 0; $i < 20; $i++) {
+                $secret .= $chars[random_int(0, $len - 1)];
+            }
+
+            add_option('http-bridge-jwt-secret', $secret);
+        }
+
+        return $secret;
+    }
 
     /**
      * Get encoded payload token.
@@ -39,7 +61,7 @@ class JWT
         $signature = hash_hmac(
             'sha256',
             $header . '.' . $payload,
-            self::$key,
+            $this->secret(),
             true
         );
         $signature = $this->base64URLEncode($signature);
@@ -68,7 +90,7 @@ class JWT
         $signature = hash_hmac(
             'sha256',
             $matches['header'] . '.' . $matches['payload'],
-            self::$key,
+            $this->secret(),
             true
         );
 
