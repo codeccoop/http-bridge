@@ -381,7 +381,7 @@ class REST_Settings_Controller extends Base_Controller
             return;
         }
 
-        $url = site_url() . '/wp-admin/options-general.php?page=http-bridge';
+        $url = site_url() . '/wp-admin/options-general.php?page=http-bridge&tab=http';
 
         if (wp_redirect($url)) {
             exit(302);

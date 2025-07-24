@@ -435,7 +435,7 @@ class Credential
     public function oauth_url($verb)
     {
         return apply_filters(
-            'forms_bridge_oauth_url',
+            'http_bridge_oauth_url',
             $this->oauth_url . '/' . $verb,
             $verb,
             $this
@@ -481,9 +481,9 @@ class Credential
                 'Content-Type' => 'application/x-www-form-urlencoded',
             ]);
 
-            if (is_wp_error($response)) {
-                return false;
-            }
+            // if (is_wp_error($response)) {
+            //     return false;
+            // }
         }
 
         return $this->update_tokens([
