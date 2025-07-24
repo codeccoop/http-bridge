@@ -23,7 +23,11 @@ class Credential
                     'type' => 'object',
                     'properties' => [
                         'name' => [
-                            'title' => _x('Name', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Name',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'description' => __(
                                 'Unique name of the credential',
                                 'http-bridge'
@@ -32,17 +36,29 @@ class Credential
                             'minLength' => 1,
                         ],
                         'schema' => [
-                            'title' => _x('Schema', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Schema',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'enum' => ['Basic', 'Token', 'URL'],
                             'default' => 'Basic',
                         ],
                         'client_id' => [
-                            'title' => _x('Client ID', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Client ID',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'client_secret' => [
-                            'title' => _x('Client secret', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Client secret',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                     ],
@@ -59,7 +75,11 @@ class Credential
                     'type' => 'object',
                     'properties' => [
                         'name' => [
-                            'title' => _x('Name', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Name',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'description' => __(
                                 'Unique name of the credential',
                                 'http-bridge'
@@ -68,20 +88,36 @@ class Credential
                             'minLength' => 1,
                         ],
                         'schema' => [
-                            'title' => _x('Schema', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Schema',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'enum' => ['Digest'],
                         ],
                         'client_id' => [
-                            'title' => _x('Client ID', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Client ID',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'client_secret' => [
-                            'title' => _x('Client secret', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Client secret',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'realm' => [
-                            'title' => _x('Realm', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Realm',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                     ],
@@ -99,7 +135,11 @@ class Credential
                     'type' => 'object',
                     'properties' => [
                         'name' => [
-                            'title' => _x('Name', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Name',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'description' => __(
                                 'Unique name of the credential',
                                 'http-bridge'
@@ -108,20 +148,36 @@ class Credential
                             'minLength' => 1,
                         ],
                         'schema' => [
-                            'title' => _x('Schema', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Schema',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'enum' => ['RPC'],
                         ],
                         'client_id' => [
-                            'title' => _x('User login', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'User login',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'client_secret' => [
-                            'title' => _x('Password', 'Credential schema', 'http-bridge'),
-                            'type' => 'string'
+                            'title' => _x(
+                                'Password',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
+                            'type' => 'string',
                         ],
                         'database' => [
-                            'title' => _x('Database', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Database',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                     ],
@@ -139,7 +195,11 @@ class Credential
                     'type' => 'object',
                     'properties' => [
                         'name' => [
-                            'title' => _x('Name', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Name',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'description' => __(
                                 'Unique name of the credential',
                                 'http-bridge'
@@ -148,47 +208,83 @@ class Credential
                             'minLength' => 1,
                         ],
                         'schema' => [
-                            'title' => _x('Schema', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Schema',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'enum' => ['Bearer'],
                         ],
                         'oauth_url' => [
-                            'title' => _x('Authorization URL', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Authorization URL',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'format' => 'uri',
                         ],
                         'client_id' => [
-                            'title' => _x('Client ID', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Client ID',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'client_secret' => [
-                            'title' => _x('Client secret', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Client secret',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'scope' => [
-                            'title' => _x('Scope', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Scope',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                         ],
                         'access_token' => [
-                            'title' => _x('Access token', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Access token',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'default' => '',
                             'public' => false,
                         ],
                         'expires_at' => [
-                            'title' => _x('Expires at', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Expires at',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'integer',
                             'default' => 0,
                             'public' => false,
                         ],
                         'refresh_token' => [
-                            'title' => _x('Refresh token', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Refresh token',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'string',
                             'default' => '',
                             'public' => false,
                         ],
                         'refresh_token_expires_at' => [
-                            'title' => _x('Refresh token expires at', 'Credential schema', 'http-bridge'),
+                            'title' => _x(
+                                'Refresh token expires at',
+                                'Credential schema',
+                                'http-bridge'
+                            ),
                             'type' => 'integer',
                             'default' => 0,
                             'public' => false,
@@ -272,10 +368,7 @@ class Credential
 
     public function __construct($data)
     {
-        $this->data = wpct_plugin_sanitize_with_schema(
-            $data,
-            static::schema()
-        );
+        $this->data = wpct_plugin_sanitize_with_schema($data, static::schema());
     }
 
     public function __get($name)
@@ -302,7 +395,8 @@ class Credential
                     return;
                 }
 
-                return $this->data['realm'] ?? $this->data['database'] ?? $this->data['scope'];
+                return $this->data['realm'] ??
+                    ($this->data['database'] ?? $this->data['scope']);
             case 'access_token':
             case 'refresh_token':
                 return;
@@ -321,11 +415,16 @@ class Credential
     {
         switch ($this->schema) {
             case 'RPC':
-                return [$this->database, $this->client_id, $this->client_secret];
+                return [
+                    $this->database,
+                    $this->client_id,
+                    $this->client_secret,
+                ];
             case 'Bearer':
                 return 'Bearer ' . $this->get_access_token();
             case 'Basic':
-                return 'Basic ' . base64_encode("{$this->client_id}:{$this->client_secret}");
+                return 'Basic ' .
+                    base64_encode("{$this->client_id}:{$this->client_secret}");
             case 'Token':
                 return "token {$this->client_id}:{$this->client_secret}";
             case 'URL':
@@ -337,9 +436,9 @@ class Credential
     {
         return apply_filters(
             'forms_bridge_oauth_url',
-            $this->oauth_url  . '/' . $verb,
+            $this->oauth_url . '/' . $verb,
             $verb,
-            $this,
+            $this
         );
     }
 

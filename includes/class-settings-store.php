@@ -39,7 +39,7 @@ class Settings_Store extends Base_Settings_Store
                     'type' => 'array',
                     'items' => Credential::schema(),
                     'default' => [],
-                ]
+                ],
             ],
             'required' => ['backends', 'credentials'],
             'default' => [
@@ -49,33 +49,37 @@ class Settings_Store extends Base_Settings_Store
         ]);
 
         self::ready(static function ($store) {
-            $store::use_setter('general', static function ($data) {
-                $uniques = [];
-                $backends = [];
+            $store::use_setter(
+                'general',
+                static function ($data) {
+                    $uniques = [];
+                    $backends = [];
 
-                foreach ($data['backends'] ?? [] as $backend) {
-                    if (!in_array($backend['name'], $uniques, true)) {
-                        $uniques[] = $backend['name'];
-                        $backends[] = $backend;
+                    foreach ($data['backends'] ?? [] as $backend) {
+                        if (!in_array($backend['name'], $uniques, true)) {
+                            $uniques[] = $backend['name'];
+                            $backends[] = $backend;
+                        }
                     }
-                }
 
-                $data['backends'] = $backends;
+                    $data['backends'] = $backends;
 
-                $uniques = [];
-                $credentials = [];
+                    $uniques = [];
+                    $credentials = [];
 
-                foreach ($data['credentials'] ?? [] as $credential) {
-                    if (!in_array($credential['name'], $uniques, true)) {
-                        $uniques[] = $credential['name'];
-                        $credentials[] = $credential;
+                    foreach ($data['credentials'] ?? [] as $credential) {
+                        if (!in_array($credential['name'], $uniques, true)) {
+                            $uniques[] = $credential['name'];
+                            $credentials[] = $credential;
+                        }
                     }
-                }
 
-                $data['credentials'] = $credentials;
+                    $data['credentials'] = $credentials;
 
-                return $data;
-            }, 9);
+                    return $data;
+                },
+                9
+            );
         });
     }
 }

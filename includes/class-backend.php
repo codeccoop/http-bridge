@@ -146,7 +146,11 @@ class Backend
         if ($credential = $this->credential) {
             $authorization = $credential->authorization();
 
-            if ($credential->schema !== 'URL' && $authorization && is_string($authorization)) {
+            if (
+                $credential->schema !== 'URL' &&
+                $authorization &&
+                is_string($authorization)
+            ) {
                 $headers['Authorization'] = $authorization;
             }
         }
@@ -271,7 +275,9 @@ class Backend
 
         $fields = ['realm' => null, 'nonce' => null, 'opaque' => null];
         foreach (array_keys($fields) as $field) {
-            if (!preg_match("/{$field}=\"([^\"]+)\"/", $digest_header, $matches)) {
+            if (
+                !preg_match("/{$field}=\"([^\"]+)\"/", $digest_header, $matches)
+            ) {
                 return $error;
             }
 
@@ -286,7 +292,9 @@ class Backend
         $parsed_url = wp_parse_url($request['url']);
         $uri = $parsed_url['path'] ?? '';
 
-        $a1 = md5("{$credential->client_id}:{$credential->realm}:{$credential->client_secret}");
+        $a1 = md5(
+            "{$credential->client_id}:{$credential->realm}:{$credential->client_secret}"
+        );
         $a2 = md5("{$this->method}:{$this->endpoint}");
         $response = md5("{$a1}:{$fields['nonce']}:{$a2}");
 
@@ -342,8 +350,13 @@ class Backend
      *
      * @return array|WP_Error Request response.
      */
-    public function post($endpoint, $data = [], $headers = [], $files = [], $args = [])
-    {
+    public function post(
+        $endpoint,
+        $data = [],
+        $headers = [],
+        $files = [],
+        $args = []
+    ) {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
         }
@@ -364,8 +377,13 @@ class Backend
      *
      * @return array|WP_Error Request response.
      */
-    public function put($endpoint, $data = [], $headers = [], $files = [], $args = [])
-    {
+    public function put(
+        $endpoint,
+        $data = [],
+        $headers = [],
+        $files = [],
+        $args = []
+    ) {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
         }
@@ -386,8 +404,13 @@ class Backend
      *
      * @return array|WP_Error Request response.
      */
-    public function patch($endpoint, $data = [], $headers = [], $files = [], $args = [])
-    {
+    public function patch(
+        $endpoint,
+        $data = [],
+        $headers = [],
+        $files = [],
+        $args = []
+    ) {
         if (!$this->is_valid) {
             return new WP_Error('invalid_backend');
         }

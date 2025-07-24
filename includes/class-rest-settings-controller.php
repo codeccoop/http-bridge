@@ -39,9 +39,13 @@ class REST_Settings_Controller extends Base_Controller
     private static function get_jwt_auth()
     {
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-            $auth_header = sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION']));
+            $auth_header = sanitize_text_field(
+                wp_unslash($_SERVER['HTTP_AUTHORIZATION'])
+            );
         } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-            $auth_header = sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION']));
+            $auth_header = sanitize_text_field(
+                wp_unslash($_SERVER['HTTP_AUTHORIZATION'])
+            );
         }
 
         if (!isset($auth_header)) {
@@ -89,77 +93,51 @@ class REST_Settings_Controller extends Base_Controller
     {
         parent::init();
 
-        register_rest_route(
-            'http-bridge/v1',
-            '/jwt/auth',
-            [
-                'methods' => WP_REST_Server::CREATABLE,
-                'callback' => static function () {
-                    return self::jwt_auth();
-                },
-                'permission_callback' => static function ($request) {
-                    return self::jwt_auth_permission_callback($request);
-                },
-            ],
-        );
+        register_rest_route('http-bridge/v1', '/jwt/auth', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => static function () {
+                return self::jwt_auth();
+            },
+            'permission_callback' => static function ($request) {
+                return self::jwt_auth_permission_callback($request);
+            },
+        ]);
 
-        register_rest_route(
-            'http-bridge/v1',
-            '/jwt/validate',
-            [
-                'methods' => WP_REST_Server::READABLE,
-                'callback' => static function () {
-                    return self::jwt_validate();
-                },
-                'permission_callback' => static function () {
-                    return self::jwt_validate_permission_callback();
-                },
-            ],
-        );
+        register_rest_route('http-bridge/v1', '/jwt/validate', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => static function () {
+                return self::jwt_validate();
+            },
+            'permission_callback' => static function () {
+                return self::jwt_validate_permission_callback();
+            },
+        ]);
 
-        register_rest_route(
-            'http-bridge/v1',
-            '/oauth/grant',
-            [
-                'methods' => WP_REST_Server::CREATABLE,
-                'callback' => static function ($request) {
-                    return self::oauth_grant($request);
-                },
-                'permission_callback' => [
-                    self::class,
-                    'permission_callback',
-                ],
-                'args' => ['credential' => Credential::schema()],
-            ],
-        );
+        register_rest_route('http-bridge/v1', '/oauth/grant', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => static function ($request) {
+                return self::oauth_grant($request);
+            },
+            'permission_callback' => [self::class, 'permission_callback'],
+            'args' => ['credential' => Credential::schema()],
+        ]);
 
-        register_rest_route(
-            'http-bridge/v1',
-            '/oauth/revoke',
-            [
-                'methods' => WP_REST_Server::CREATABLE,
-                'callback' => static function ($request) {
-                    return self::oauth_revoke($request);
-                },
-                'permission_callback' => [
-                    self::class,
-                    'permission_callback',
-                ],
-                'args' => ['credential' => Credential::schema()],
-            ],
-        );
+        register_rest_route('http-bridge/v1', '/oauth/revoke', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => static function ($request) {
+                return self::oauth_revoke($request);
+            },
+            'permission_callback' => [self::class, 'permission_callback'],
+            'args' => ['credential' => Credential::schema()],
+        ]);
 
-        register_rest_route(
-            'http-bridge/v1',
-            '/oauth/redirect',
-            [
-                'methods' => WP_REST_Server::READABLE,
-                'callback' => static function ($request) {
-                    return self::oauth_redirect($request);
-                },
-                'permission_callback' => '__return_true',
-            ],
-        );
+        register_rest_route('http-bridge/v1', '/oauth/redirect', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => static function ($request) {
+                return self::oauth_redirect($request);
+            },
+            'permission_callback' => '__return_true',
+        ]);
     }
 
     /**
@@ -229,7 +207,9 @@ class REST_Settings_Controller extends Base_Controller
         }
 
         if (!(isset($data['username']) && isset($data['password']))) {
-            return self::bad_request(__('Missing login credentials', 'http-bridge'));
+            return self::bad_request(
+                __('Missing login credentials', 'http-bridge')
+            );
         }
 
         $user = wp_authenticate($data['username'], $data['password']);
@@ -257,26 +237,38 @@ class REST_Settings_Controller extends Base_Controller
         try {
             $payload = (new JWT())->decode($token);
         } catch (Exception) {
-            return self::unauthorized(__('Invalid authorization token', 'http-bridge'));
+            return self::unauthorized(
+                __('Invalid authorization token', 'http-bridge')
+            );
         } catch (Error) {
-            return self::internal_server_error(__('Internal Server Error', 'http-bridge'));
+            return self::internal_server_error(
+                __('Internal Server Error', 'http-bridge')
+            );
         }
 
         if ($payload['iss'] !== get_bloginfo('url')) {
-            return self::unauthorized(__('The iss do not match with this server', 'http-bridge'));
+            return self::unauthorized(
+                __('The iss do not match with this server', 'http-bridge')
+            );
         }
 
         $now = time();
         if ($payload['exp'] <= $now) {
-            return self::unauthorized(__('The token is expired', 'http-bridge'));
+            return self::unauthorized(
+                __('The token is expired', 'http-bridge')
+            );
         }
 
         if ($payload['nbf'] >= $now) {
-            return self::unauthorized(__('The token is not valid yet', 'http-bridge'));
+            return self::unauthorized(
+                __('The token is not valid yet', 'http-bridge')
+            );
         }
 
         if (!isset($payload['data']['user_id'])) {
-            return self::unauthorized(__('User ID not found in the token', 'http-bridge'));
+            return self::unauthorized(
+                __('User ID not found in the token', 'http-bridge')
+            );
         }
 
         self::$user = get_user_by('ID', (int) $payload['data']['user_id']);
@@ -305,10 +297,7 @@ class REST_Settings_Controller extends Base_Controller
             return $user_id;
         }
 
-        $validate_uri = strpos(
-            $requested_url,
-            "http-bridge/v1/jwt/validate"
-        );
+        $validate_uri = strpos($requested_url, 'http-bridge/v1/jwt/validate');
 
         if ($validate_uri > 0) {
             return $user_id;
@@ -324,7 +313,10 @@ class REST_Settings_Controller extends Base_Controller
             $payload = (new JWT())->decode($auth);
         } catch (Exception $e) {
             if ($e->getMessage() === 'Invalid token format') {
-                self::$auth_error = self::unauthorized($e->getMessage(), $e->getCode());
+                self::$auth_error = self::unauthorized(
+                    $e->getMessage(),
+                    $e->getCode()
+                );
             }
 
             return $user_id;

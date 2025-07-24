@@ -19,10 +19,13 @@ if (!function_exists('http_bridge_get')) {
      */
     function http_bridge_get($url, $params = [], $headers = [], $args = [])
     {
-        return Http_Client::get($url, array_merge($args, [
-            'params' => $params,
-            'headers' => $headers,
-        ]));
+        return Http_Client::get(
+            $url,
+            array_merge($args, [
+                'params' => $params,
+                'headers' => $headers,
+            ])
+        );
     }
 }
 
@@ -38,13 +41,21 @@ if (!function_exists('http_bridge_post')) {
      *
      * @return array|WP_Error Response data or error.
      */
-    function http_bridge_post($url, $data = [], $headers = [], $files = [], $args = [])
-    {
-        return Http_Client::post($url, array_merge($args, [
-            'data' => $data,
-            'headers' => (array) $headers,
-            'files' => (array) $files,
-        ]));
+    function http_bridge_post(
+        $url,
+        $data = [],
+        $headers = [],
+        $files = [],
+        $args = []
+    ) {
+        return Http_Client::post(
+            $url,
+            array_merge($args, [
+                'data' => $data,
+                'headers' => (array) $headers,
+                'files' => (array) $files,
+            ])
+        );
     }
 }
 
@@ -60,13 +71,21 @@ if (!function_exists('http_bridge_put')) {
      *
      * @return array|WP_Error Response data or error.
      */
-    function http_bridge_put($url, $data = [], $headers = [], $files = [], $args = [])
-    {
-        return Http_Client::put($url, array_merge($args, [
-            'data' => $data,
-            'headers' => (array) $headers,
-            'files' => (array) $files,
-        ]));
+    function http_bridge_put(
+        $url,
+        $data = [],
+        $headers = [],
+        $files = [],
+        $args = []
+    ) {
+        return Http_Client::put(
+            $url,
+            array_merge($args, [
+                'data' => $data,
+                'headers' => (array) $headers,
+                'files' => (array) $files,
+            ])
+        );
     }
 }
 
@@ -83,13 +102,21 @@ if (!function_exists('http_bridge_patch')) {
      *
      * @return array|WP_Error Response data or error.
      */
-    function http_bridge_patch($url, $data = [], $headers = [], $files = [], $args = [])
-    {
-        return Http_Client::patch($url, array_merge($args, [
-            'data' => $data,
-            'headers' => (array) $headers,
-            'files' => (array) $files,
-        ]));
+    function http_bridge_patch(
+        $url,
+        $data = [],
+        $headers = [],
+        $files = [],
+        $args = []
+    ) {
+        return Http_Client::patch(
+            $url,
+            array_merge($args, [
+                'data' => $data,
+                'headers' => (array) $headers,
+                'files' => (array) $files,
+            ])
+        );
     }
 }
 
@@ -106,10 +133,13 @@ if (!function_exists('http_bridge_delete')) {
      */
     function http_bridge_delete($url, $params = [], $headers = [], $args = [])
     {
-        return Http_Client::delete($url, array_merge($args, [
-            'params' => $params,
-            'headers' => $headers,
-        ]));
+        return Http_Client::delete(
+            $url,
+            array_merge($args, [
+                'params' => $params,
+                'headers' => $headers,
+            ])
+        );
     }
 }
 
@@ -126,9 +156,12 @@ if (!function_exists('http_bridge_head')) {
      */
     function http_bridge_head($url, $params = [], $headers = [], $args = [])
     {
-        return Http_Client::head($url, array_merge($args, [
-            'params' => $params,
-            'headers' => $headers,
-        ]));
+        return Http_Client::head(
+            $url,
+            array_merge($args, [
+                'params' => $params,
+                'headers' => $headers,
+            ])
+        );
     }
 }

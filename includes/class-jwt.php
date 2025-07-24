@@ -27,7 +27,8 @@ class JWT
         $secret = get_option('http-bridge-jwt-secret');
 
         if (!$secret) {
-            $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $chars =
+                '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $len = strlen($chars);
             $secret = '';
             for ($i = 0; $i < 20; $i++) {
