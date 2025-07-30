@@ -296,7 +296,7 @@ class Credential
                         'oauth_url',
                         'client_id',
                         'client_secret',
-                        'scope',
+                        // 'scope',
                         'access_token',
                         'expires_at',
                         'refresh_token',
