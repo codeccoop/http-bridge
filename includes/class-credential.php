@@ -499,7 +499,7 @@ class Credential
         $data = $this->data;
         $data['enabled'] = true;
         $data['access_token'] = $tokens['access_token'];
-        $data['expires_at'] = $tokens['expires_in'] + time() - 10;
+        $data['expires_at'] = ($tokens['expires_in'] ?? 0) + time() - 10;
 
         if (isset($tokens['refresh_token'])) {
             $data['refresh_token'] = $tokens['refresh_token'];
