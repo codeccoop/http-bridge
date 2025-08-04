@@ -30,7 +30,7 @@ class Settings_Store extends Base_Settings_Store
         add_filter(
             'wpct_plugin_register_settings',
             function ($settings, $group) {
-                if ($group !== 'http-bridge') {
+                if ($group !== Http_Bridge::slug()) {
                     return $settings;
                 }
 
