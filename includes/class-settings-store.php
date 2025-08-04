@@ -27,26 +27,39 @@ class Settings_Store extends Base_Settings_Store
     {
         parent::construct(...$args);
 
-        self::register_setting([
-            'name' => 'general',
-            'properties' => [
-                'backends' => [
-                    'type' => 'array',
-                    'items' => Backend::schema(),
-                    'default' => [],
-                ],
-                'credentials' => [
-                    'type' => 'array',
-                    'items' => Credential::schema(),
-                    'default' => [],
-                ],
-            ],
-            'required' => ['backends', 'credentials'],
-            'default' => [
-                'backends' => [],
-                'credentials' => [],
-            ],
-        ]);
+        add_filter(
+            'wpct_plugin_register_settings',
+            function ($settings, $group) {
+                if ($group !== 'http-bridge') {
+                    return $settings;
+                }
+
+                $settings[] = [
+                    'name' => 'general',
+                    'properties' => [
+                        'backends' => [
+                            'type' => 'array',
+                            'items' => Backend::schema(),
+                            'default' => [],
+                        ],
+                        'credentials' => [
+                            'type' => 'array',
+                            'items' => Credential::schema(),
+                            'default' => [],
+                        ],
+                    ],
+                    'required' => ['backends', 'credentials'],
+                    'default' => [
+                        'backends' => [],
+                        'credentials' => [],
+                    ],
+                ];
+
+                return $settings;
+            },
+            9,
+            2
+        );
 
         self::ready(static function ($store) {
             $store::use_setter(
