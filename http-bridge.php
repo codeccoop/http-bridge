@@ -30,14 +30,14 @@ if (!class_exists('\HTTP_BRIDGE\Http_Bridge')) {
         include_once plugin_dir_path(__FILE__) . 'deps/i18n/wpct-i18n.php';
     }
 
-    require_once 'includes/class-menu.php';
-    require_once 'includes/class-settings-store.php';
-    require_once 'includes/class-http-client.php';
-    require_once 'includes/class-backend.php';
-    require_once 'includes/class-credential.php';
-    require_once 'includes/class-jwt.php';
-    require_once 'includes/class-rest-settings-controller.php';
-    require_once 'includes/http-requests.php';
+    require_once __DIR__ . '/includes/class-menu.php';
+    require_once __DIR__ . '/includes/class-settings-store.php';
+    require_once __DIR__ . '/includes/class-http-client.php';
+    require_once __DIR__ . '/includes/class-backend.php';
+    require_once __DIR__ . '/includes/class-credential.php';
+    require_once __DIR__ . '/includes/class-jwt.php';
+    require_once __DIR__ . '/includes/class-rest-settings-controller.php';
+    require_once __DIR__ . '/includes/http-requests.php';
 
     /**
      * HTTP Bridge plugin.
