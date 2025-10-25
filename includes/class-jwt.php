@@ -4,135 +4,132 @@ namespace HTTP_BRIDGE;
 
 use Exception;
 
-if (!defined('ABSPATH')) {
-    exit();
+if ( ! defined( 'ABSPATH' ) ) {
+	exit();
 }
 
 /**
  * JWT REST API authentication.
  */
-class JWT
-{
-    /**
-     * Auth secret getter.
-     *
-     * @return string
-     */
-    private function secret()
-    {
-        if (defined('HTTP_BRIDGE_AUTH_SECRET')) {
-            return HTTP_BRIDGE_AUTH_SECRET;
-        }
+class JWT {
 
-        $secret = get_option('http-bridge-jwt-secret');
+	/**
+	 * Auth secret getter.
+	 *
+	 * @return string
+	 */
+	private function secret() {
+		if ( defined( 'HTTP_BRIDGE_AUTH_SECRET' ) ) {
+			return HTTP_BRIDGE_AUTH_SECRET;
+		}
 
-        if (!$secret) {
-            $chars =
-                '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $len = strlen($chars);
-            $secret = '';
-            for ($i = 0; $i < 20; $i++) {
-                $secret .= $chars[random_int(0, $len - 1)];
-            }
+		$secret = get_option( 'http-bridge-jwt-secret' );
 
-            add_option('http-bridge-jwt-secret', $secret);
-        }
+		if ( ! $secret ) {
+			$chars  =
+				'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+			$len    = strlen( $chars );
+			$secret = '';
+			for ( $i = 0; $i < 20; $i++ ) {
+				$secret .= $chars[ random_int( 0, $len - 1 ) ];
+			}
 
-        return $secret;
-    }
+			add_option( 'http-bridge-jwt-secret', $secret );
+		}
 
-    /**
-     * Get encoded payload token.
-     *
-     * @param array $payload Token payload.
-     *
-     * @return string JWT encoded token.
-     */
-    public function encode($payload)
-    {
-        $header = wp_json_encode([
-            'alg' => 'HS256',
-            'typ' => 'JWT',
-        ]);
+		return $secret;
+	}
 
-        $header = $this->base64URLEncode($header);
-        $payload = wp_json_encode($payload);
-        $payload = $this->base64URLEncode($payload);
+	/**
+	 * Get encoded payload token.
+	 *
+	 * @param array $payload Token payload.
+	 *
+	 * @return string JWT encoded token.
+	 */
+	public function encode( $payload ) {
+		$header = wp_json_encode(
+			array(
+				'alg' => 'HS256',
+				'typ' => 'JWT',
+			)
+		);
 
-        $signature = hash_hmac(
-            'sha256',
-            $header . '.' . $payload,
-            $this->secret(),
-            true
-        );
-        $signature = $this->base64URLEncode($signature);
-        return $header . '.' . $payload . '.' . $signature;
-    }
+		$header  = $this->base64URLEncode( $header );
+		$payload = wp_json_encode( $payload );
+		$payload = $this->base64URLEncode( $payload );
 
-    /**
-     * Get decoded token payload.
-     *
-     * @param string $token JWT encoded token.
-     *
-     * @return array Token payload.
-     */
-    public function decode($token)
-    {
-        if (
-            preg_match(
-                '/^(?<header>.+)\.(?<payload>.+)\.(?<signature>.+)$/',
-                $token,
-                $matches
-            ) !== 1
-        ) {
-            throw new Exception('Invalid token format', 400);
-        }
+		$signature = hash_hmac(
+			'sha256',
+			$header . '.' . $payload,
+			$this->secret(),
+			true
+		);
+		$signature = $this->base64URLEncode( $signature );
+		return $header . '.' . $payload . '.' . $signature;
+	}
 
-        $signature = hash_hmac(
-            'sha256',
-            $matches['header'] . '.' . $matches['payload'],
-            $this->secret(),
-            true
-        );
+	/**
+	 * Get decoded token payload.
+	 *
+	 * @param string $token JWT encoded token.
+	 *
+	 * @return array Token payload.
+	 */
+	public function decode( $token ) {
+		if (
+			preg_match(
+				'/^(?<header>.+)\.(?<payload>.+)\.(?<signature>.+)$/',
+				$token,
+				$matches
+			) !== 1
+		) {
+			throw new Exception( 'Invalid token format', 400 );
+		}
 
-        $signature_from_token = $this->base64URLDecode($matches['signature']);
+		$signature = hash_hmac(
+			'sha256',
+			$matches['header'] . '.' . $matches['payload'],
+			$this->secret(),
+			true
+		);
 
-        if (!hash_equals($signature, $signature_from_token)) {
-            throw new Exception('Signature doesn\'t match', 401);
-        }
+		$signature_from_token = $this->base64URLDecode( $matches['signature'] );
 
-        $payload = json_decode(
-            $this->base64URLDecode($matches['payload']),
-            true
-        );
-        return $payload;
-    }
+		if ( ! hash_equals( $signature, $signature_from_token ) ) {
+			throw new Exception( 'Signature doesn\'t match', 401 );
+		}
 
-    /**
-     * URL conformant base64 encoder.
-     *
-     * @param string $text Source string.
-     *
-     * @return string Encoded string.
-     */
-    private function base64URLEncode($text)
-    {
-        return str_replace(
-            ['+', '/', '='],
-            ['-', '_', ''],
-            base64_encode($text)
-        );
-    }
+		$payload = json_decode(
+			$this->base64URLDecode( $matches['payload'] ),
+			true
+		);
+		return $payload;
+	}
 
-    /**
-     * URL conformant base64 decoder.
-     *
-     * @param string $base64 Encoded string.
-     *
-     * @return string Decoded string.
-     */
-    private function base64URLDecode($text)
-    {
-        return base64_decode(str_replace(['-', '_'], ['+', '/'], $text));
-    }
+	/**
+	 * URL conformant base64 encoder.
+	 *
+	 * @param string $text Source string.
+	 *
+	 * @return string Encoded string.
+	 */
+	private function base64URLEncode( $text ) {
+		return str_replace(
+			array( '+', '/', '=' ),
+			array( '-', '_', '' ),
+			base64_encode( $text )
+		);
+	}
+
+	/**
+	 * URL conformant base64 decoder.
+	 *
+	 * @param string $base64 Encoded string.
+	 *
+	 * @return string Decoded string.
+	 */
+	private function base64URLDecode( $text ) {
+		return base64_decode( str_replace( array( '-', '_' ), array( '+', '/' ), $text ) );
+	}
 }
