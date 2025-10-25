@@ -1,0 +1,90 @@
+<?php
+
+use HTTP_BRIDGE\Credential;
+use HTTP_BRIDGE\REST_Settings_Controller;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit();
+}
+
+add_action( 'rest_api_init', 'http_bridge_oauth_rest_api_init' );
+
+function http_bridge_oauth_rest_api_init() {
+	register_rest_route(
+		'http-bridge/v1',
+		'/oauth/grant',
+		array(
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => 'http_bridge_oauth_grant',
+			'permission_callback' => array( 'REST_Settings_Controller', 'permission_callback' ),
+			'args'                => array( 'credential' => Credential::schema() ),
+		)
+	);
+
+	register_rest_route(
+		'http-bridge/v1',
+		'/oauth/revoke',
+		array(
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => 'http_bridge_oauth_revoke',
+			'permission_callback' => array( 'REST_Settings_Controller', 'permission_callback' ),
+			'args'                => array( 'credential' => Credential::schema() ),
+		)
+	);
+
+	register_rest_route(
+		'http-bridge/v1',
+		'/oauth/redirect',
+		array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => 'http_bridge_oauth_redirect',
+			'permission_callback' => '__return_true',
+		)
+	);
+}
+
+function http_bridge_oauth_grant( $request ) {
+	$data       = $request['credential'];
+	$credential = new Credential( $data );
+	$result     = $credential->oauth_grant_transient();
+
+	if ( ! $result ) {
+		return REST_Settings_Controller::bad_request();
+	}
+
+	return array( 'success' => true );
+}
+
+function http_bridge_oauth_revoke( $request ) {
+	$data       = $request['credential'];
+	$credential = new Credential( $data );
+	$result     = $credential->oauth_revoke();
+
+	if ( ! $result ) {
+		return REST_Settings_Controller::bad_request();
+	}
+
+	return array( 'success' => true );
+}
+
+function http_bridge_oauth_redirect( $request ) {
+	$credential = Credential::get_transient();
+	if ( ! $credential ) {
+		wp_die( __( 'OAuth redirect timeout error', 'http-bridge' ) );
+		return;
+	}
+
+	$result = $credential->oauth_redirect_callback( $request );
+	if ( ! $result ) {
+		wp_die( __( 'Invalid OAuth redirect callback', 'http-bridge' ) );
+		return;
+	}
+
+	$url = site_url() . '/wp-admin/options-general.php?page=http-bridge&tab=http';
+
+	if ( wp_redirect( $url ) ) {
+		exit( 302 );
+	}
+
+	return array( 'success' => false );
+}
