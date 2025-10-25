@@ -1,7 +1,7 @@
 <?php
 
 use HTTP_BRIDGE\Credential;
-use HTTP_BRIDGE\REST_Settings_Controller;
+use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
@@ -49,7 +49,7 @@ function http_bridge_oauth_grant( $request ) {
 	$result     = $credential->oauth_grant_transient();
 
 	if ( ! $result ) {
-		return REST_Settings_Controller::bad_request();
+		return new WP_Error( 'rest_bad_request', '', array( 'status' => 400 ) );
 	}
 
 	return array( 'success' => true );
@@ -61,7 +61,7 @@ function http_bridge_oauth_revoke( $request ) {
 	$result     = $credential->oauth_revoke();
 
 	if ( ! $result ) {
-		return REST_Settings_Controller::bad_request();
+		return new WP_Error( 'rest_bad_request', '', array( 'status' => 400 ) );
 	}
 
 	return array( 'success' => true );

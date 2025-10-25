@@ -1,7 +1,7 @@
 <?php
 
-use HTTP_BRIDGE\REST_Settings_Controller;
 use HTTP_BRIDGE\JWT;
+use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
@@ -129,18 +129,16 @@ function http_bridge_jwt_auth_permission_callback( $request ) {
 	$data = $request->get_json_params();
 
 	if ( null === $data ) {
-		return REST_Settings_Controller::bad_request( __( 'Invalid JSON data', 'http-bridge' ) );
+		return new WP_Error( 'rest_bad_request', __( 'Invalid JSON data', 'http-bridge' ), array( 'status' => 400 ) );
 	}
 
 	if ( ! ( isset( $data['username'] ) && isset( $data['password'] ) ) ) {
-		return REST_Settings_Controller::bad_request(
-			__( 'Missing login credentials', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_bad_request', __( 'Missing login credentials', 'http-bridge' ), array( 'status' => 400 ) );
 	}
 
 	$user = wp_authenticate( $data['username'], $data['password'] );
 	if ( is_wp_error( $user ) ) {
-		return REST_Settings_Controller::unauthorized( __( 'Invalid credentials', 'http-bridge' ) );
+		return new WP_Error( 'rest_unauthorized', __( 'Invalid credentials', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
 	global $http_bridge_jwt_user;
@@ -158,44 +156,32 @@ function http_bridge_jwt_validate_permission_callback() {
 	try {
 		$token = http_bridge_jwt_authorization();
 	} catch ( Exception $e ) {
-		return REST_Settings_Controller::unauthorized( $e->getMessage() );
+		return new WP_Error( 'rest_unauthorized', __( 'Invalid credentials', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
 	try {
 		$payload = ( new JWT() )->decode( $token );
 	} catch ( Exception ) {
-		return REST_Settings_Controller::unauthorized(
-			__( 'Invalid authorization token', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_unauthorized', __( 'Invalid authorization token', 'http-bridge' ), array( 'status' => 401 ) );
 	} catch ( Error ) {
-		return REST_Settings_Controller::internal_server_error(
-			__( 'Internal Server Error', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_internal_server_error', __( 'Invalid authorization token', 'http-bridge' ), array( 'status' => 500 ) );
 	}
 
 	if ( $payload['iss'] !== get_bloginfo( 'url' ) ) {
-		return REST_Settings_Controller::unauthorized(
-			__( 'The iss do not match with this server', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_unauthorized', __( 'The iss do not match with this server', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
 	$now = time();
 	if ( $payload['exp'] <= $now ) {
-		return REST_Settings_Controller::unauthorized(
-			__( 'The token is expired', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_unauthorized', __( 'The token is expired', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
 	if ( $payload['nbf'] >= $now ) {
-		return REST_Settings_Controller::unauthorized(
-			__( 'The token is not valid yet', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_unauthorized', __( 'The token is not valid yet', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
 	if ( ! isset( $payload['data']['user_id'] ) ) {
-		return REST_Settings_Controller::unauthorized(
-			__( 'User ID not found in the token', 'http-bridge' )
-		);
+		return new WP_Error( 'rest_unauthorized', __( 'User ID not found in the token', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
 	global $http_bridge_jwt_user;
@@ -242,9 +228,10 @@ function http_bridge_jwt_determine_current_user( $user_id ) {
 	} catch ( Exception $e ) {
 		if ( $e->getMessage() === 'Invalid token format' ) {
 			global $http_bridge_jwt_auth_error;
-			$http_bridge_jwt_auth_error = REST_Settings_Controller::unauthorized(
-				$e->getMessage(),
-				$e->getCode()
+			$http_bridge_jwt_auth_error = new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid token format', 'http-bridge' ),
+				array( 'status' => 401 ),
 			);
 		}
 
