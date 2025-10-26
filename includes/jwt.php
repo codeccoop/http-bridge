@@ -1,7 +1,6 @@
 <?php
 
 use HTTP_BRIDGE\JWT;
-use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();

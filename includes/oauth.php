@@ -1,7 +1,6 @@
 <?php
 
 use HTTP_BRIDGE\Credential;
-use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
