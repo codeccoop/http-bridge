@@ -248,14 +248,14 @@ class Backend {
 		}
 
 		$credential = $this->credential();
-		if ( ! $credential || $credential->schema !== 'Digest' ) {
+		if ( ! $credential || 'Digest' !== $credential->schema ) {
 			return $error;
 		}
 
 		$error_data = $error->get_error_data();
 		$response   = $error_data['response'];
 
-		if ( $response['response']['code'] !== 401 ) {
+		if ( 401 !== $response['response']['code'] ) {
 			return $error;
 		}
 
