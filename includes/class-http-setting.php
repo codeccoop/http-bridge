@@ -152,7 +152,7 @@ class Http_Setting {
 	 *
 	 * @return Credential[]
 	 */
-	function http_bridge_credentials( $credentials ) {
+	function get_credentials( $credentials ) {
 		if ( ! wp_is_numeric_array( $credentials ) ) {
 			$credentials = array();
 		}
