@@ -1,4 +1,12 @@
 <?php
+/**
+ * Class Multipart
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 namespace HTTP_BRIDGE;
 
@@ -25,16 +33,16 @@ class Multipart {
 	/**
 	 * Encoded data handler.
 	 *
-	 * @var string $_data encoded data.
+	 * @var string $data encoded data.
 	 */
-	private $_data = '';
+	private $data = '';
 
 	/**
 	 * Mime boundary handler.
 	 *
-	 * @var string $_mime_boundary Unique part ID.
+	 * @var string $mime_boundary Unique part ID.
 	 */
-	private $_mime_boundary;
+	private $mime_boundary;
 
 	public static function from( $data, $boundary = null ) {
 		try {
@@ -46,24 +54,37 @@ class Multipart {
 
 	/**
 	 * Creates a random mime boundary.
+	 *
+	 * @param array|null  $data Payload data.
+	 * @param string|null $boundary Multipart fields boundary.
 	 */
 	public function __construct( $data = null, $boundary = null ) {
 		if ( is_string( $data ) ) {
 			$this->set_data( $data, $boundary );
 		} else {
-			$this->_mime_boundary = 'HttpBridge' . md5( microtime( true ) );
+			$this->mime_boundary = 'HttpBridge' . md5( microtime( true ) );
 		}
 	}
 
 	/**
 	 * Add part header boundary
 	 */
-	private function _add_part_header() {
-		$this->_data .= '--------' . $this->_mime_boundary . self::EOL;
+	private function add_part_header() {
+		$this->data .= '--------' . $this->mime_boundary . self::EOL;
 	}
 
+	/**
+	 * Multipart serializer object data setter.
+	 *
+	 * @param string $data Serialized payload data.
+	 * @param string $boundary Multipart fields boundary.
+	 *
+	 * @return Multipart
+	 *
+	 * @throws Exception If boundary not found on the data string.
+	 */
 	private function set_data( $data, $boundary = null ) {
-		$this->_data .= $data . self::EOL;
+		$this->data .= $data . self::EOL;
 		if ( $boundary ) {
 			if (
 				preg_match(
@@ -77,7 +98,7 @@ class Multipart {
 					$data
 				)
 			) {
-				$this->_mime_boundary = $boundary;
+				$this->mime_boundary = $boundary;
 			} else {
 				throw new Exception( 'Invalid multipart/form-data boundary' );
 			}
@@ -88,7 +109,7 @@ class Multipart {
 					$match
 				)
 			) {
-				$this->_mime_boundary = $match[1];
+				$this->mime_boundary = $match[1];
 		} else {
 			throw new Exception( 'Invalid multipart/form-data payload' );
 		}
@@ -128,11 +149,11 @@ class Multipart {
 	 * @param any    $value Part value.
 	 */
 	public function add_part( $key, $value ) {
-		$this->_add_part_header();
-		$this->_data .=
+		$this->add_part_header();
+		$this->data .=
 			'Content-Disposition: form-data; name="' . $key . '"' . self::EOL;
-		$this->_data .= self::EOL;
-		$this->_data .= $value . self::EOL;
+		$this->data .= self::EOL;
+		$this->data .= $value . self::EOL;
 	}
 
 	/**
@@ -144,21 +165,21 @@ class Multipart {
 	 * @param string|null $content File content.
 	 */
 	public function add_file( $key, $filename, $type, $content = null ) {
-		$this->_add_part_header();
-		$this->_data .=
+		$this->add_part_header();
+		$this->data .=
 			'Content-Disposition: form-data; name="' .
 			$key .
 			'"; filename="' .
 			basename( $filename ) .
 			'"' .
 			self::EOL;
-		$this->_data .= 'Content-Type: ' . $type . self::EOL;
-		$this->_data .= 'Content-Transfer-Encoding: binary' . self::EOL;
-		$this->_data .= self::EOL;
+		$this->data .= 'Content-Type: ' . $type . self::EOL;
+		$this->data .= 'Content-Transfer-Encoding: binary' . self::EOL;
+		$this->data .= self::EOL;
 		if ( ! $content ) {
-			$this->_data .= file_get_contents( $filename ) . self::EOL;
+			$this->data .= file_get_contents( $filename ) . self::EOL;
 		} else {
-			$this->_data .= $content . self::EOL;
+			$this->data .= $content . self::EOL;
 		}
 	}
 
@@ -168,7 +189,7 @@ class Multipart {
 	 * @return string Mime content type.
 	 */
 	public function content_type() {
-		return 'multipart/form-data; boundary=' . $this->_mime_boundary;
+		return 'multipart/form-data; boundary=' . $this->mime_boundary;
 	}
 
 	/**
@@ -177,9 +198,7 @@ class Multipart {
 	 * @return string Content data.
 	 */
 	public function data() {
-		// add the final content boundary
-		return $this->_data .=
-			'--------' . $this->_mime_boundary . '--' . self::EOL . self::EOL;
+		return $this->data .= '--------' . $this->mime_boundary . '--' . self::EOL . self::EOL;
 	}
 
 	/**
@@ -190,7 +209,7 @@ class Multipart {
 	public function decode() {
 		$fields = array();
 
-		$lines        = preg_split( '/' . self::EOL_RE . '/', $this->_data );
+		$lines        = preg_split( '/' . self::EOL_RE . '/', $this->data );
 		$name         = null;
 		$filename     = null;
 		$content_type = null;
@@ -198,7 +217,7 @@ class Multipart {
 		$buffering    = false;
 		foreach ( $lines as $line ) {
 			if ( empty( trim( $line ) ) ) {
-				if ( $name !== null ) {
+				if ( null !== $name ) {
 					$buffering = true;
 				}
 				continue;
@@ -207,7 +226,7 @@ class Multipart {
 			if (
 				preg_match(
 					'/^--+' .
-						$this->_mime_boundary .
+						$this->mime_boundary .
 						'-*' .
 						self::EOL_RE .
 						'?/',
@@ -215,7 +234,7 @@ class Multipart {
 				)
 			) {
 				if ( $name ) {
-					if ( $filename && $content_type === null ) {
+					if ( $filename && null === $content_type ) {
 						$content_type = 'application/octet-stream';
 					}
 					$fields[]     = array(
@@ -238,7 +257,7 @@ class Multipart {
 			}
 
 			if (
-				$name === null &&
+				null === $name &&
 				preg_match( '/name="((?:.(?!"))+.)"/', $line, $match )
 			) {
 				$name = $match[1];

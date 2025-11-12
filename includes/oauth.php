@@ -1,4 +1,12 @@
 <?php
+/**
+ * OAuth functions
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 use HTTP_BRIDGE\Credential;
 
@@ -8,6 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action( 'rest_api_init', 'http_bridge_oauth_rest_api_init' );
 
+/**
+ * Registers oauth rest api routes.
+ */
 function http_bridge_oauth_rest_api_init() {
 	register_rest_route(
 		'http-bridge/v1',
@@ -15,7 +26,7 @@ function http_bridge_oauth_rest_api_init() {
 		array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'http_bridge_oauth_grant',
-			'permission_callback' => array( 'REST_Settings_Controller', 'permission_callback' ),
+			'permission_callback' => array( '\WPCT_PLUGIN\REST_Settings_Controller', 'permission_callback' ),
 			'args'                => array( 'credential' => Credential::schema() ),
 		)
 	);
@@ -26,7 +37,7 @@ function http_bridge_oauth_rest_api_init() {
 		array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'http_bridge_oauth_revoke',
-			'permission_callback' => array( 'REST_Settings_Controller', 'permission_callback' ),
+			'permission_callback' => array( '\WPCT_PLUGIN\REST_Settings_Controller', 'permission_callback' ),
 			'args'                => array( 'credential' => Credential::schema() ),
 		)
 	);
@@ -42,6 +53,13 @@ function http_bridge_oauth_rest_api_init() {
 	);
 }
 
+/**
+ * OAuth grant request callback.
+ *
+ * @param REST_Request $request Request object.
+ *
+ * @return array|WP_Error
+ */
 function http_bridge_oauth_grant( $request ) {
 	$data       = $request['credential'];
 	$credential = new Credential( $data );
@@ -54,6 +72,13 @@ function http_bridge_oauth_grant( $request ) {
 	return array( 'success' => true );
 }
 
+/**
+ * OAuth token revoke request callback.
+ *
+ * @param WP_REST_Request $request Request object.
+ *
+ * @return array|WP_Error
+ */
 function http_bridge_oauth_revoke( $request ) {
 	$data       = $request['credential'];
 	$credential = new Credential( $data );
@@ -66,22 +91,29 @@ function http_bridge_oauth_revoke( $request ) {
 	return array( 'success' => true );
 }
 
+/**
+ * OAuth redirection request callback.
+ *
+ * @param WP_REST_Request $request Request object.
+ *
+ * @return array|null
+ */
 function http_bridge_oauth_redirect( $request ) {
 	$credential = Credential::get_transient();
 	if ( ! $credential ) {
-		wp_die( __( 'OAuth redirect timeout error', 'http-bridge' ) );
+		wp_die( esc_html( __( 'OAuth redirect timeout error', 'http-bridge' ) ) );
 		return;
 	}
 
 	$result = $credential->oauth_redirect_callback( $request );
 	if ( ! $result ) {
-		wp_die( __( 'Invalid OAuth redirect callback', 'http-bridge' ) );
+		wp_die( esc_html( __( 'Invalid OAuth redirect callback', 'http-bridge' ) ) );
 		return;
 	}
 
 	$url = site_url() . '/wp-admin/options-general.php?page=http-bridge&tab=http';
 
-	if ( wp_redirect( $url ) ) {
+	if ( wp_safe_redirect( $url ) ) {
 		exit( 302 );
 	}
 

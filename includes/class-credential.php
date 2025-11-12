@@ -1,4 +1,12 @@
 <?php
+/**
+ * Class Credential
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 namespace HTTP_BRIDGE;
 
@@ -8,10 +16,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit();
 }
 
+/**
+ * Http credential object.
+ */
 class Credential {
 
-	protected const transient = 'http-bridge-oauth-credential';
+	/**
+	 * Handles the oauth transient name. The transient will store
+	 * ephemeral credential data used on oath redirections.
+	 *
+	 * @var string
+	 */
+	private const TRANSIENT = 'http-bridge-oauth-credential';
 
+	/**
+	 * Credential json schema getter.
+	 *
+	 * @return array
+	 */
 	public static function schema() {
 		return array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
@@ -341,14 +363,19 @@ class Credential {
 		);
 	}
 
+	/**
+	 * OAuth transient credential getter.
+	 *
+	 * @return Credential|null
+	 */
 	public static function get_transient() {
-		$data = get_transient( static::transient );
+		$data = get_transient( static::TRANSIENT );
 
 		if ( ! $data ) {
-			wp_die( __( 'Invalid oatuh redirect request', 'http-bridge' ) );
+			wp_die( esc_html( __( 'Invalid oatuh redirect request', 'http-bridge' ) ) );
 			return;
 		} else {
-			delete_transient( static::transient );
+			delete_transient( static::TRANSIENT );
 		}
 
 		$credential = new static( $data );
@@ -359,18 +386,33 @@ class Credential {
 		return $credential;
 	}
 
-	protected $data;
+	/**
+	 * Handles credential data.
+	 *
+	 * @var array
+	 */
+	private $data;
 
-	protected $id;
-
+	/**
+	 * Credential constructor. Apply a data validation before before it is stored
+	 * on the object.
+	 *
+	 * @param array $data Credential data.
+	 */
 	public function __construct( $data ) {
 		$this->data = wpct_plugin_sanitize_with_schema( $data, static::schema() );
 	}
 
+	/**
+	 * Object properties access interceptor. Proxies object properties to
+	 * data attributes and performs some access control to values.
+	 *
+	 * @param string $name Property name.
+	 *
+	 * @return mixed
+	 */
 	public function __get( $name ) {
 		switch ( $name ) {
-			case 'id':
-				return $this->id;
 			case 'is_valid':
 				return ! is_wp_error( $this->data );
 			case 'client_id':
@@ -406,6 +448,11 @@ class Credential {
 		}
 	}
 
+	/**
+	 * Gets the credential HTTP authorization.
+	 *
+	 * @return mixed
+	 */
 	public function authorization() {
 		switch ( $this->schema ) {
 			case 'RPC':
@@ -426,6 +473,13 @@ class Credential {
 		}
 	}
 
+	/**
+	 * Gets the OAuth authorization URL of the credential.
+	 *
+	 * @param string $verb Auth action to be performed (token, grant, revoke).
+	 *
+	 * @return string
+	 */
 	public function oauth_url( $verb ) {
 		return apply_filters(
 			'http_bridge_oauth_url',
@@ -435,10 +489,22 @@ class Credential {
 		);
 	}
 
+	/**
+	 * Gets the OAuth redirect endpoint.
+	 *
+	 * @return string
+	 */
 	public function oauth_redirect_uri() {
 		return get_rest_url() . 'http-bridge/v1/oauth/redirect';
 	}
 
+	/**
+	 * Performs a token request to the the oauth url of the credential.
+	 *
+	 * @param array $query Request query.
+	 *
+	 * @return array|WP_Error
+	 */
 	private function oauth_token_request( $query ) {
 		$url = $this->oauth_url( 'token' );
 
@@ -466,6 +532,10 @@ class Credential {
 		return $data;
 	}
 
+	/**
+	 * Performs a revoke token request to the oauth url of the credential and removes
+	 * stored tokens from the database.
+	 */
 	private function revoke_refresh_token() {
 		if ( ! empty( $this->data['refresh_token'] ) ) {
 			$url   = $this->oauth_url( 'token/revoke' );
@@ -494,6 +564,13 @@ class Credential {
 		);
 	}
 
+	/**
+	 * Updates credential tokens and write them to the database.
+	 *
+	 * @param array $tokens OAuth tokens.
+	 *
+	 * @return boolean Update result.
+	 */
 	private function update_tokens( $tokens ) {
 		$data                 = $this->data;
 		$data['enabled']      = true;
@@ -504,8 +581,7 @@ class Credential {
 			$data['refresh_token'] = $tokens['refresh_token'];
 
 			if ( isset( $tokens['refresh_token_expires_in'] ) ) {
-				$data['refresh_token_expires_at'] =
-					$tokens['refresh_token_expires_in'] + time() - 10;
+				$data['refresh_token_expires_at'] = $tokens['refresh_token_expires_in'] + time() - 10;
 			}
 		}
 
@@ -513,6 +589,11 @@ class Credential {
 		return $credential->save();
 	}
 
+	/**
+	 * Refresh oauth access token.
+	 *
+	 * @return string|null Renewed access token, or null.
+	 */
 	private function refresh_access_token() {
 		if ( ! $this->is_valid || empty( $this->data['refresh_token'] ) ) {
 			return;
@@ -530,6 +611,11 @@ class Credential {
 		}
 	}
 
+	/**
+	 * Credential's access token public getter.
+	 *
+	 * @return string|null
+	 */
 	public function get_access_token() {
 		if ( ! $this->is_valid ) {
 			return;
@@ -552,6 +638,11 @@ class Credential {
 		return $access_token;
 	}
 
+	/**
+	 * Revokes credential oauth tokens and remove them from the database.
+	 *
+	 * @return boolean Revoke result.
+	 */
 	public function oauth_revoke() {
 		if ( ! $this->is_valid ) {
 			return false;
@@ -573,13 +664,22 @@ class Credential {
 			return new WP_Error( 'invalid_credential' );
 		}
 
-		set_transient( static::transient, $this->data, 600 );
+		set_transient( static::TRANSIENT, $this->data, 600 );
 		return true;
 	}
 
+	/**
+	 * OAuth HTTP redirection callback. The method will be executed by
+	 * a transient credential on the authorization flow after a redirection
+	 * to the oauth endpoint.
+	 *
+	 * @param REST_Request $request Request object.
+	 *
+	 * @return boolean
+	 */
 	public function oauth_redirect_callback( $request ) {
 		if ( ! $this->is_valid ) {
-			return;
+			return false;
 		}
 
 		$tokens = $this->oauth_token_request(
@@ -591,18 +691,88 @@ class Credential {
 		);
 
 		if ( ! $tokens || is_wp_error( $tokens ) ) {
-			wp_die( __( 'Invalid oatuh redirect request', 'http-bridge' ) );
-			return;
+			wp_die( esc_html( __( 'Invalid oatuh redirect request', 'http-bridge' ) ) );
+			return false;
 		}
 
 		return $this->update_tokens( $tokens );
 	}
 
+	/**
+	 * Credential's data getter.
+	 *
+	 * @return array|null
+	 */
 	public function data() {
 		if ( ! $this->is_valid ) {
-			return;
+			return null;
 		}
 
 		return $this->data;
+	}
+
+	/**
+	 * Persist the credential on the database.
+	 *
+	 * @return boolean Database write result.
+	 */
+	public function save() {
+		if ( ! $this->is_valid ) {
+			return false;
+		}
+
+		$setting = Http_Setting::setting();
+		if ( ! $setting ) {
+			return false;
+		}
+
+		$credentials = $setting->credentials;
+		if ( ! wp_is_numeric_array( $credentials ) ) {
+			return false;
+		}
+
+		$index = array_search( $this->name, array_column( $credentials, 'name' ), true );
+
+		if ( false === $index ) {
+			$credentials[] = $this->data;
+		} else {
+			$credentials[ $index ] = $this->data;
+		}
+
+		$setting->credentials = $credentials;
+
+		return true;
+	}
+
+	/**
+	 * Removes the credential from the database.
+	 *
+	 * @retun boolean Database deletion result.
+	 */
+	public function delete() {
+		if ( $this->is_valid ) {
+			return false;
+		}
+
+		$setting = Http_Setting::setting();
+		if ( ! $setting ) {
+			return false;
+		}
+
+		$credentials = $setting->credentials;
+		if ( ! wp_is_numeric_array( $credentials ) ) {
+			return false;
+		}
+
+		$index = array_search( $this->name, array_column( $credentials, 'name' ), true );
+
+		if ( false === $index ) {
+			return false;
+		}
+
+		array_splice( $credentials, $index, 1 );
+		$setting->credentials = $credentials;
+
+		return true;
 	}
 }

@@ -1,4 +1,12 @@
 <?php
+/**
+ * JSON Web Token functions
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 use HTTP_BRIDGE\JWT;
 
@@ -10,6 +18,9 @@ add_action( 'determine_current_user', 'http_bridge_jwt_determine_current_user', 
 add_filter( 'rest_pre_dispatch', 'http_bridge_jwt_rest_pre_dispatch' );
 add_action( 'rest_api_init', 'http_bridge_jwt_rest_api_init' );
 
+/**
+ * Registers REST API jwt authentication routes.
+ */
 function http_bridge_jwt_rest_api_init() {
 	register_rest_route(
 		'http-bridge/v1',
@@ -63,26 +74,26 @@ function http_bridge_jwt_authorization() {
 }
 
 /**
- * Auth callback.
+ * Auth REST request callback.
  *
  * @return array
  */
 function http_bridge_jwt_auth() {
 	global $http_bridge_jwt_user;
 
-	$issuedAt  = time();
-	$notBefore = $issuedAt;
+	$issued_at  = time();
+	$not_before = $issued_at;
 
 	$expire = apply_filters(
 		'http_bridge_jwt_auth_expire',
-		$issuedAt + 60 * 60 * 24 * 7,
-		$issuedAt
+		$issued_at + 60 * 60 * 24 * 7,
+		$issued_at
 	);
 
 	$claims = array(
 		'iss'  => get_bloginfo( 'url' ),
-		'iat'  => $issuedAt,
-		'nbf'  => $notBefore,
+		'iat'  => $issued_at,
+		'nbf'  => $not_before,
 		'exp'  => $expire,
 		'data' => array(
 			'user_id' => $http_bridge_jwt_user->data->ID,
@@ -100,7 +111,7 @@ function http_bridge_jwt_auth() {
 }
 
 /**
- * Validate callback.
+ * Validate REST request callback.
  *
  * @return array
  */
@@ -120,7 +131,7 @@ function http_bridge_jwt_validate() {
 /**
  * Performs auth requests permisison checks.
  *
- * @param WP_REST_Request Instance of the current REST request.
+ * @param WP_REST_Request $request Request object.
  *
  * @return boolean
  */
@@ -154,7 +165,7 @@ function http_bridge_jwt_auth_permission_callback( $request ) {
 function http_bridge_jwt_validate_permission_callback() {
 	try {
 		$token = http_bridge_jwt_authorization();
-	} catch ( Exception $e ) {
+	} catch ( Exception ) {
 		return new WP_Error( 'rest_unauthorized', __( 'Invalid credentials', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
@@ -166,7 +177,7 @@ function http_bridge_jwt_validate_permission_callback() {
 		return new WP_Error( 'rest_internal_server_error', __( 'Invalid authorization token', 'http-bridge' ), array( 'status' => 500 ) );
 	}
 
-	if ( $payload['iss'] !== get_bloginfo( 'url' ) ) {
+	if ( get_bloginfo( 'url' ) !== $payload['iss'] ) {
 		return new WP_Error( 'rest_unauthorized', __( 'The iss do not match with this server', 'http-bridge' ), array( 'status' => 401 ) );
 	}
 
@@ -245,7 +256,9 @@ function http_bridge_jwt_determine_current_user( $user_id ) {
 /**
  * Abort rest dispatches if auth errors.
  *
- * @return object|WP_Error REST Request instance.
+ * @param mixed $result Pre hook previous result.
+ *
+ * @return mixed|WP_Error Returns a WP_Error if authorization has failed.
  */
 function http_bridge_jwt_rest_pre_dispatch( $result ) {
 	global $http_bridge_jwt_auth_error;

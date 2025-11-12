@@ -1,4 +1,12 @@
 <?php
+/**
+ * Class Http_Client
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 namespace HTTP_BRIDGE;
 
@@ -246,20 +254,18 @@ class Http_Client {
 
 		$multipart = new Multipart();
 
-		// Add body to the multipart data
+		// Add body to the multipart data.
 		if ( ! empty( $args['data'] ) ) {
-			// If body is encoded, then try to decode before set to the multipart payload
+			// If body is encoded, then try to decode before set to the multipart payload.
 			if ( is_string( $args['data'] ) ) {
 				$content_type = static::get_content_type( $args['headers'] );
-				if ( $content_type === 'application/json' ) {
+				if ( 'application/json' === $content_type ) {
 					$data = json_decode( $args['data'], JSON_UNESCAPED_UNICODE );
 					$multipart->add_array( $data );
-				} elseif (
-					$content_type === 'application/x-www-form-urlencoded'
-				) {
+				} elseif ( 'application/x-www-form-urlencoded' === $content_type ) {
 					parse_str( $args['data'], $data );
 					$multipart->add_array( $data );
-				} elseif ( $content_type === 'multipart/form-data' ) {
+				} elseif ( 'multipart/form-data' === $content_type ) {
 					$fields = Multipart::from( $args['data'] )->decode();
 					foreach ( $fields as $field ) {
 						if ( $field['filename'] ) {
@@ -290,7 +296,7 @@ class Http_Client {
 					);
 				}
 			} else {
-				// Treat body as array
+				// Treat body as array.
 				$multipart->add_array( (array) $args['data'] );
 			}
 		}
@@ -340,7 +346,7 @@ class Http_Client {
 
 		$content_type = static::get_content_type( $args['headers'] );
 
-		if ( ! in_array( $args['method'], array( 'HEAD', 'GET', 'DELETE' ) ) ) {
+		if ( ! in_array( $args['method'], array( 'HEAD', 'GET', 'DELETE' ), true ) ) {
 			if ( ! is_string( $args['data'] ) ) {
 				$data = $args['data'];
 				if ( ! empty( $data ) ) {
@@ -413,15 +419,13 @@ class Http_Client {
 					)
 				);
 			} else {
-				$headers      = is_array($response['headers']) ? $response['headers'] : $response['headers']->getAll();
+				$headers      = is_array( $response['headers'] ) ? $response['headers'] : $response['headers']->getAll();
 				$content_type = static::get_content_type( $headers );
-				if ( $content_type === 'application/json' ) {
+				if ( 'application/json' === $content_type ) {
 					$data = json_decode( $response['body'], true );
-				} elseif (
-					$content_type === 'application/x-www-form-urlencoded'
-				) {
+				} elseif ( 'application/x-www-form-urlencoded' === $content_type ) {
 					parse_str( $response['body'], $data );
-				} elseif ( $content_type === 'multipart/form-data' ) {
+				} elseif ( 'multipart/form-data' === $content_type ) {
 					$data = Multipart::from( $response['body'] )->decode();
 				} else {
 					$data = null;

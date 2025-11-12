@@ -2,7 +2,7 @@
 /**
  * Class BackendTest
  *
- * @package http-bridge-tests
+ * @package httpbridge-tests
  */
 
 use HTTP_BRIDGE\Backend;

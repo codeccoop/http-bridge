@@ -1,4 +1,9 @@
 <?php
+/**
+ * HTTP Bridge module index.
+ *
+ * @package httpbridge
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();

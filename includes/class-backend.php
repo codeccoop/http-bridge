@@ -1,4 +1,12 @@
 <?php
+/**
+ * Class Backend
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 namespace HTTP_BRIDGE;
 
@@ -13,6 +21,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Backend {
 
+	/**
+	 * Backend json schema getter.
+	 *
+	 * @return array
+	 */
 	public static function schema() {
 		return array(
 			'$schema'              => 'http://json-schema.org/draft-04/schema#',
@@ -91,7 +104,9 @@ class Backend {
 	private $data;
 
 	/**
-	 * Store backend data
+	 * Backend constructor.
+	 *
+	 * @param array $data Backend data.
 	 */
 	public function __construct( $data ) {
 		$this->data = wpct_plugin_sanitize_with_schema( $data, static::schema() );
@@ -138,11 +153,12 @@ class Backend {
 			$headers[ trim( $header['name'] ) ] = trim( $header['value'] );
 		}
 
-		if ( $credential = $this->credential ) {
+		$credential = $this->credential;
+		if ( $credential ) {
 			$authorization = $credential->authorization();
 
 			if (
-				$credential->schema !== 'URL' &&
+				'URL' !== $credential->schema &&
 				$authorization &&
 				is_string( $authorization )
 			) {
@@ -167,6 +183,11 @@ class Backend {
 		return Http_Client::get_content_type( $headers );
 	}
 
+	/**
+	 * Backend credential getter.
+	 *
+	 * @return Credential|null
+	 */
 	private function credential() {
 		if ( ! $this->is_valid || empty( $this->data['credential'] ) ) {
 			return;
@@ -207,8 +228,9 @@ class Backend {
 			$url_parsed['path'] = '';
 		}
 
-		if ( $credential = $this->credential ) {
-			if ( $credential->schema === 'URL' ) {
+		$credential = $this->credential;
+		if ( $credential ) {
+			if ( 'URL' === $credential->schema ) {
 				$authorization = $credential->authorization();
 				$base_url      = "{$url_parsed['scheme']}://{$authorization}@{$url_parsed['host']}";
 
@@ -240,6 +262,12 @@ class Backend {
 		return apply_filters( 'http_bridge_backend_url', $url, $this );
 	}
 
+	/**
+	 * Http response handler. Intercepts digest unauthrized errors
+	 * and performs the corresponding handshake.
+	 *
+	 * @return WP_Error|array
+	 */
 	private function handle_response( $response_or_error ) {
 		if ( ! is_wp_error( $response_or_error ) ) {
 			return $response_or_error;
@@ -299,6 +327,15 @@ class Backend {
 		return wp_remote_request( $request['url'], $request['args'] );
 	}
 
+	/**
+	 * Performs a HEAD HTTP request to the backend.
+	 *
+	 * @param string $endpoint Target backend endpoint as relative path.
+	 * @param array  $params URL query params.
+	 * @param array  $headers Additional HTTP headers.
+	 *
+	 * @return array|WP_Error Request response.
+	 */
 	public function head( $endpoint, $params = array(), $headers = array() ) {
 		if ( ! $this->is_valid ) {
 			return new WP_Error( 'invalid_backend' );
@@ -335,11 +372,11 @@ class Backend {
 	/**
 	 * Performs a POST HTTP request to the backend.
 	 *
-	 * @param string $endpoint Target backend endpoint as relative path.
-	 * @param array  $params URL query params.
-	 * @param array  $headers Additional HTTP headers.
-	 * @param array  $files Map with names and filepaths.
-	 * @param array  $args Additional request args.
+	 * @param string       $endpoint Target backend endpoint as relative path.
+	 * @param array|string $data Request body data.
+	 * @param array        $headers Additional HTTP headers.
+	 * @param array        $files Map with names and filepaths.
+	 * @param array        $args Additional request args.
 	 *
 	 * @return array|WP_Error Request response.
 	 */
@@ -362,11 +399,11 @@ class Backend {
 	/**
 	 * Performs a PUT HTTP request to the backend.
 	 *
-	 * @param string $endpoint Target backend endpoint as relative path.
-	 * @param array  $params URL query params.
-	 * @param array  $headers Additional HTTP headers.
-	 * @param array  $files Map with names and filepaths.
-	 * @param array  $args Additional request args.
+	 * @param string       $endpoint Target backend endpoint as relative path.
+	 * @param array|string $data Request body data.
+	 * @param array        $headers Additional HTTP headers.
+	 * @param array        $files Map with names and filepaths.
+	 * @param array        $args Additional request args.
 	 *
 	 * @return array|WP_Error Request response.
 	 */
@@ -389,11 +426,11 @@ class Backend {
 	/**
 	 * Performs a PATCH HTTP request to the backend.
 	 *
-	 * @param string $endpoint Target backend endpoint as relative path.
-	 * @param array  $params URL query params.
-	 * @param array  $headers Additional HTTP headers.
-	 * @param array  $files Map with names and filepaths.
-	 * @param array  $args Additional request args.
+	 * @param string       $endpoint Target backend endpoint as relative path.
+	 * @param array|string $data Request body data.
+	 * @param array        $headers Additional HTTP headers.
+	 * @param array        $files Map with names and filepaths.
+	 * @param array        $args Additional request args.
 	 *
 	 * @return array|WP_Error Request response.
 	 */
@@ -433,6 +470,14 @@ class Backend {
 		return http_bridge_delete( $url, $params, $headers, $args );
 	}
 
+	/**
+	 * Returns a new backend instance as a patch of the current and the
+	 * input partial data.
+	 *
+	 * @param array $partial Partial backend data.
+	 *
+	 * @return Backend
+	 */
 	public function clone( $partial = array() ) {
 		if ( ! $this->is_valid ) {
 			return $this;
@@ -442,11 +487,81 @@ class Backend {
 		return new static( $data );
 	}
 
+	/**
+	 * Credential's data getter.
+	 *
+	 * @return array|null
+	 */
 	public function data() {
 		if ( ! $this->is_valid ) {
 			return;
 		}
 
 		return $this->data;
+	}
+
+	/**
+	 * Persist the backend on the database.
+	 *
+	 * @return boolean Database write result.
+	 */
+	public function save() {
+		if ( ! $this->is_valid ) {
+			return false;
+		}
+
+		$setting = Http_Setting::setting();
+		if ( ! $setting ) {
+			return false;
+		}
+
+		$backends = $setting->backends;
+		if ( ! wp_is_numeric_array( $backends ) ) {
+			return false;
+		}
+
+		$index = array_search( $this->name, array_column( $backends, 'name' ), true );
+
+		if ( false === $index ) {
+			$backends[] = $this->data;
+		} else {
+			$backends[ $index ] = $this->data;
+		}
+
+		$setting->backends = $backends;
+
+		return true;
+	}
+
+	/**
+	 * Removes the backend from the database.
+	 *
+	 * @retun boolean Database deletion result.
+	 */
+	public function remove() {
+		if ( $this->is_valid ) {
+			return false;
+		}
+
+		$setting = Http_Setting::setting();
+		if ( ! $setting ) {
+			return false;
+		}
+
+		$backends = $setting->backends;
+		if ( ! wp_is_numeric_array( $backends ) ) {
+			return false;
+		}
+
+		$index = array_search( $this->name, array_column( $backends, 'name' ), true );
+
+		if ( false === $index ) {
+			return false;
+		}
+
+		array_splice( $backends, $index, 1 );
+		$setting->backends = $backends;
+
+		return true;
 	}
 }

@@ -1,28 +1,40 @@
 <?php
+/**
+ * Class Http_Setting
+ *
+ * @package httpbridge
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 namespace HTTP_BRIDGE;
 
-use Exception;
-use HTTP_BRIDGE\Backend;
-use HTTP_BRIDGE\Credential;
+use WPCT_PLUGIN\Singleton;
+use WPCT_PLUGIN\Settings_Store;
+
+use TypeError;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
 }
 
-class Http_Setting {
+/**
+ * HTTP setting to be registered on the plugins store.
+ */
+class Http_Setting extends Singleton {
 	/**
 	 * Handles the plugin store instance.
 	 *
 	 * @var Settings_Store
 	 */
-	private $store;
+	private static $store;
 
 	/**
 	 * Http setting schema getter.
 	 *
 	 * @return array Json schema.
-     */
+	 */
 	public static function schema() {
 		return array(
 			'name'       => 'http',
@@ -49,11 +61,25 @@ class Http_Setting {
 	/**
 	 * Public class initializator.
 	 *
-	 * @param Setting_Store Publin's store instance.
+	 * @param Settings_Store $store Publin's store instance.
 	 */
 	public static function register( $store ) {
-		(new Http_Setting())->bind_store( $store );
+		self::get_instance( $store );
 	}
+
+	/**
+	 * Setting instance getter.
+	 *
+	 * @return Settings_Store|null
+	 */
+	public static function setting() {
+		if ( ! self::$store ) {
+			return;
+		}
+
+		return self::$store::setting( 'http' );
+	}
+
 	/**
 	 * Setting sanitization.
 	 *
@@ -92,18 +118,22 @@ class Http_Setting {
 	 * Class constructor. Stores the store instance and registers the
 	 * http setting to it.
 	 *
-	 * @param Settings_Store Plugin's store instance.
+	 * @param array{0: Settings_Store} ...$args Constructor arguments with a store on its
+	 *                                          first position.
+	 *
+	 * @throws TypeError If $store is null.
 	 */
-	private function bind_store( $store )
-	{
-		if ( ! $store ) {
-			throw new Exception();
+	protected function construct( ...$args ) {
+		$store = $args[0] ?? null;
+
+		if ( ! ( $store instanceof Settings_Store ) ) {
+			throw new TypeError();
 		}
 
-		$this->store = $store;
-		$this->store::register_setting( self::schema() );
+		self::$store = $store;
+		self::$store::register_setting( self::schema() );
 
-		$this->store::ready(
+		self::$store::ready(
 			static function ( $store ) {
 				$store::use_setter(
 					'http',
@@ -123,7 +153,7 @@ class Http_Setting {
 	/**
 	 * Backends public filter callback.
 	 *
-	 * @param Backend[] Array of backend instances. .
+	 * @param Backend[] $backends Array of backend instances.
 	 *
 	 * @return Backend[]
 	 */
@@ -132,14 +162,18 @@ class Http_Setting {
 			$backends = array();
 		}
 
-		$setting = $this->store::setting( 'http' );
+		if ( ! self::$store ) {
+			return $backends;
+		}
+
+		$setting = self::$store::setting( 'http' );
 
 		if ( ! $setting ) {
 			return $backends;
 		}
 
 		foreach ( $setting->backends ?: array() as $data ) {
-			$backends[] = new Backend( $data );
+			$backends[] = new Backend( $data, $setting );
 		}
 
 		return $backends;
@@ -148,23 +182,27 @@ class Http_Setting {
 	/**
 	 * Credentials public filter callback.
 	 *
-	 * @param Credential[] Array of credential instances.
+	 * @param Credential[] $credentials Array of credential instances.
 	 *
 	 * @return Credential[]
 	 */
-	function get_credentials( $credentials ) {
+	public function get_credentials( $credentials ) {
 		if ( ! wp_is_numeric_array( $credentials ) ) {
 			$credentials = array();
 		}
 
-		$setting = $this->store::setting( 'http' );
+		if ( ! self::$store ) {
+			return $credentials;
+		}
+
+		$setting = self::$store::setting( 'http' );
 
 		if ( ! $setting ) {
 			return $credentials;
 		}
 
 		foreach ( $setting->credentials ?: array() as $data ) {
-			$credentials[] = new Credential( $data );
+			$credentials[] = new Credential( $data, $setting );
 		}
 
 		return $credentials;
