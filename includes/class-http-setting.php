@@ -131,7 +131,14 @@ class Http_Setting extends Singleton {
 		}
 
 		self::$store = $store;
-		self::$store::register_setting( self::schema() );
+
+		add_action(
+			'init',
+			static function () {
+				self::$store::register_setting( self::schema() );
+			},
+			5
+		);
 
 		self::$store::ready(
 			static function ( $store ) {
