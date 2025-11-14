@@ -654,9 +654,18 @@ class Credential {
 			if ( ! $result ) {
 				return new WP_Error( 'internal_server_error' );
 			}
+		} else {
+			$result = $this->update_tokens(
+				array(
+					'access_token'             => '',
+					'refresh_token'            => '',
+					'expires_at'               => 0,
+					'refresh_token_expires_at' => 0,
+				)
+			);
 		}
 
-		return true;
+		return $result;
 	}
 
 	public function oauth_grant_transient() {
