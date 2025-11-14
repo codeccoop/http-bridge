@@ -462,10 +462,14 @@ class Credential {
 					$this->client_secret,
 				);
 			case 'Bearer':
-				return 'Bearer ' . $this->get_access_token();
+				$access_token = $this->get_access_token();
+				if ( ! $access_token ) {
+					return;
+				}
+
+				return 'Bearer ' . $access_token;
 			case 'Basic':
-				return 'Basic ' .
-					base64_encode( "{$this->client_id}:{$this->client_secret}" );
+				return 'Basic ' . base64_encode( "{$this->client_id}:{$this->client_secret}" );
 			case 'Token':
 				return "token {$this->client_id}:{$this->client_secret}";
 			case 'URL':
@@ -605,6 +609,10 @@ class Credential {
 				'refresh_token' => $this->data['refresh_token'],
 			)
 		);
+
+		if ( is_wp_error( $tokens ) ) {
+			return;
+		}
 
 		if ( $this->update_tokens( $tokens ) ) {
 			return $tokens['access_token'];
