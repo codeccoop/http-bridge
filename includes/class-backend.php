@@ -266,6 +266,8 @@ class Backend {
 	 * Http response handler. Intercepts digest unauthrized errors
 	 * and performs the corresponding handshake.
 	 *
+	 * @param array|WP_Error $response_or_error Request response.
+	 *
 	 * @return WP_Error|array
 	 */
 	private function handle_response( $response_or_error ) {
