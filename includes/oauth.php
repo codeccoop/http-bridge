@@ -56,7 +56,7 @@ function http_bridge_oauth_rest_api_init() {
 /**
  * OAuth grant request callback.
  *
- * @param REST_Request $request Request object.
+ * @param WP_REST_Request $request Request object.
  *
  * @return array|WP_Error
  */

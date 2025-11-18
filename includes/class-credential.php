@@ -690,7 +690,7 @@ class Credential {
 	 * a transient credential on the authorization flow after a redirection
 	 * to the oauth endpoint.
 	 *
-	 * @param REST_Request $request Request object.
+	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return boolean
 	 */
