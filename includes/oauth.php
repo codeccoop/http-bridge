@@ -65,11 +65,15 @@ function http_bridge_oauth_grant( $request ) {
 	$credential = new Credential( $data );
 	$result     = $credential->oauth_grant_transient();
 
-	if ( ! $result ) {
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	if ( ! $result['success'] ) {
 		return new WP_Error( 'rest_bad_request', '', array( 'status' => 400 ) );
 	}
 
-	return array( 'success' => true );
+	return $result;
 }
 
 /**

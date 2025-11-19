@@ -575,7 +575,7 @@ class Credential {
 	 *
 	 * @return boolean Update result.
 	 */
-	private function update_tokens( $tokens ) {
+	public function update_tokens( $tokens ) {
 		$data                 = $this->data;
 		$data['enabled']      = true;
 		$data['access_token'] = $tokens['access_token'];
@@ -589,6 +589,12 @@ class Credential {
 			}
 		}
 
+		$data = apply_filters(
+			'http_bridge_oauth_update_tokens',
+			$data,
+			$this,
+		);
+
 		$credential = new static( $data );
 		return $credential->save();
 	}
@@ -601,6 +607,16 @@ class Credential {
 	private function refresh_access_token() {
 		if ( ! $this->is_valid || empty( $this->data['refresh_token'] ) ) {
 			return;
+		}
+
+		$pre = apply_filters(
+			'http_bridge_pre_refresh_access_token',
+			null,
+			$this,
+		);
+
+		if ( $pre ) {
+			return $pre;
 		}
 
 		$tokens = $this->oauth_token_request(
@@ -656,6 +672,16 @@ class Credential {
 			return false;
 		}
 
+		$pre = apply_filters(
+			'http_bridge_pre_oauth_revoke',
+			null,
+			$this,
+		);
+
+		if ( null !== $pre ) {
+			return $pre;
+		}
+
 		if ( ! empty( $this->data['refresh_token'] ) ) {
 			$result = $this->revoke_refresh_token();
 
@@ -676,13 +702,22 @@ class Credential {
 		return $result;
 	}
 
+	/**
+	 * Stores the credential data as the oauth transient for 10 minutes.
+	 *
+	 * @return array|WP_Error;
+	 */
 	public function oauth_grant_transient() {
 		if ( ! $this->is_valid ) {
 			return new WP_Error( 'invalid_credential' );
 		}
 
-		set_transient( static::TRANSIENT, $this->data, 600 );
-		return true;
+		$success = set_transient( static::TRANSIENT, $this->data, 600 );
+
+		return array(
+			'success'      => $success,
+			'redirect_url' => $this->oauth_url( 'auth' ),
+		);
 	}
 
 	/**
@@ -697,6 +732,17 @@ class Credential {
 	public function oauth_redirect_callback( $request ) {
 		if ( ! $this->is_valid ) {
 			return false;
+		}
+
+		$pre = apply_filters(
+			'http_bridge_pre_oauth_redirect',
+			null,
+			$this,
+			$request,
+		);
+
+		if ( null !== $pre ) {
+			return $pre;
 		}
 
 		$tokens = $this->oauth_token_request(
