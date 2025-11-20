@@ -44,6 +44,14 @@ class Multipart {
 	 */
 	private $mime_boundary;
 
+	/**
+	 * Returns a multipart object from an array of data.
+	 *
+	 * @param array       $data Payload.
+	 * @param string|null $boundary Optiona, multipart boundary.
+	 *
+	 * @return Multipart|null
+	 */
 	public static function from( $data, $boundary = null ) {
 		try {
 			return new Multipart( $data, $boundary );
@@ -166,21 +174,16 @@ class Multipart {
 	 */
 	public function add_file( $key, $filename, $type, $content = null ) {
 		$this->add_part_header();
-		$this->data .=
-			'Content-Disposition: form-data; name="' .
-			$key .
-			'"; filename="' .
-			basename( $filename ) .
-			'"' .
-			self::EOL;
+		$this->data .= 'Content-Disposition: form-data; name="' . $key . '"; filename="' . basename( $filename ) . '"' . self::EOL;
+
 		$this->data .= 'Content-Type: ' . $type . self::EOL;
-		$this->data .= 'Content-Transfer-Encoding: binary' . self::EOL;
 		$this->data .= self::EOL;
+
 		if ( ! $content ) {
-			$this->data .= file_get_contents( $filename ) . self::EOL;
-		} else {
-			$this->data .= $content . self::EOL;
+			$content = file_get_contents( $filename );
 		}
+
+		$this->data .= $content . self::EOL;
 	}
 
 	/**
@@ -189,7 +192,7 @@ class Multipart {
 	 * @return string Mime content type.
 	 */
 	public function content_type() {
-		return 'multipart/form-data; boundary=' . $this->mime_boundary;
+		return 'multipart/form-data; boundary=------' . $this->mime_boundary;
 	}
 
 	/**
@@ -198,7 +201,7 @@ class Multipart {
 	 * @return string Content data.
 	 */
 	public function data() {
-		return $this->data .= '--------' . $this->mime_boundary . '--' . self::EOL . self::EOL;
+		return $this->data .= '--------' . $this->mime_boundary . '--' . self::EOL;
 	}
 
 	/**
@@ -223,16 +226,7 @@ class Multipart {
 				continue;
 			}
 
-			if (
-				preg_match(
-					'/^--+' .
-						$this->mime_boundary .
-						'-*' .
-						self::EOL_RE .
-						'?/',
-					$line
-				)
-			) {
+			if ( preg_match( '/^--+' . $this->mime_boundary . '-*' . self::EOL_RE . '?/', $line ) ) {
 				if ( $name ) {
 					if ( $filename && null === $content_type ) {
 						$content_type = 'application/octet-stream';
@@ -256,10 +250,7 @@ class Multipart {
 				$value .= $line . self::EOL;
 			}
 
-			if (
-				null === $name &&
-				preg_match( '/name="((?:.(?!"))+.)"/', $line, $match )
-			) {
+			if ( null === $name && preg_match( '/name="((?:.(?!"))+.)"/', $line, $match ) ) {
 				$name = $match[1];
 
 				if ( preg_match( '/filename="((?:.(?!"))+.)"/', $line, $match ) ) {
