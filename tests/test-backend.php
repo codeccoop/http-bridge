@@ -87,14 +87,24 @@ class BackendTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Set up test hooks.
+	 */
 	public function set_up() {
-		add_filter( 'http_bridge_backends', array( self::class, 'provider' ), 10, 0 );
-		add_filter( 'pre_http_request', array( self::class, 'pre_http_request' ), 10, 3 );
+		parent::set_up();
+
+		tests_add_filter( 'http_bridge_backends', array( self::class, 'provider' ), 10, 0 );
+		tests_add_filter( 'pre_http_request', array( self::class, 'pre_http_request' ), 10, 3 );
 	}
 
+	/**
+	 * Tear down test hooks.
+	 */
 	public function tear_down() {
 		remove_filter( 'http_bridge_backends', array( self::class, 'provider' ), 10, 0 );
 		remove_filter( 'pre_http_request', array( self::class, 'pre_http_request' ), 10, 3 );
+
+		parent::tear_down();
 	}
 
 	public function test_hook() {

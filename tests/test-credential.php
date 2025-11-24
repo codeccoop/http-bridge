@@ -108,6 +108,8 @@ class CredentialTest extends WP_UnitTestCase {
 	}
 
 	public function set_up() {
+		parent::set_up();
+
 		add_filter( 'http_bridge_credentials', array( self::class, 'provider' ), 10, 0 );
 		add_filter( 'pre_http_request', array( self::class, 'pre_http_request' ), 10, 3 );
 	}
@@ -115,6 +117,8 @@ class CredentialTest extends WP_UnitTestCase {
 	public function tear_down() {
 		remove_filter( 'http_bridge_credentials', array( self::class, 'provider' ), 10, 0 );
 		remove_filter( 'pre_http_request', array( self::class, 'pre_http_request' ), 10, 3 );
+
+		parent::tear_down();
 	}
 
 	public function test_hook() {
