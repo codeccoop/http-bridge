@@ -645,7 +645,7 @@ class Credential {
 			return;
 		}
 
-		$access_token = $this->data['access_token'];
+		$access_token = $this->data['access_token'] ?? null;
 		if ( ! $access_token ) {
 			return;
 		}
