@@ -30,6 +30,13 @@ class Credential {
 	private const TRANSIENT = 'http-bridge-oauth-credential';
 
 	/**
+	 * Handles the oauth nonce name.
+	 *
+	 * @var string
+	 */
+	private const OAUTH_NONCE = 'http-bridge-oauth-nonce';
+
+	/**
 	 * Credential json schema getter.
 	 *
 	 * @return array
@@ -44,42 +51,23 @@ class Credential {
 					'type'                 => 'object',
 					'properties'           => array(
 						'name'          => array(
-							'title'       => _x(
-								'Name',
-								'Credential schema',
-								'http-bridge'
-							),
-							'description' => __(
-								'Unique name of the credential',
-								'http-bridge'
-							),
+							'title'       => _x( 'Name', 'Credential schema', 'http-bridge' ),
+							'description' => __( 'Unique name of the credential', 'http-bridge' ),
 							'type'        => 'string',
 							'minLength'   => 1,
 						),
 						'schema'        => array(
-							'title'   => _x(
-								'Schema',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title'   => _x( 'Schema', 'Credential schema', 'http-bridge' ),
 							'type'    => 'string',
 							'enum'    => array( 'Basic', 'Token', 'URL' ),
 							'default' => 'Basic',
 						),
 						'client_id'     => array(
-							'title' => _x(
-								'Client ID',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Client ID', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'client_secret' => array(
-							'title' => _x(
-								'Client secret',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Client secret', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 					),
@@ -96,49 +84,26 @@ class Credential {
 					'type'                 => 'object',
 					'properties'           => array(
 						'name'          => array(
-							'title'       => _x(
-								'Name',
-								'Credential schema',
-								'http-bridge'
-							),
-							'description' => __(
-								'Unique name of the credential',
-								'http-bridge'
-							),
+							'title'       => _x( 'Name', 'Credential schema', 'http-bridge' ),
+							'description' => __( 'Unique name of the credential', 'http-bridge' ),
 							'type'        => 'string',
 							'minLength'   => 1,
 						),
 						'schema'        => array(
-							'title' => _x(
-								'Schema',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Schema', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 							'enum'  => array( 'Digest' ),
 						),
 						'client_id'     => array(
-							'title' => _x(
-								'Client ID',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Client ID', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'client_secret' => array(
-							'title' => _x(
-								'Client secret',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Client secret', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'realm'         => array(
-							'title' => _x(
-								'Realm',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Realm', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 					),
@@ -156,49 +121,26 @@ class Credential {
 					'type'                 => 'object',
 					'properties'           => array(
 						'name'          => array(
-							'title'       => _x(
-								'Name',
-								'Credential schema',
-								'http-bridge'
-							),
-							'description' => __(
-								'Unique name of the credential',
-								'http-bridge'
-							),
+							'title'       => _x( 'Name', 'Credential schema', 'http-bridge' ),
+							'description' => __( 'Unique name of the credential', 'http-bridge' ),
 							'type'        => 'string',
 							'minLength'   => 1,
 						),
 						'schema'        => array(
-							'title' => _x(
-								'Schema',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Schema', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 							'enum'  => array( 'RPC' ),
 						),
 						'client_id'     => array(
-							'title' => _x(
-								'User login',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'User login', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'client_secret' => array(
-							'title' => _x(
-								'Password',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Password', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'database'      => array(
-							'title' => _x(
-								'Database',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Database', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 					),
@@ -215,99 +157,90 @@ class Credential {
 					'title'                => 'bearer-credential',
 					'type'                 => 'object',
 					'properties'           => array(
+						'name'         => array(
+							'title'       => _x( 'Name', 'Credential schema', 'http-bridge' ),
+							'description' => __( 'Unique name of the credential', 'http-bridge' ),
+							'type'        => 'string',
+							'minLength'   => 1,
+						),
+						'schema'       => array(
+							'title' => _x( 'Schema', 'Credential schema', 'http-bridge' ),
+							'type'  => 'string',
+							'enum'  => array( 'Bearer' ),
+						),
+						'access_token' => array(
+							'title' => _x( 'Acces token', 'Credential schema', 'http-bridge' ),
+							'type'  => 'string',
+						),
+						'expires_at'   => array(
+							'title'   => _x( 'Expires at', 'Credential schema', 'http-bridge' ),
+							'type'    => 'integer',
+							'default' => time() + 60 * 60 * 24 * 365 * 100,
+						),
+					),
+					'required'             => array( 'name', 'schema', 'access_token', 'expires_at' ),
+					'additionalProperties' => false,
+				),
+				array(
+					'title'                => 'oauth-credential',
+					'type'                 => 'object',
+					'properties'           => array(
 						'name'                     => array(
-							'title'       => _x(
-								'Name',
-								'Credential schema',
-								'http-bridge'
-							),
-							'description' => __(
-								'Unique name of the credential',
-								'http-bridge'
-							),
+							'title'       => _x( 'Name', 'Credential schema', 'http-bridge' ),
+							'description' => __( 'Unique name of the credential', 'http-bridge' ),
 							'type'        => 'string',
 							'minLength'   => 1,
 						),
 						'schema'                   => array(
-							'title' => _x(
-								'Schema',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Schema', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
-							'enum'  => array( 'Bearer' ),
+							'enum'  => array( 'OAuth' ),
 						),
 						'oauth_url'                => array(
-							'title'  => _x(
-								'Authorization URL',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title'  => _x( 'Authorization URL', 'Credential schema', 'http-bridge' ),
 							'type'   => 'string',
 							'format' => 'uri',
 						),
 						'client_id'                => array(
-							'title' => _x(
-								'Client ID',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Client ID', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'client_secret'            => array(
-							'title' => _x(
-								'Client secret',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Client secret', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'scope'                    => array(
-							'title' => _x(
-								'Scope',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title' => _x( 'Scope', 'Credential schema', 'http-bridge' ),
 							'type'  => 'string',
 						),
 						'access_token'             => array(
-							'title'   => _x(
-								'Access token',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title'   => _x( 'Access token', 'Credential schema', 'http-bridge' ),
 							'type'    => 'string',
 							'default' => '',
 							'public'  => false,
 						),
 						'expires_at'               => array(
-							'title'   => _x(
-								'Expires at',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title'   => _x( 'Expires at', 'Credential schema', 'http-bridge' ),
 							'type'    => 'integer',
 							'default' => 0,
 							'public'  => false,
 						),
 						'refresh_token'            => array(
-							'title'   => _x(
-								'Refresh token',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title'   => _x( 'Refresh token', 'Credential schema', 'http-bridge' ),
 							'type'    => 'string',
 							'default' => '',
 							'public'  => false,
 						),
 						'refresh_token_expires_at' => array(
-							'title'   => _x(
-								'Refresh token expires at',
-								'Credential schema',
-								'http-bridge'
-							),
+							'title'   => _x( 'Refresh token expires at', 'Credential schema', 'http-bridge' ),
 							'type'    => 'integer',
 							'default' => 0,
+							'public'  => false,
+						),
+						'pkce'                     => array(
+							'title'   => _x( 'PKCE compliant', 'Credential schema', 'http-bridge' ),
+							'type'    => 'boolean',
+							'default' => false,
 							'public'  => false,
 						),
 					),
@@ -462,6 +395,7 @@ class Credential {
 					$this->client_secret,
 				);
 			case 'Bearer':
+			case 'OAuth':
 				$access_token = $this->get_access_token();
 				if ( ! $access_token ) {
 					return;
@@ -518,9 +452,7 @@ class Credential {
 		$response = http_bridge_post(
 			$url,
 			$query,
-			array(
-				'Content-Type' => 'application/x-www-form-urlencoded',
-			)
+			array( 'Content-Type' => 'application/x-www-form-urlencoded' )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -605,7 +537,15 @@ class Credential {
 	 * @return string|null Renewed access token, or null.
 	 */
 	private function refresh_access_token() {
-		if ( ! $this->is_valid || empty( $this->data['refresh_token'] ) ) {
+		if ( ! $this->is_valid ) {
+			return;
+		}
+
+		if ( 'Bearer' === $this->data['schema'] ) {
+			return $this->data['access_token'] ?? null;
+		}
+
+		if ( empty( $this->data['refresh_token'] ) ) {
 			return;
 		}
 
@@ -712,11 +652,50 @@ class Credential {
 			return new WP_Error( 'invalid_credential' );
 		}
 
-		$success = set_transient( static::TRANSIENT, $this->data, 600 );
+		$auth_url = $this->oauth_url( 'auth' );
+
+		$data         = $this->data;
+		$data['pkce'] = (bool) apply_filters( 'http_bridge_oauth_use_pkce', false, $auth_url, $this );
+
+		$success = set_transient( static::TRANSIENT, $data, 600 );
+		if ( ! $success ) {
+			return array( 'success' => $success );
+		}
+
+		$oauth_nonce = $this->oauth_nonce();
+
+		$params = array(
+			'redirect_uri'  => $this->oauth_redirect_uri(),
+			'client_id'     => $this->client_id,
+			'access_type'   => 'offline',
+			'response_type' => 'code',
+			'state'         => self::OAUTH_NONCE . '-' . $oauth_nonce,
+		);
+
+		if ( $this->scope ) {
+			$params['scope'] = $this->scope;
+		}
+
+		if ( $data['pkce'] ) {
+			$code_verifier                   = substr( wp_hash( $oauth_nonce, 'auth', 'sha256' ), 0, 128 );
+			$code_challenge                  = wp_hash( $code_verifier, 'auth', 'sha256' );
+			$params['code_challenge']        = rtrim( strtr( base64_encode( $code_challenge ), '+/', '-_' ), '=' );
+			$params['code_challenge_method'] = 'S256';
+		}
+
+		$params = apply_filters(
+			'http_bridge_oauth_auth_request_params',
+			$params,
+			$auth_url,
+			$this,
+		);
 
 		return array(
-			'success'      => $success,
-			'redirect_url' => $this->oauth_url( 'auth' ),
+			'success' => $success,
+			'data'    => array(
+				'url'    => $auth_url,
+				'params' => $params,
+			),
 		);
 	}
 
@@ -745,20 +724,62 @@ class Credential {
 			return $pre;
 		}
 
-		$tokens = $this->oauth_token_request(
-			array(
-				'grant_type'   => 'authorization_code',
-				'code'         => $request['code'],
-				'redirect_uri' => $this->oauth_redirect_uri(),
-			)
+		if ( false && ( $request['error'] || isset( $_REQUEST['error'] ) ) ) {
+			return false;
+		}
+
+		if ( ! empty( $request['state'] ) ) {
+			$nonce = str_replace( self::OAUTH_NONCE . '-', '', $request['state'] );
+			if ( $nonce !== $this->oauth_nonce() ) {
+				return false;
+			}
+		}
+
+		if ( $this->pkce ) {
+			if ( empty( $request['code_challenge'] ) ) {
+				return false;
+			}
+
+			$nonce              = $nonce ?? $this->oauth_nonce();
+			$code_verifier      = substr( wp_hash( $nonce, 'auth', 'sha256' ), 0, 128 );
+			$code_challenge     = wp_hash( $code_verifier, 'auth', 'sha256' );
+			$url_code_challenge = rtrim( strtr( base64_encode( $code_challenge ), '+/', '-_' ), '=' );
+
+			if ( $url_code_challenge !== $request['code_challenge'] ) {
+				return false;
+			}
+		}
+
+		$token_req_params = array(
+			'grant_type'   => 'authorization_code',
+			'code'         => $request['code'],
+			'redirect_uri' => $this->oauth_redirect_uri(),
 		);
 
+		if ( $this->pkce ) {
+			$token_req_params['code_verifier'] = $code_verifier;
+		}
+
+		$tokens = $this->oauth_token_request( $token_req_params );
+
 		if ( ! $tokens || is_wp_error( $tokens ) ) {
-			wp_die( esc_html( __( 'Invalid oatuh redirect request', 'http-bridge' ) ) );
 			return false;
 		}
 
 		return $this->update_tokens( $tokens );
+	}
+
+	/**
+	 * Create a nonce for OAuth authorization requests.
+	 *
+	 * @return string
+	 */
+	private function oauth_nonce() {
+		$token  = wp_get_session_token();
+		$action = self::OAUTH_NONCE;
+		$tick   = wp_nonce_tick( $action );
+
+		return substr( wp_hash( $tick . '|' . $action . '|' . $token ), -12, 10 );
 	}
 
 	/**

@@ -59,8 +59,8 @@ class CredentialTest extends WP_UnitTestCase {
 				'database'      => 'foobar',
 			),
 			array(
-				'name'          => 'test-bearer-credential',
-				'schema'        => 'Bearer',
+				'name'          => 'test-oauth-credential',
+				'schema'        => 'OAuth',
 				'client_id'     => 'foo',
 				'client_secret' => 'bar',
 				'scope'         => 'foobar',
@@ -141,6 +141,7 @@ class CredentialTest extends WP_UnitTestCase {
 				'Digest',
 				'RPC',
 				'Bearer',
+				'OAuth',
 			),
 			$schemas,
 		);
@@ -186,6 +187,7 @@ class CredentialTest extends WP_UnitTestCase {
 
 					break;
 				case 'Bearer':
+				case 'OAuth':
 					$this->assertSame( $authorization, 'Bearer ' . $credential->get_access_token() );
 					break;
 				default:
@@ -221,6 +223,7 @@ class CredentialTest extends WP_UnitTestCase {
 			switch ( $credential->schema ) {
 				case 'Basic':
 				case 'Token':
+				case 'OAuth':
 				case 'Bearer':
 					$this->assertTrue( isset( self::$request['args']['headers']['Authorization'] ) );
 					$this->assertSame( $credential->authorization(), self::$request['args']['headers']['Authorization'] );

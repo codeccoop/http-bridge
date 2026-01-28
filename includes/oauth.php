@@ -111,7 +111,7 @@ function http_bridge_oauth_redirect( $request ) {
 
 	$result = $credential->oauth_redirect_callback( $request );
 	if ( ! $result ) {
-		wp_die( esc_html( __( 'Invalid OAuth redirect callback', 'http-bridge' ) ) );
+		wp_die( esc_html( __( 'Invalid OAuth redirect request', 'http-bridge' ) ) );
 		return;
 	}
 
