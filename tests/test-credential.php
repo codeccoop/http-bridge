@@ -59,6 +59,12 @@ class CredentialTest extends WP_UnitTestCase {
 				'database'      => 'foobar',
 			),
 			array(
+				'name'         => 'test-bearer-credential',
+				'schema'       => 'Bearer',
+				'access_token' => 'access-token',
+				'expires_at'   => time() + 3600,
+			),
+			array(
 				'name'          => 'test-oauth-credential',
 				'schema'        => 'OAuth',
 				'client_id'     => 'foo',
