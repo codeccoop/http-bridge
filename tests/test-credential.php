@@ -130,7 +130,7 @@ class CredentialTest extends WP_UnitTestCase {
 	public function test_hook() {
 		$credentials = apply_filters( 'http_bridge_credentials', array() );
 
-		$this->assertEquals( 6, count( $credentials ) );
+		$this->assertEquals( 7, count( $credentials ) );
 
 		$schemas = array_map(
 			function ( $c ) {
