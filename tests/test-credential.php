@@ -59,8 +59,14 @@ class CredentialTest extends WP_UnitTestCase {
 				'database'      => 'foobar',
 			),
 			array(
-				'name'          => 'test-bearer-credential',
-				'schema'        => 'Bearer',
+				'name'         => 'test-bearer-credential',
+				'schema'       => 'Bearer',
+				'access_token' => 'access-token',
+				'expires_at'   => time() + 3600,
+			),
+			array(
+				'name'          => 'test-oauth-credential',
+				'schema'        => 'OAuth',
 				'client_id'     => 'foo',
 				'client_secret' => 'bar',
 				'scope'         => 'foobar',
@@ -124,7 +130,7 @@ class CredentialTest extends WP_UnitTestCase {
 	public function test_hook() {
 		$credentials = apply_filters( 'http_bridge_credentials', array() );
 
-		$this->assertEquals( 6, count( $credentials ) );
+		$this->assertEquals( 7, count( $credentials ) );
 
 		$schemas = array_map(
 			function ( $c ) {
@@ -141,6 +147,7 @@ class CredentialTest extends WP_UnitTestCase {
 				'Digest',
 				'RPC',
 				'Bearer',
+				'OAuth',
 			),
 			$schemas,
 		);
@@ -186,6 +193,7 @@ class CredentialTest extends WP_UnitTestCase {
 
 					break;
 				case 'Bearer':
+				case 'OAuth':
 					$this->assertSame( $authorization, 'Bearer ' . $credential->get_access_token() );
 					break;
 				default:
@@ -221,6 +229,7 @@ class CredentialTest extends WP_UnitTestCase {
 			switch ( $credential->schema ) {
 				case 'Basic':
 				case 'Token':
+				case 'OAuth':
 				case 'Bearer':
 					$this->assertTrue( isset( self::$request['args']['headers']['Authorization'] ) );
 					$this->assertSame( $credential->authorization(), self::$request['args']['headers']['Authorization'] );
