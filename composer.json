@@ -1,5 +1,5 @@
 {
-  "name": "codeccoop/forms-bridge",
+  "name": "codeccoop/http-bridge",
   "scripts": {
     "test": "vendor/bin/phpunit -c phpunit.xml.dist",
     "lint": "vendor/bin/phpcs",
