@@ -306,13 +306,11 @@ class Http_Client {
 			if ( ! ( is_file( $path ) && is_readable( $path ) ) ) {
 				continue;
 			}
-			$filename = basename( $path );
-			$filetype = wp_check_filetype( $filename );
-			if ( ! $filetype['type'] ) {
-				$filetype['type'] = mime_content_type( $path );
-			}
 
-			$multipart->add_file( $name, $path, $filetype['type'] );
+			$filename = basename( $path );
+			$filetype = mime_content_type( $filename ) ?: 'application/octet-stream';
+
+			$multipart->add_file( $name, $path, $filetype );
 		}
 
 		$args['headers']['Content-Type'] = $multipart->content_type();

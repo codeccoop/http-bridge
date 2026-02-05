@@ -213,12 +213,12 @@ class Backend {
 			return;
 		}
 
-		$base_url = preg_replace( '/\/+$/', '', $this->base_url ?? '' );
+		$base_url = rtrim( trim( $this->base_url ?? '' ), '/' );
 
 		$url_parsed = wp_parse_url( $base_url );
 
 		if ( isset( $url_parsed['path'] ) ) {
-			$base_path = preg_replace( '/^\/+/', '', $url_parsed['path'] );
+			$base_path = ltrim( $url_parsed['path'], '/' );
 			$path      = preg_replace(
 				'/^\/*' . preg_quote( $base_path, '/' ) . '/',
 				'',
@@ -248,7 +248,7 @@ class Backend {
 		$query       = $path_parsed['query'] ?? null;
 
 		if ( isset( $path_parsed['path'] ) ) {
-			$path = preg_replace( '/^\/+/', '', $path_parsed['path'] );
+			$path = ltrim( $path_parsed['path'], '/' );
 		} else {
 			$path = '';
 		}
