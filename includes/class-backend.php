@@ -209,10 +209,6 @@ class Backend {
 	 * @return string $url Absolute URL.
 	 */
 	public function url( $path = '' ) {
-		if ( ! $this->is_valid ) {
-			return;
-		}
-
 		$base_url = rtrim( trim( $this->base_url ?? '' ), '/' );
 
 		$url_parsed = wp_parse_url( $base_url );

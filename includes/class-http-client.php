@@ -328,16 +328,6 @@ class Http_Client {
 	 * @return array|WP_Error Response data or error.
 	 */
 	private static function do_request( $url, $args ) {
-		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
-			return new WP_Error(
-				'invalid_url',
-				__( 'Invalid request URL', 'http-bridge' ),
-				array(
-					'url' => $url,
-				)
-			);
-		}
-
 		$args = static::default_args( $args );
 		$url  = static::add_query_str( $url, $args['params'] );
 		unset( $args['params'] );
