@@ -52,13 +52,9 @@ function http_bridge_jwt_rest_api_init() {
  */
 function http_bridge_jwt_authorization() {
 	if ( isset( $_SERVER['HTTP_AUTHORIZATION'] ) ) {
-		$auth_header = sanitize_text_field(
-			wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] )
-		);
+		$auth_header = sanitize_text_field( wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] ) );
 	} elseif ( isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
-		$auth_header = sanitize_text_field(
-			wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] )
-		);
+		$auth_header = sanitize_text_field( wp_unslash( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) );
 	}
 
 	if ( ! isset( $auth_header ) ) {
